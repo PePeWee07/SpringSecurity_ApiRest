@@ -1,0 +1,6 @@
++ CONTROLLER:
+    + V2:
+        - ClienteController_v2.java:
+            ETAG:
+            tener un etag en la respuesta de una API es útil para implementar la caché a nivel del cliente y
+            optimizar el rendimiento de las solicitudes al minimizar la cantidad de datos que se envían a través de la red.
