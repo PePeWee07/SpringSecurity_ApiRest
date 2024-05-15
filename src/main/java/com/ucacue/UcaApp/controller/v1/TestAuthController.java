@@ -3,7 +3,7 @@ package com.ucacue.UcaApp.controller.v1;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/method")
 public class TestAuthController {
 
     @GetMapping("/get")
