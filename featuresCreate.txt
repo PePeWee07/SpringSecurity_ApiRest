@@ -4,3 +4,18 @@
             ETAG:
             tener un etag en la respuesta de una API es útil para implementar la caché a nivel del cliente y
             optimizar el rendimiento de las solicitudes al minimizar la cantidad de datos que se envían a través de la red.
+
+
++ FEATURES:
+    - Boolean : Comprobar q este en el cuerpo antes de enviar la solicitud (POST, PUT)
+    - CRUD: para rolesEntity y permissionEntity (POST, PUT, DELETE, GET)
+    - GET PERSMISSIONS: En la consultas no alcanza a caprutar los permisos q tiene los roles al traer datos usuarios
+
+
+
+
+
+- Manera Avanzada de JWT:
+    - Estos se implementar en el SECURTY FILTER CHAIN
+        - 1: JwtTokenGenerator(new)
+        - 2: JwtTokenValidator

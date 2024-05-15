@@ -25,18 +25,18 @@ public interface UserMapper {
     default UserResponseDto toUserResponseDto(UserEntity userEntity) {
         UserResponseDto dto = new UserResponseDto();
         dto.setId(userEntity.getId());
-        dto.setNombre(userEntity.getNombre());
-        dto.setApellido(userEntity.getApellido());
+        dto.setName(userEntity.getName());
+        dto.setLastName(userEntity.getLastName());
         dto.setEmail(userEntity.getEmail());
-        dto.setTelefono(userEntity.getTelefono());
-        dto.setDireccion(userEntity.getDireccion());
-        dto.setCedula(userEntity.getCedula());
+        dto.setPhoneNumber(userEntity.getPhoneNumber());
+        dto.setAddress(userEntity.getAddress());
+        dto.setDNI(userEntity.getDNI());
         // password no se debe devolver
         dto.setEnabled(userEntity.isEnabled());
         dto.setAccountNoExpired(userEntity.isAccountNoExpired());
         dto.setAccountNoLocked(userEntity.isAccountNoLocked());
         dto.setCredentialNoExpired(userEntity.isCredentialNoExpired());
-        dto.setFechaCreacion(userEntity.getFechaCreacion());
+        dto.setCreationDate(userEntity.getCreationDate());
         List<String> roles = userEntity.getRoles().stream()
                                           .map(RolesEntity::getName)
                                           .collect(Collectors.toList());
@@ -48,18 +48,18 @@ public interface UserMapper {
     default UserEntity toUserEntity(UserRequestDto UserRequestDto, @Context MapperHelper mapperHelper) {
         UserEntity entity = new UserEntity();
         entity.setId(UserRequestDto.getId());
-        entity.setNombre(UserRequestDto.getNombre());
-        entity.setApellido(UserRequestDto.getApellido());
+        entity.setName(UserRequestDto.getName());
+        entity.setLastName(UserRequestDto.getLastName());
         entity.setEmail(UserRequestDto.getEmail());
-        entity.setTelefono(UserRequestDto.getTelefono());
-        entity.setDireccion(UserRequestDto.getDireccion());
-        entity.setCedula(UserRequestDto.getCedula());
+        entity.setPhoneNumber(UserRequestDto.getPhoneNumber());
+        entity.setAddress(UserRequestDto.getAddress());
+        entity.setDNI(UserRequestDto.getDNI());
         entity.setPassword(UserRequestDto.getPassword());
         entity.setEnabled(UserRequestDto.isEnabled());
         entity.setAccountNoExpired(UserRequestDto.isAccountNoExpired());
         entity.setAccountNoLocked(UserRequestDto.isAccountNoLocked());
         entity.setCredentialNoExpired(UserRequestDto.isCredentialNoExpired());
-        entity.setFechaCreacion(UserRequestDto.getFechaCreacion());
+        entity.setCreationDate(UserRequestDto.getCreationDate());
 
         // Ahora pasamos el mapperHelper a rolesIdsToRolesEntities
         Set<RolesEntity> roles = rolesIdsToRolesEntities(UserRequestDto.getRolesIds(), mapperHelper);
@@ -79,18 +79,18 @@ public interface UserMapper {
 
     //void updateEntityFromDto(ClienteRequestDto dto, @MappingTarget UserEntity entity);
     default void updateEntityFromDto(UserRequestDto dto, @MappingTarget UserEntity entity, @Context MapperHelper mapperHelper) {
-        if (dto.getNombre() != null) entity.setNombre(dto.getNombre());
-        if (dto.getApellido() != null) entity.setApellido(dto.getApellido());
+        if (dto.getName() != null) entity.setName(dto.getName());
+        if (dto.getLastName() != null) entity.setLastName(dto.getLastName());
         if (dto.getEmail() != null) entity.setEmail(dto.getEmail());
-        if (dto.getTelefono() != null) entity.setTelefono(dto.getTelefono());
-        if (dto.getDireccion() != null) entity.setDireccion(dto.getDireccion());
-        if (dto.getCedula() != null) entity.setCedula(dto.getCedula());
+        if (dto.getPhoneNumber() != null) entity.setPhoneNumber(dto.getPhoneNumber());
+        if (dto.getAddress() != null) entity.setAddress(dto.getAddress());
+        if (dto.getDNI() != null) entity.setDNI(dto.getDNI());
         if (dto.getPassword() != null) entity.setPassword(dto.getPassword());
         entity.setEnabled(dto.isEnabled());
         entity.setAccountNoExpired(dto.isAccountNoExpired());
         entity.setAccountNoLocked(dto.isAccountNoLocked());
         entity.setCredentialNoExpired(dto.isCredentialNoExpired());
-        if (dto.getFechaCreacion() != null) entity.setFechaCreacion(dto.getFechaCreacion());
+        if (dto.getCreationDate() != null) entity.setCreationDate(dto.getCreationDate());
 
         Set<RolesEntity> roles = rolesIdsToRolesEntities(dto.getRolesIds(), mapperHelper);
         entity.setRoles(roles);

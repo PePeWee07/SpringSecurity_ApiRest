@@ -6,8 +6,6 @@ import lombok.*;
 import java.util.Date;
 import java.util.List;
 
-import jakarta.validation.constraints.*;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,25 +14,17 @@ import jakarta.validation.constraints.*;
 public class UserResponseDto {
     private Long id;
 
-    @Size(min = 1, max = 50, message = "El nombre debe tener entre 1 y 50 caracteres")
-    private String nombre;
+    private String name;
 
-    @Size(min = 1, max = 50, message = "El email debe tener entre 1 y 50 caracteres")
-    private String apellido;
+    private String lastName;
 
-    @Email(message = "Debe ser un correo electrónico válido")
-    @Size(min = 1, max = 50, message = "El email debe tener entre 1 y 50 caracteres")
     private String email;
 
-    @Size(max = 15, message = "El teléfono debe tener un máximo de 15 caracteres")
-    private String telefono;
+    private String phoneNumber;
 
-    @Size(max = 255, message = "La dirección debe tener un máximo de 255 caracteres")
-    private String direccion;
+    private String address;
 
-    @NotNull(message = "La cédula es obligatoria")
-    @Size(min = 1, max = 15, message = "La cédula debe tener un máximo de 10 caracteres")
-    private String cedula;
+    private String DNI;
 
     // PASSWORD NO SE DEBE DEVOLVER
 
@@ -46,7 +36,7 @@ public class UserResponseDto {
     
 	private boolean credentialNoExpired;
 
-    private Date  fechaCreacion;
+    private Date  creationDate;
 
     private List<String> roles;
 

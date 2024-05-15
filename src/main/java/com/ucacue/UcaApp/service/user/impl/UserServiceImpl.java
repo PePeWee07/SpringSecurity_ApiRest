@@ -19,10 +19,10 @@ import com.ucacue.UcaApp.repository.UserRepository;
 import com.ucacue.UcaApp.service.user.UserService;
 import com.ucacue.UcaApp.util.MapperHelper;
 
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.User;
 
 @Service
@@ -37,56 +37,31 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     @Autowired
     private MapperHelper mapperHelper; 
 
-    // @Override
-    // public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-
-    //     UserEntity userEntity = userRepository.findByEmail(email)
-    //         .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
-
-    //     List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
-        
-    //     userEntity.getRoles()
-    //         .forEach(role -> authorityList.add(new SimpleGrantedAuthority("ROLE_".concat(role.getNombre()))));
-
-    //     userEntity.getRoles().stream()
-    //         .flatMap(role -> role.getPermissionList().stream())
-    //         .forEach(permission -> authorityList.add( new SimpleGrantedAuthority(permission.getName())));
-
-    //         return new User(
-    //             userEntity.getEmail(),
-    //             userEntity.getPassword(),
-    //             userEntity.isEnabled(),
-    //             userEntity.isAccountNoExpired(),
-    //             userEntity.isCredentialNoExpired(),
-    //             userEntity.isAccountNoLocked(),
-    //             authorityList
-    //         );
-    // }
-
+    @Transactional(readOnly = true)
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws BadCredentialsException {
 
         UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("El usuario " + email + " no existe."));
+            .orElseThrow(() -> {
+                throw new BadCredentialsException("The user " + email + " does not exist.");
+            });
 
         List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
-
         userEntity.getRoles()
-                .forEach(role -> authorityList.add(new SimpleGrantedAuthority("ROLE_".concat(role.getName()))));
-
+            .forEach(role -> authorityList.add(new SimpleGrantedAuthority("ROLE_".concat(role.getName()))));      
         userEntity.getRoles().stream()
-                .flatMap(role -> role.getPermissionList().stream())
-                .forEach(permission -> authorityList.add(new SimpleGrantedAuthority(permission.getName())));
-
-        User user = new User(userEntity.getEmail(),
-                userEntity.getPassword(),
-                userEntity.isEnabled(),
-                userEntity.isAccountNoExpired(),
-                userEntity.isCredentialNoExpired(),
-                userEntity.isAccountNoLocked(),
-                authorityList);
-        System.out.println("UserDetailServiceImpl.loadUserByUsername: "+user);
-        return user;
+            .flatMap(role -> role.getPermissionList().stream())
+            .forEach(permission -> authorityList.add(new SimpleGrantedAuthority(permission.getName())));
+        
+        return new User(
+            userEntity.getEmail(),
+            userEntity.getPassword(),
+            userEntity.isEnabled(),
+            userEntity.isAccountNoExpired(),
+            userEntity.isCredentialNoExpired(),
+            userEntity.isAccountNoLocked(),
+            authorityList
+        );
     }
 
     @Transactional(readOnly = true)
