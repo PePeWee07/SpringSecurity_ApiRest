@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ucacue.UcaApp.model.dto.auth.AuthCreateUserRequest;
+
 import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
 import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
-
+import com.ucacue.UcaApp.model.dto.cliente.UserRequestDto;
 import com.ucacue.UcaApp.service.user.impl.UserServiceImpl;
 
 @RestController
@@ -23,8 +23,8 @@ public class AuthenticationController {
     private UserServiceImpl userServiceImpl;
 
     @PostMapping("/sign-up")
-    public ResponseEntity<AuthResponse> register(@RequestBody @Valid AuthCreateUserRequest userRequest){
-        return new ResponseEntity<>(userServiceImpl.createUser(userRequest), HttpStatus.CREATED);
+    public ResponseEntity<AuthResponse> register(@RequestBody @Valid UserRequestDto userRequest){
+        return new ResponseEntity<>(userServiceImpl.saveUser(userRequest), HttpStatus.CREATED);
     }
 
     @PostMapping("/log-in")

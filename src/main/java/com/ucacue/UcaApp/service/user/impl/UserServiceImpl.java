@@ -96,7 +96,6 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     }
 
     public AuthResponse createUser(AuthCreateUserRequest authCreateUserRequest) {
-
         String name = authCreateUserRequest.name();
         String lastName = authCreateUserRequest.lastName();
         String username = authCreateUserRequest.email();
@@ -104,7 +103,6 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         String address = authCreateUserRequest.address();
         String dni = authCreateUserRequest.dni();
         String password = authCreateUserRequest.password();
-
         List<String> rolesRequest = authCreateUserRequest.roleRequest().roleListName();
 
         // List<String> rolesRequest = new ArrayList<>();
@@ -139,9 +137,7 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         UserEntity userSaved = userRepository.save(userEntity);
 
         ArrayList<SimpleGrantedAuthority> authorities = new ArrayList<>();
-
         userSaved.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_".concat(role.getName()))));
-
         userSaved.getRoles().stream().flatMap(role -> role.getPermissionList().stream()).forEach(permission -> authorities.add(new SimpleGrantedAuthority(permission.getName())));
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(userSaved.getEmail(), userSaved.getPassword(), authorities);
@@ -195,6 +191,23 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         UserEntity userEntity = userMapper.toUserEntity(userRequestDto, mapperHelper);
         userEntity = userRepository.save(userEntity);
         return userMapper.toUserResponseDto(userEntity);
+    }
+
+    @Transactional
+    @Override
+    public AuthResponse saveUser(UserRequestDto userRequestDto) {
+        UserEntity userEntity = userMapper.toUserEntity(userRequestDto, mapperHelper);
+        userEntity = userRepository.save(userEntity);
+
+        ArrayList<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        userEntity.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_".concat(role.getName()))));
+        userEntity.getRoles().stream().flatMap(role -> role.getPermissionList().stream()).forEach(permission -> authorities.add(new SimpleGrantedAuthority(permission.getName())));
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userEntity.getEmail(), userEntity.getPassword(), authorities);
+        String accessToken = jwtUtils.createToken(authentication);
+
+        AuthResponse authResponse = new AuthResponse(userEntity.getEmail(), "User created successfully", accessToken, true);
+        return authResponse;
     }
 
     @Transactional
