@@ -11,15 +11,12 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ucacue.UcaApp.model.dto.auth.AuthCreateUserRequest;
 import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
 import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
 import com.ucacue.UcaApp.model.dto.cliente.UserRequestDto;
 import com.ucacue.UcaApp.model.dto.cliente.UserResponseDto;
-import com.ucacue.UcaApp.model.entity.RolesEntity;
 import com.ucacue.UcaApp.model.entity.UserEntity;
 import com.ucacue.UcaApp.model.mapper.UserMapper;
-import com.ucacue.UcaApp.repository.RolesRepository;
 import com.ucacue.UcaApp.repository.UserRepository;
 import com.ucacue.UcaApp.service.user.UserService;
 import com.ucacue.UcaApp.util.JwtUtils;
@@ -42,9 +39,6 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     private UserRepository userRepository;
 
     @Autowired
-    private RolesRepository roleRepository;
-
-    @Autowired
     private UserMapper userMapper;
 
     @Autowired
@@ -59,11 +53,8 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     @Transactional(readOnly = true)
     @Override
     public UserDetails loadUserByUsername(String email) throws BadCredentialsException {
-
-        UserEntity userEntity = userRepository.findByEmail(email)
-            .orElseThrow(() -> {
-                throw new BadCredentialsException("The user " + email + " does not exist.");
-            });
+    UserEntity userEntity = userRepository.findByEmail(email)
+        .orElseThrow(() -> new BadCredentialsException(email));
 
         List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
         userEntity.getRoles()
@@ -87,64 +78,11 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         String username = authLoginRequest.username();
         String password = authLoginRequest.password();
 
-        Authentication authentication = this.authenticate(username, password);
+        Authentication authentication = authenticate(username, password);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String accessToken = jwtUtils.createToken(authentication);
         AuthResponse authResponse = new AuthResponse(username, "User loged succesfully", accessToken, true);
-        return authResponse;
-    }
-
-    public AuthResponse createUser(AuthCreateUserRequest authCreateUserRequest) {
-        String name = authCreateUserRequest.name();
-        String lastName = authCreateUserRequest.lastName();
-        String username = authCreateUserRequest.email();
-        String phoneNumber = authCreateUserRequest.phoneNumber();
-        String address = authCreateUserRequest.address();
-        String dni = authCreateUserRequest.dni();
-        String password = authCreateUserRequest.password();
-        List<String> rolesRequest = authCreateUserRequest.roleRequest().roleListName();
-
-        // List<String> rolesRequest = new ArrayList<>();
-        // rolesRequest.add("ADMIN");
-
-        System.out.println("---------ROLES-----: "+rolesRequest);
-
-        Set<RolesEntity> roleEntityList = roleRepository.findByNameIn(rolesRequest).stream().collect(Collectors.toSet());
-
-        System.out.println("---------LISTA DE ROLES-----: "+roleEntityList);
-
-        if (roleEntityList.isEmpty()) {
-            throw new IllegalArgumentException("The roles specified does not exist.");
-        }
-
-        UserEntity userEntity = UserEntity.builder()
-            .name(name)
-            .lastName(lastName)
-            .email(username)
-            .phoneNumber(phoneNumber)
-            .address(address)
-            .DNI(dni)
-            .password(passwordEncoder.encode(password))
-            .isEnabled(true)
-            .accountNoLocked(true)
-            .accountNoExpired(true)
-            .credentialNoExpired(true)
-            .creationDate(new Date())
-            .roles(roleEntityList)
-            .build();
-
-        UserEntity userSaved = userRepository.save(userEntity);
-
-        ArrayList<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        userSaved.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_".concat(role.getName()))));
-        userSaved.getRoles().stream().flatMap(role -> role.getPermissionList().stream()).forEach(permission -> authorities.add(new SimpleGrantedAuthority(permission.getName())));
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userSaved.getEmail(), userSaved.getPassword(), authorities);
-
-        String accessToken = jwtUtils.createToken(authentication);
-
-        AuthResponse authResponse = new AuthResponse(username, "User created successfully", accessToken, true);
         return authResponse;
     }
 
@@ -195,7 +133,7 @@ public class UserServiceImpl implements UserService, UserDetailsService{
 
     @Transactional
     @Override
-    public AuthResponse saveUser(UserRequestDto userRequestDto) {
+    public AuthResponse RegisterUser(UserRequestDto userRequestDto) {
         UserEntity userEntity = userMapper.toUserEntity(userRequestDto, mapperHelper);
         userEntity = userRepository.save(userEntity);
 

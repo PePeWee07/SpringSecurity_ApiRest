@@ -7,15 +7,11 @@
 
 
 + FEATURES:
-    - Boolean : Comprobar q este en el cuerpo antes de enviar la solicitud (POST, PUT)
+    - Caprutar globlalmente el token cuando: 
+        - com.auth0.jwt.exceptions.TokenExpiredException: The Token has expired on 2024-05-17T14:10:29Z.
+        - com.auth0.jwt.exceptions.SignatureVerificationException: The Token's Signature resulted invalid when verified using the Algorithm: HmacSHA256
+        - Unauthorized Token 
+
     - CRUD: para rolesEntity y permissionEntity (POST, PUT, DELETE, GET)
     - GET PERSMISSIONS: En la consultas no alcanza a caprutar los permisos q tiene los roles al traer datos usuarios
 
-
-
-
-
-- Manera Avanzada de JWT:
-    - Estos se implementar en el SECURTY FILTER CHAIN
-        - 1: JwtTokenGenerator(new)
-        - 2: JwtTokenValidator

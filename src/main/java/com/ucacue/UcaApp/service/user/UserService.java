@@ -21,7 +21,7 @@ public interface UserService {
     Optional<UserResponseDto> findByEmail(String email);
 
     UserResponseDto save(UserRequestDto userRequestDto);
-    AuthResponse saveUser(UserRequestDto userRequestDto);
+    AuthResponse RegisterUser(UserRequestDto userRequestDto);
 
     UserResponseDto update(Long id, UserRequestDto userRequestDto);
 
