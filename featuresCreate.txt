@@ -4,3 +4,14 @@
             ETAG:
             tener un etag en la respuesta de una API es útil para implementar la caché a nivel del cliente y
             optimizar el rendimiento de las solicitudes al minimizar la cantidad de datos que se envían a través de la red.
+
+
++ FEATURES:
+    - Caprutar globlalmente el token cuando: 
+        - com.auth0.jwt.exceptions.TokenExpiredException: The Token has expired on 2024-05-17T14:10:29Z.
+        - com.auth0.jwt.exceptions.SignatureVerificationException: The Token's Signature resulted invalid when verified using the Algorithm: HmacSHA256
+        - Unauthorized Token 
+
+    - CRUD: para rolesEntity y permissionEntity (POST, PUT, DELETE, GET)
+    - GET PERSMISSIONS: En la consultas no alcanza a caprutar los permisos q tiene los roles al traer datos usuarios
+

@@ -22,7 +22,7 @@ public class RolesEntity implements Serializable{
     private Long id;
 
     @NotNull
-    @Size(min = 1, max = 50, message = "El nombre del Rol debe tener un máximo 50 caracteres")
+    @Size(min = 1, max = 50, message = "The Role name must be a maximum of 50 characters")
     @Column(length = 50, unique = true, nullable = false)
     private String name;
 

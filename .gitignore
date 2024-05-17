@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Excluir directorio de logs
+src/main/logs/
+*.log

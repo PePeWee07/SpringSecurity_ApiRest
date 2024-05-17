@@ -3,6 +3,7 @@ package com.ucacue.UcaApp.service.user;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
 import com.ucacue.UcaApp.model.dto.cliente.UserRequestDto;
 import com.ucacue.UcaApp.model.dto.cliente.UserResponseDto;
 
@@ -20,6 +21,7 @@ public interface UserService {
     Optional<UserResponseDto> findByEmail(String email);
 
     UserResponseDto save(UserRequestDto userRequestDto);
+    AuthResponse RegisterUser(UserRequestDto userRequestDto);
 
     UserResponseDto update(Long id, UserRequestDto userRequestDto);
 

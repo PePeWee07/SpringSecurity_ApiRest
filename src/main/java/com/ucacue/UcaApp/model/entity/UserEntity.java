@@ -27,53 +27,60 @@ public class UserEntity implements Serializable{
     private Long id;
 
     @NotNull
-    @Size(min = 1, max = 50, message = "El nombre debe tener entre 1 y 50 caracteres")
-    @Column(name = "nombre", length = 50, nullable = false)
-    private String nombre;
+    @Size(min = 1, max = 50, message = "The name must have a maximum of 50 characters")
+    @Column(name = "name", length = 50, nullable = false)
+    private String name;
 
     @NotNull
-    @Size(min = 1, max = 50, message = "El apellido debe tener entre 1 y 50 caracteres")
-    @Column(name = "apellido", length = 50, nullable = false)
-    private String apellido;
+    @Size(min = 1, max = 50, message = "The last name must have a maximum of 50 characters")
+    @Column(name = "lastName", length = 50, nullable = false)
+    private String lastName;
 
     @NotNull
-    @Email(message = "Debe ser un correo electrónico válido")
+    @Email(message = "Must be a valid email")
     @Column(name = "email", length = 100, nullable = false, unique = true)
     private String email;
 
     @NotNull
-    @Size(min = 1, max = 15, message = "El teléfono debe tener un máximo de 15 caracteres")
-    @Column(name = "telefono", length = 15)
-    private String telefono;
+    @Size(min = 1, max = 10, message = "The phone number must have a maximum of 10 characters")
+    @Column(name = "phoneNumber", length = 10)
+    private String phoneNumber;
 
     @NotNull
-    @Size(min = 1, max = 255, message = "La dirección debe tener un máximo de 255 caracteres")
-    @Column(name = "direccion", length = 255)
-    private String direccion;
+    @Size(min = 1, max = 255, message = "The address must be a maximum of 255 characters")
+    @Column(name = "address", length = 255)
+    private String address;
 
-    @NotNull(message = "La cédula es obligatoria")
-    @Size(min = 1, max = 10, message = "La cédula debe tener un máximo de 10 caracteres")
-    @Column(name = "cedula", length = 10, nullable = false, unique = true)
-    private String cedula;
+    @NotNull(message = "The DNI is mandatory")
+    @Size(min = 1, max = 10, message = "The DNI must have a maximum of 10 characters")
+    @Column(name = "DNI", length = 10, nullable = false, unique = true)
+    private String DNI;
 
+    @NotNull
+    @Size(min = 1, max = 150, message = "Password must be a maximum of 150 characters")
+    @Column(name = "password", length = 150, nullable = false)
     private String password;
 
+    @NotNull
     @Column(name = "is_enabled")
     private boolean isEnabled;
 
+    @NotNull
     @Column(name = "account_No_Expired")
     private boolean accountNoExpired;
 
+    @NotNull
     @Column(name = "account_No_Locked")
     private boolean accountNoLocked;
 
+    @NotNull
     @Column(name = "credential_No_Expired")
     private boolean credentialNoExpired;
 
     @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
-    @Column(name = "fechaCreacion", nullable = false)
-    private Date  fechaCreacion;
+    @Column(name = "creationDate", nullable = false)
+    private Date  creationDate;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"),

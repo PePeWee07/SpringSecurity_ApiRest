@@ -11,18 +11,25 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
+import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
 import com.ucacue.UcaApp.model.dto.cliente.UserRequestDto;
 import com.ucacue.UcaApp.model.dto.cliente.UserResponseDto;
 import com.ucacue.UcaApp.model.entity.UserEntity;
 import com.ucacue.UcaApp.model.mapper.UserMapper;
 import com.ucacue.UcaApp.repository.UserRepository;
 import com.ucacue.UcaApp.service.user.UserService;
+import com.ucacue.UcaApp.util.JwtUtils;
 import com.ucacue.UcaApp.util.MapperHelper;
 
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.User;
 
 @Service
@@ -37,56 +44,60 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     @Autowired
     private MapperHelper mapperHelper; 
 
-    // @Override
-    // public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    @Autowired
+    private JwtUtils jwtUtils;
 
-    //     UserEntity userEntity = userRepository.findByEmail(email)
-    //         .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-    //     List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
-        
-    //     userEntity.getRoles()
-    //         .forEach(role -> authorityList.add(new SimpleGrantedAuthority("ROLE_".concat(role.getNombre()))));
-
-    //     userEntity.getRoles().stream()
-    //         .flatMap(role -> role.getPermissionList().stream())
-    //         .forEach(permission -> authorityList.add( new SimpleGrantedAuthority(permission.getName())));
-
-    //         return new User(
-    //             userEntity.getEmail(),
-    //             userEntity.getPassword(),
-    //             userEntity.isEnabled(),
-    //             userEntity.isAccountNoExpired(),
-    //             userEntity.isCredentialNoExpired(),
-    //             userEntity.isAccountNoLocked(),
-    //             authorityList
-    //         );
-    // }
-
+    @Transactional(readOnly = true)
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-
-        UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("El usuario " + email + " no existe."));
+    public UserDetails loadUserByUsername(String email) throws BadCredentialsException {
+    UserEntity userEntity = userRepository.findByEmail(email)
+        .orElseThrow(() -> new BadCredentialsException(email));
 
         List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
-
         userEntity.getRoles()
-                .forEach(role -> authorityList.add(new SimpleGrantedAuthority("ROLE_".concat(role.getName()))));
-
+            .forEach(role -> authorityList.add(new SimpleGrantedAuthority("ROLE_".concat(role.getName()))));      
         userEntity.getRoles().stream()
-                .flatMap(role -> role.getPermissionList().stream())
-                .forEach(permission -> authorityList.add(new SimpleGrantedAuthority(permission.getName())));
+            .flatMap(role -> role.getPermissionList().stream())
+            .forEach(permission -> authorityList.add(new SimpleGrantedAuthority(permission.getName())));
+        
+        return new User(
+            userEntity.getEmail(),
+            userEntity.getPassword(),
+            userEntity.isEnabled(),
+            userEntity.isAccountNoExpired(),
+            userEntity.isCredentialNoExpired(),
+            userEntity.isAccountNoLocked(),
+            authorityList
+        );
+    }
 
-        User user = new User(userEntity.getEmail(),
-                userEntity.getPassword(),
-                userEntity.isEnabled(),
-                userEntity.isAccountNoExpired(),
-                userEntity.isCredentialNoExpired(),
-                userEntity.isAccountNoLocked(),
-                authorityList);
-        System.out.println("UserDetailServiceImpl.loadUserByUsername: "+user);
-        return user;
+    public AuthResponse loginUser(AuthLoginRequest authLoginRequest) {
+        String username = authLoginRequest.username();
+        String password = authLoginRequest.password();
+
+        Authentication authentication = authenticate(username, password);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String accessToken = jwtUtils.createToken(authentication);
+        AuthResponse authResponse = new AuthResponse(username, "User loged succesfully", accessToken, true);
+        return authResponse;
+    }
+
+    public Authentication authenticate(String username, String password) {
+        UserDetails userDetails = this.loadUserByUsername(username);
+
+        if (userDetails == null) {
+            throw new BadCredentialsException(String.format("Invalid username or password"));
+        }
+
+        if (!passwordEncoder.matches(password, userDetails.getPassword())) {
+            throw new BadCredentialsException("Incorrect Password");
+        }
+
+        return new UsernamePasswordAuthenticationToken(username, password, userDetails.getAuthorities());
     }
 
     @Transactional(readOnly = true)
@@ -118,6 +129,23 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         UserEntity userEntity = userMapper.toUserEntity(userRequestDto, mapperHelper);
         userEntity = userRepository.save(userEntity);
         return userMapper.toUserResponseDto(userEntity);
+    }
+
+    @Transactional
+    @Override
+    public AuthResponse RegisterUser(UserRequestDto userRequestDto) {
+        UserEntity userEntity = userMapper.toUserEntity(userRequestDto, mapperHelper);
+        userEntity = userRepository.save(userEntity);
+
+        ArrayList<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        userEntity.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_".concat(role.getName()))));
+        userEntity.getRoles().stream().flatMap(role -> role.getPermissionList().stream()).forEach(permission -> authorities.add(new SimpleGrantedAuthority(permission.getName())));
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userEntity.getEmail(), userEntity.getPassword(), authorities);
+        String accessToken = jwtUtils.createToken(authentication);
+
+        AuthResponse authResponse = new AuthResponse(userEntity.getEmail(), "User created successfully", accessToken, true);
+        return authResponse;
     }
 
     @Transactional
