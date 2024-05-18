@@ -10,7 +10,6 @@ import org.mapstruct.factory.Mappers;
 
 import com.ucacue.UcaApp.model.dto.cliente.UserRequestDto;
 import com.ucacue.UcaApp.model.dto.cliente.UserResponseDto;
-import com.ucacue.UcaApp.model.dto.permission.PermissionResponseDto;
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
 import com.ucacue.UcaApp.model.entity.RolesEntity;
 import com.ucacue.UcaApp.model.entity.UserEntity;
@@ -39,24 +38,10 @@ public interface UserMapper {
         dto.setCredentialNoExpired(userEntity.isCredentialNoExpired());
         dto.setCreationDate(userEntity.getCreationDate());
 
-        List<RoleResponseDto> roleDTOList = userEntity.getRoles().stream().map(role -> {
-            RoleResponseDto roleDTO = new RoleResponseDto();
-            roleDTO.setId(role.getId());
-            roleDTO.setName(role.getName());
-    
-            List<PermissionResponseDto> permissionDTOList = role.getPermissionList().stream()
-                .map(permission -> {
-                    PermissionResponseDto permissionDTO = new PermissionResponseDto();
-                    permissionDTO.setId(permission.getId());
-                    permissionDTO.setName(permission.getName());
-                    return permissionDTO;
-                })
-                .collect(Collectors.toList());
-    
-            roleDTO.setPermissionList(permissionDTOList);
-            return roleDTO;
-        }).collect(Collectors.toList());
-    
+        List<RoleResponseDto> roleDTOList = userEntity.getRoles().stream()
+            .map(RoleMapper.INSTANCE::rolesEntityToRoleResponseDto)
+            .collect(Collectors.toList());
+
         dto.setRoles(roleDTOList);
 
         return dto;
