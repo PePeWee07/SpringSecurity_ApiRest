@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ucacue.UcaApp.exception.RoleNotFoundException;
 import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
-import com.ucacue.UcaApp.model.dto.cliente.UserRequestDto;
+import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
 import com.ucacue.UcaApp.service.user.impl.UserServiceImpl;
 import com.ucacue.UcaApp.web.response.roleNotFound.RoleNotFoundResponse;
 

@@ -8,9 +8,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
-import com.ucacue.UcaApp.model.dto.cliente.UserRequestDto;
-import com.ucacue.UcaApp.model.dto.cliente.UserResponseDto;
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
+import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
+import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 import com.ucacue.UcaApp.model.entity.RolesEntity;
 import com.ucacue.UcaApp.model.entity.UserEntity;
 import com.ucacue.UcaApp.util.MapperHelper;

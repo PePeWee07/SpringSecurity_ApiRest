@@ -8,8 +8,8 @@ import com.ucacue.UcaApp.web.response.ApiResponse;
 import com.ucacue.UcaApp.web.response.roleNotFound.RoleNotFoundResponse;
 import com.ucacue.UcaApp.exception.ResourceNotFound;
 import com.ucacue.UcaApp.exception.RoleNotFoundException;
-import com.ucacue.UcaApp.model.dto.cliente.UserRequestDto;
-import com.ucacue.UcaApp.model.dto.cliente.UserResponseDto;
+import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
+import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

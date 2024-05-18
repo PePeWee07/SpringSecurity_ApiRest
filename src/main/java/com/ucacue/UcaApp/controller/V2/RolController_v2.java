@@ -15,7 +15,7 @@ import com.ucacue.UcaApp.service.rol.RolService;
 
 @RestController
 @RequestMapping("/api/v2")
-public class RolController {
+public class RolController_v2 {
 
     @Autowired
     private RolService rolService;

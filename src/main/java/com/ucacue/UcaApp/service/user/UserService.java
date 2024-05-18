@@ -4,8 +4,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
-import com.ucacue.UcaApp.model.dto.cliente.UserRequestDto;
-import com.ucacue.UcaApp.model.dto.cliente.UserResponseDto;
+import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
+import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 
 import java.util.Optional;
 import java.util.List;

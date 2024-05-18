@@ -13,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
 import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
-import com.ucacue.UcaApp.model.dto.cliente.UserRequestDto;
-import com.ucacue.UcaApp.model.dto.cliente.UserResponseDto;
+import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
+import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 import com.ucacue.UcaApp.model.entity.UserEntity;
 import com.ucacue.UcaApp.model.mapper.UserMapper;
 import com.ucacue.UcaApp.repository.UserRepository;

@@ -1,4 +1,4 @@
-package com.ucacue.UcaApp.model.dto.cliente;
+package com.ucacue.UcaApp.model.dto.user;
 
 
 import lombok.*;
