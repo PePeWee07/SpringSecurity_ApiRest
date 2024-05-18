@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFound.class)
     public ResponseEntity<Map<String, Object>> handleResourceNotFoundException(ResourceNotFound ex) {
         responseGlobalExcp = new HashMap<>();
-        responseGlobalExcp.put("NO FOUND: ", ex.getMessage());
+        responseGlobalExcp.put("NOT FOUND", ex.getMessage());
         return new ResponseEntity<Map<String, Object>>(responseGlobalExcp, HttpStatus.NOT_FOUND);
     }
 

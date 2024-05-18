@@ -16,6 +16,6 @@ public class MapperHelper {
     private RolService rolService;
 
     public RolesEntity mapRoleIdToRolesEntity(Long id) {
-        return rolService.getRoleById(id);
+        return rolService.getMapperHelpRoleById(id);
     }
 }
