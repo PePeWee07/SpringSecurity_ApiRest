@@ -6,6 +6,8 @@ import lombok.*;
 import java.util.Date;
 import java.util.List;
 
+import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -38,6 +40,6 @@ public class UserResponseDto {
 
     private Date  creationDate;
 
-    private List<String> roles;
+    private List<RoleResponseDto> roles;
 
 }

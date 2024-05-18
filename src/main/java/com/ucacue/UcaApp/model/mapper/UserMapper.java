@@ -5,12 +5,13 @@ import java.util.stream.Collectors;
 
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
-//import org.mapstruct.Mapping; // Solo necesitas especificar mapeos customizados para campos que no coinciden
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
 import com.ucacue.UcaApp.model.dto.cliente.UserRequestDto;
 import com.ucacue.UcaApp.model.dto.cliente.UserResponseDto;
+import com.ucacue.UcaApp.model.dto.permission.PermissionResponseDto;
+import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
 import com.ucacue.UcaApp.model.entity.RolesEntity;
 import com.ucacue.UcaApp.model.entity.UserEntity;
 import com.ucacue.UcaApp.util.MapperHelper;
@@ -37,10 +38,27 @@ public interface UserMapper {
         dto.setAccountNoLocked(userEntity.isAccountNoLocked());
         dto.setCredentialNoExpired(userEntity.isCredentialNoExpired());
         dto.setCreationDate(userEntity.getCreationDate());
-        List<String> roles = userEntity.getRoles().stream()
-                                          .map(RolesEntity::getName)
-                                          .collect(Collectors.toList());
-        dto.setRoles(roles);
+
+        List<RoleResponseDto> roleDTOList = userEntity.getRoles().stream().map(role -> {
+            RoleResponseDto roleDTO = new RoleResponseDto();
+            roleDTO.setId(role.getId());
+            roleDTO.setName(role.getName());
+    
+            List<PermissionResponseDto> permissionDTOList = role.getPermissionList().stream()
+                .map(permission -> {
+                    PermissionResponseDto permissionDTO = new PermissionResponseDto();
+                    permissionDTO.setId(permission.getId());
+                    permissionDTO.setName(permission.getName());
+                    return permissionDTO;
+                })
+                .collect(Collectors.toList());
+    
+            roleDTO.setPermissionList(permissionDTOList);
+            return roleDTO;
+        }).collect(Collectors.toList());
+    
+        dto.setRoles(roleDTOList);
+
         return dto;
     }
 
@@ -77,7 +95,6 @@ public interface UserMapper {
                       .collect(Collectors.toSet());
     }
 
-    //void updateEntityFromDto(ClienteRequestDto dto, @MappingTarget UserEntity entity);
     default void updateEntityFromDto(UserRequestDto dto, @MappingTarget UserEntity entity, @Context MapperHelper mapperHelper) {
         if (dto.getName() != null) entity.setName(dto.getName());
         if (dto.getLastName() != null) entity.setLastName(dto.getLastName());

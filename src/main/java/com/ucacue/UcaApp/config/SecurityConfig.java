@@ -42,6 +42,7 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.POST, "/api/v2/**").permitAll();
                     http.requestMatchers(HttpMethod.PUT, "/api/v2/**").permitAll();
                     http.requestMatchers(HttpMethod.GET, "/api/v1/**").permitAll();
+                    http.requestMatchers(HttpMethod.GET, "/api/v2/**").permitAll();
                     http.requestMatchers(HttpMethod.POST, "/auth/**").permitAll();
 
                     // Cofnigurar los endpoints privados
