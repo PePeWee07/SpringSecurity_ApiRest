@@ -16,5 +16,5 @@
         - Unauthorized Token 
 
     - CRUD: para rolesEntity (DELETE)
-    - CRUD: para permissionEntity (POST, PUT, DELETE, GET)
+    - CRUD: para permissionEntity (DELETE) & TEST $ Exceptions
 
