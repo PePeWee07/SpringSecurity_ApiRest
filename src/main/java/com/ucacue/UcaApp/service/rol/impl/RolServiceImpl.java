@@ -50,5 +50,21 @@ public class RolServiceImpl implements RolService{
         rolesEntity = rolesRepository.save(rolesEntity);
         return roleMapper.rolesEntityToRoleResponseDto(rolesEntity);
     }
+
+    @Transactional
+    @Override
+    public RoleResponseDto update(Long id, RoleRequestDto roleRequestDto) {
+        RolesEntity rolesEntity = rolesRepository.findById(id)
+            .orElseThrow(() -> new RoleNotFoundException(id));
+        roleMapper.upddateEntityFromDto(roleRequestDto, rolesEntity, mapperHelper2);
+        rolesEntity = rolesRepository.save(rolesEntity);
+        return roleMapper.rolesEntityToRoleResponseDto(rolesEntity);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public boolean exists(Long id) {
+        return rolesRepository.existsById(id);
+    }
     
 }

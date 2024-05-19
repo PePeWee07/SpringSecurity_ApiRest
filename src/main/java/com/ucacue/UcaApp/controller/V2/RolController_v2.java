@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -66,6 +67,37 @@ public class RolController_v2 {
         }catch (DataAccessException e) {
 			throw e;
 		} catch (Exception e) {
+            Map<String, Object> responseGlobalExcp = new HashMap<>();
+            responseGlobalExcp.put("Internal Server Error: ", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(responseGlobalExcp, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/rol/{id}")
+    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody RoleRequestDto roleRequestDto) {
+        if (!rolService.exists(id)) {
+            throw new ResourceNotFound("Rol not found with ID: " + id);
+        }
+        if (roleRequestDto.getPermissionsIds() == null || roleRequestDto.getPermissionsIds().isEmpty()) {
+            RoleAndPermissionNotFoundResponse response = new RoleAndPermissionNotFoundResponse(
+            HttpStatus.NOT_FOUND.value(),
+            List.of(Map.entry("error", "permissionsIds not found in request")),
+            "Role not found"
+            );
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        try {
+            RoleResponseDto updatedRol = rolService.update(id, roleRequestDto);
+            ApiResponse response = new ApiResponse(HttpStatus.CREATED.value(), updatedRol, "Rol updated successfully");
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        }catch (ConstraintViolationException ex) {
+            throw ex;
+        }catch (PermissionNotFoundException e) {
+            throw e;
+        }catch (DataAccessException e) {
+            throw e;
+        } catch (Exception e) {
             Map<String, Object> responseGlobalExcp = new HashMap<>();
             responseGlobalExcp.put("Internal Server Error: ", e.getMessage());
             return new ResponseEntity<Map<String, Object>>(responseGlobalExcp, HttpStatus.INTERNAL_SERVER_ERROR);

@@ -14,4 +14,8 @@ public interface RolService {
 
     RoleResponseDto save(RoleRequestDto roleRequestDto);
 
+    RoleResponseDto update(Long id, RoleRequestDto roleRequestDto);
+
+    boolean exists(Long id);
+
 } 

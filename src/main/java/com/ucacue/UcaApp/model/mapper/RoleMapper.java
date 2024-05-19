@@ -3,6 +3,7 @@ package com.ucacue.UcaApp.model.mapper;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,7 +24,6 @@ public interface RoleMapper {
 
     default RolesEntity roleRequestDtoToRolesEntity(RoleRequestDto dto, @Context PermissionEntityFetcher permissionEntityFetcher) {
         RolesEntity entity = new RolesEntity();
-        entity.setId(dto.getId());
         entity.setName(dto.getName());
 
         Set<PermissionEntity> permissionEntities = permissionIdsToPermissionEntities(dto.getPermissionsIds(), permissionEntityFetcher);
@@ -37,5 +37,10 @@ public interface RoleMapper {
                       .collect(Collectors.toSet()); 
     }
 
-    List<RoleResponseDto> rolesEntityListToRoleResponseDtoList(List<RolesEntity> entities);
+    default void upddateEntityFromDto(RoleRequestDto dto, @MappingTarget RolesEntity entity, @Context PermissionEntityFetcher permissionEntityFetcher) {
+        if(dto.getName() != null) entity.setName(dto.getName());
+        if(dto.getPermissionsIds() != null) entity.setPermissionList(permissionIdsToPermissionEntities(dto.getPermissionsIds(), permissionEntityFetcher));
+    }
+
+    //List<RoleResponseDto> rolesEntityListToRoleResponseDtoList(List<RolesEntity> entities);
 }
