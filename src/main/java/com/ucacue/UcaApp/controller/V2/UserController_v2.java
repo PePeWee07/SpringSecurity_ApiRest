@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.ucacue.UcaApp.service.user.UserService;
 import com.ucacue.UcaApp.web.response.ApiResponse;
-import com.ucacue.UcaApp.web.response.roleNotFound.RoleNotFoundResponse;
+import com.ucacue.UcaApp.web.response.roleandPermissionNotFound.RoleAndPermissionNotFoundResponse;
 import com.ucacue.UcaApp.exception.ResourceNotFound;
 import com.ucacue.UcaApp.exception.RoleNotFoundException;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
@@ -81,7 +81,7 @@ public class UserController_v2 {
     @PostMapping("/user")
     public ResponseEntity<?> create(@Valid @RequestBody UserRequestDto userRequestDto) {
         if (userRequestDto.getRolesIds() == null || userRequestDto.getRolesIds().isEmpty()) {
-            RoleNotFoundResponse response = new RoleNotFoundResponse(
+            RoleAndPermissionNotFoundResponse response = new RoleAndPermissionNotFoundResponse(
             HttpStatus.NOT_FOUND.value(),
             List.of(Map.entry("error", "rolesIds not found in request")),
             "Role not found"
@@ -113,7 +113,7 @@ public class UserController_v2 {
             throw new ResourceNotFound("User not found with ID: " + id);
         }
         if (userRequestDto.getRolesIds() == null || userRequestDto.getRolesIds().isEmpty()) {
-            RoleNotFoundResponse response = new RoleNotFoundResponse(
+            RoleAndPermissionNotFoundResponse response = new RoleAndPermissionNotFoundResponse(
             HttpStatus.NOT_FOUND.value(),
             List.of(Map.entry("error", "rolesIds not found in request")),
             "Role not found"

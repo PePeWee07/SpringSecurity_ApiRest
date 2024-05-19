@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.dao.DataAccessException;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -12,20 +11,16 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.exceptions.SignatureVerificationException;
-import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.ucacue.UcaApp.web.response.constraintViolation.ConstraintErrorDetail;
 import com.ucacue.UcaApp.web.response.constraintViolation.ConstraintViolationResponse;
 import com.ucacue.UcaApp.web.response.fieldValidation.FieldErrorDetail;
 import com.ucacue.UcaApp.web.response.fieldValidation.FieldValidationResponse;
 import com.ucacue.UcaApp.web.response.keyViolateUnique.KeyViolateDetail;
 import com.ucacue.UcaApp.web.response.keyViolateUnique.KeyViolateUniqueResponse;
-import com.ucacue.UcaApp.web.response.roleNotFound.RoleNotFoundResponse;
+import com.ucacue.UcaApp.web.response.roleandPermissionNotFound.RoleAndPermissionNotFoundResponse;
 
 import jakarta.validation.ConstraintViolationException;
 
@@ -53,11 +48,22 @@ public class GlobalExceptionHandler {
 
     // Metodo para manejar mensajes de error de roles no encontrados
     @ExceptionHandler(RoleNotFoundException.class)
-    public ResponseEntity<RoleNotFoundResponse> handleRoleNotFoundException(RoleNotFoundException ex) {
-        RoleNotFoundResponse response = new RoleNotFoundResponse(
+    public ResponseEntity<RoleAndPermissionNotFoundResponse> handleRoleNotFoundException(RoleNotFoundException ex) {
+        RoleAndPermissionNotFoundResponse response = new RoleAndPermissionNotFoundResponse(
             HttpStatus.NOT_FOUND.value(),
             List.of(Map.entry("error", "Rol ID " + ex.getRoleId()+ " not found")),
             "Role not found"
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+    
+    // Metodo para manejar mensajes de error de permisos no encontrados
+    @ExceptionHandler(PermissionNotFoundException.class)
+    public ResponseEntity<RoleAndPermissionNotFoundResponse> handlePermissionNotFoundException(PermissionNotFoundException ex) {
+        RoleAndPermissionNotFoundResponse response = new RoleAndPermissionNotFoundResponse(
+            HttpStatus.NOT_FOUND.value(),
+            List.of(Map.entry("error", "Permission ID " + ex.getPermissionId()+ " not found")),
+            "Permission not found"
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
@@ -177,37 +183,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
     }
 
-    // @ExceptionHandler(JWTVerificationException.class)
-    // public ResponseEntity<Object> handleJWTVerificationException(JWTVerificationException ex) {
-    //     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("TU TOKENCITO NO FUNCIONA :( " + ex.getMessage());
-    // }
 
-    @ExceptionHandler(value = {JWTVerificationException.class})
-    protected ResponseEntity<Object> handleJWTVerificationException(JWTVerificationException ex, WebRequest request) {
-        String errorMessage = "Error al verificar el token JWT: " + ex.getMessage();
-        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), errorMessage, ex.getClass().getSimpleName());
-        return new ResponseEntity<>(errorResponse, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
-    }
-
-    @ExceptionHandler({SignatureVerificationException.class, TokenExpiredException.class})
-    public ResponseEntity<Object> handleJWTExceptions(Exception ex) {
-        String errorMessage;
-        HttpStatus status;
-
-        if (ex instanceof SignatureVerificationException) {
-            errorMessage = "The Token's Signature resulted invalid";
-            status = HttpStatus.UNAUTHORIZED;
-        } else if (ex instanceof TokenExpiredException) {
-            errorMessage = "The Token has expired";
-            status = HttpStatus.UNAUTHORIZED;
-        } else {
-            errorMessage = "Unexpected error occurred";
-            status = HttpStatus.INTERNAL_SERVER_ERROR;
-        }
-
-        ErrorResponse errorResponse = new ErrorResponse(status.value(), errorMessage, ex.getClass().getSimpleName());
-        return ResponseEntity.status(status).body(errorResponse);
-    }
 
     // Metodo para manejar errores de usuario no encontrado
     @ExceptionHandler(UsernameNotFoundException.class)

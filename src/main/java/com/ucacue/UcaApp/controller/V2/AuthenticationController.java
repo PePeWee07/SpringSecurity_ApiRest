@@ -19,7 +19,7 @@ import com.ucacue.UcaApp.exception.RoleNotFoundException;
 import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
 import com.ucacue.UcaApp.service.user.impl.UserServiceImpl;
-import com.ucacue.UcaApp.web.response.roleNotFound.RoleNotFoundResponse;
+import com.ucacue.UcaApp.web.response.roleandPermissionNotFound.RoleAndPermissionNotFoundResponse;
 
 @RestController
 @RequestMapping("/auth")
@@ -32,7 +32,7 @@ public class AuthenticationController {
     public ResponseEntity<?> register(@RequestBody @Valid UserRequestDto userRequest){
         try {
             if (userRequest.getRolesIds() == null || userRequest.getRolesIds().isEmpty()) {
-                RoleNotFoundResponse response = new RoleNotFoundResponse(
+                RoleAndPermissionNotFoundResponse response = new RoleAndPermissionNotFoundResponse(
                 HttpStatus.NOT_FOUND.value(),
                 List.of(Map.entry("error", "rolesIds not found in request")),
                 "Role not found"

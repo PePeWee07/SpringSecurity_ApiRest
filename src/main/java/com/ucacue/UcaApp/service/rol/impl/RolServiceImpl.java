@@ -15,6 +15,7 @@ import com.ucacue.UcaApp.model.entity.RolesEntity;
 import com.ucacue.UcaApp.model.mapper.RoleMapper;
 import com.ucacue.UcaApp.repository.RolesRepository;
 import com.ucacue.UcaApp.service.rol.RolService;
+import com.ucacue.UcaApp.util.Mapperhelper2;
 
 @Service
 public class RolServiceImpl implements RolService{
@@ -24,6 +25,9 @@ public class RolServiceImpl implements RolService{
 
     @Autowired
     private RolesRepository rolesRepository;
+
+    @Autowired
+    private Mapperhelper2 mapperHelper2; 
 
     @Transactional(readOnly = true)
     @Override
@@ -42,7 +46,7 @@ public class RolServiceImpl implements RolService{
     @Transactional
     @Override
     public RoleResponseDto save(RoleRequestDto roleRequestDto) {
-        RolesEntity rolesEntity = roleMapper.roleRequestDtoToRolesEntity(roleRequestDto);
+        RolesEntity rolesEntity = roleMapper.roleRequestDtoToRolesEntity(roleRequestDto, mapperHelper2);
         rolesEntity = rolesRepository.save(rolesEntity);
         return roleMapper.rolesEntityToRoleResponseDto(rolesEntity);
     }

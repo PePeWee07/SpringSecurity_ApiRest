@@ -1,17 +1,17 @@
-package com.ucacue.UcaApp.web.response.roleNotFound;
+package com.ucacue.UcaApp.web.response.roleandPermissionNotFound;
 
 
 import java.util.List;
 import java.util.Map;
 
-public class RoleNotFoundResponse {
+public class RoleAndPermissionNotFoundResponse {
     private int code;
     private String status;
     private List<Map.Entry<String, String>> errors;
     private String message;
 
     // Constructor for error
-    public RoleNotFoundResponse(int code, List<Map.Entry<String, String>> errors, String message) {
+    public RoleAndPermissionNotFoundResponse(int code, List<Map.Entry<String, String>> errors, String message) {
         this.code = code;
         this.status = "error";
         this.errors = errors;

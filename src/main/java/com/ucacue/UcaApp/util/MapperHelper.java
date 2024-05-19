@@ -1,6 +1,7 @@
 package com.ucacue.UcaApp.util;
 
 import org.springframework.stereotype.Component;
+
 import com.ucacue.UcaApp.model.entity.RolesEntity;
 import com.ucacue.UcaApp.service.rol.RolService;
 

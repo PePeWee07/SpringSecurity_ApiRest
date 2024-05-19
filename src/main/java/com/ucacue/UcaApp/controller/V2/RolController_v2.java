@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ucacue.UcaApp.exception.PermissionNotFoundException;
 import com.ucacue.UcaApp.exception.ResourceNotFound;
-import com.ucacue.UcaApp.exception.RoleNotFoundException;
 import com.ucacue.UcaApp.model.dto.role.RoleRequestDto;
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
 import com.ucacue.UcaApp.service.rol.RolService;
 import com.ucacue.UcaApp.web.response.ApiResponse;
-import com.ucacue.UcaApp.web.response.roleNotFound.RoleNotFoundResponse;
+import com.ucacue.UcaApp.web.response.roleandPermissionNotFound.RoleAndPermissionNotFoundResponse;
 
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
@@ -47,7 +47,7 @@ public class RolController_v2 {
     @PostMapping("/rol")
     public ResponseEntity<?> create(@Valid @RequestBody RoleRequestDto roleRequestDto) {
         if (roleRequestDto.getPermissionsIds() == null || roleRequestDto.getPermissionsIds().isEmpty()) {
-            RoleNotFoundResponse response = new RoleNotFoundResponse(
+            RoleAndPermissionNotFoundResponse response = new RoleAndPermissionNotFoundResponse(
             HttpStatus.NOT_FOUND.value(),
             List.of(Map.entry("error", "permissionsIds not found in request")),
             "Role not found"
@@ -61,7 +61,7 @@ public class RolController_v2 {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         }catch (ConstraintViolationException ex) {
             throw ex;
-        }catch (RoleNotFoundException e) {
+        }catch (PermissionNotFoundException e) {
             throw e;
         }catch (DataAccessException e) {
 			throw e;
