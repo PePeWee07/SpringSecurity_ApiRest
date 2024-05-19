@@ -14,5 +14,6 @@
         - com.auth0.jwt.exceptions.SignatureVerificationException: The Token's Signature resulted invalid when verified using the Algorithm: HmacSHA256
         - Unauthorized Token 
 
-    - CRUD: para rolesEntity y permissionEntity (POST, PUT, DELETE, GET)
+    - CRUD: para rolesEntity (DELETE)
+    - CRUD: para permissionEntity (POST, PUT, DELETE, GET)
 

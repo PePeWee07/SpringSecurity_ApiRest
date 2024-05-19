@@ -8,6 +8,9 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -30,5 +33,6 @@ public class RolesEntity implements Serializable{
     @JoinTable(name = "roles_permissions", joinColumns = @JoinColumn(name = "role_id"),
     inverseJoinColumns = @JoinColumn(name = "permission_id"),
     uniqueConstraints = {@UniqueConstraint(columnNames = {"role_id", "permission_id"})})
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<PermissionEntity> permissionList = new HashSet<>();
 }

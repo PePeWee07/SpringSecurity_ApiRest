@@ -26,7 +26,7 @@ public class RolServiceImpl implements RolService{
     private RoleMapper roleMapper;
 
     @Autowired
-    private RolesRepository rolesRepository;
+    private RolesRepository roleRepository;
 
     @Autowired
     private PermissionEntityFetcher mapperHelper2; 
@@ -34,7 +34,7 @@ public class RolServiceImpl implements RolService{
     @Transactional(readOnly = true)
     @Override
     public List<RoleResponseDto> findAll() {
-        return rolesRepository.findAll()
+        return roleRepository.findAll()
             .stream()
             .map(roleMapper::rolesEntityToRoleResponseDto)
             .collect(Collectors.toList());
@@ -43,14 +43,14 @@ public class RolServiceImpl implements RolService{
     @Transactional(readOnly = true)
     @Override
     public Optional<RoleResponseDto> getRoleById(Long id) {
-        return rolesRepository.findById(id)
+        return roleRepository.findById(id)
             .map(roleMapper::rolesEntityToRoleResponseDto);
     }
 
     @Transactional(readOnly = true)
     @Override
     public RolesEntity getMapperHelpRoleById(Long id) {
-        return rolesRepository.findById(id)
+        return roleRepository.findById(id)
             .orElseThrow(() -> new RoleNotFoundException(id));
     }
 
@@ -58,24 +58,32 @@ public class RolServiceImpl implements RolService{
     @Override
     public RoleResponseDto save(RoleRequestDto roleRequestDto) {
         RolesEntity rolesEntity = roleMapper.roleRequestDtoToRolesEntity(roleRequestDto, mapperHelper2);
-        rolesEntity = rolesRepository.save(rolesEntity);
+        rolesEntity = roleRepository.save(rolesEntity);
         return roleMapper.rolesEntityToRoleResponseDto(rolesEntity);
     }
 
     @Transactional
     @Override
     public RoleResponseDto update(Long id, RoleRequestDto roleRequestDto) {
-        RolesEntity rolesEntity = rolesRepository.findById(id)
+        RolesEntity rolesEntity = roleRepository.findById(id)
             .orElseThrow(() -> new RoleNotFoundException(id));
         roleMapper.upddateEntityFromDto(roleRequestDto, rolesEntity, mapperHelper2);
-        rolesEntity = rolesRepository.save(rolesEntity);
+        rolesEntity = roleRepository.save(rolesEntity);
         return roleMapper.rolesEntityToRoleResponseDto(rolesEntity);
     }
 
     @Transactional(readOnly = true)
     @Override
     public boolean exists(Long id) {
-        return rolesRepository.existsById(id);
+        return roleRepository.existsById(id);
+    }
+
+    @Override
+    public void deleteRoleById(Long id) {
+        if (!roleRepository.existsById(id)) {
+            throw new RoleNotFoundException(id);
+        }
+        roleRepository.deleteById(id);
     }
     
 }

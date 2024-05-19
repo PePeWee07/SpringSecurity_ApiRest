@@ -20,4 +20,6 @@ public interface RolService {
 
     boolean exists(Long id);
 
+    public void deleteRoleById(Long id);
+
 } 
