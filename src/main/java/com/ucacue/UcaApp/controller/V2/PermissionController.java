@@ -18,7 +18,7 @@ public class PermissionController {
     @Autowired
     private PermissionService permissionService;
 
-     @GetMapping("/roles")
+     @GetMapping("/permissions")
     public ResponseEntity<?> findAll() {
         try {
             return ResponseEntity.ok(permissionService.findAll());
@@ -42,8 +42,13 @@ public class PermissionController {
     }
 
     @PutMapping("permission/{id}")
-    public ResponseEntity<PermissionResponseDto> updatePermission(@PathVariable Long id, @RequestBody PermissionRequestDto dto) {
-        PermissionResponseDto response = permissionService.update(id, dto);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> updatePermission(@PathVariable Long id, @RequestBody PermissionRequestDto dto) {
+        try {
+            PermissionResponseDto response = permissionService.update(id, dto);
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

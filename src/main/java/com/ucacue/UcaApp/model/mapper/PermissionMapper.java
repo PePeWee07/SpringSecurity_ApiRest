@@ -20,5 +20,8 @@ public interface PermissionMapper {
     PermissionEntity permissionRequestDtoToPermissionEntity(PermissionRequestDto dto);
 
     // Actualiza una entidad existente desde un DTO
-    void updateEntityFromDto(PermissionRequestDto dto, @MappingTarget PermissionEntity entity);
+    default void updateEntityFromDto(PermissionRequestDto dto, @MappingTarget PermissionEntity entity){
+      if(dto.getId() != null) entity.setId(dto.getId());
+      if(dto.getName() != null) entity.setName(dto.getName());
+    }
 }

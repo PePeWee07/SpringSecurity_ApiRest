@@ -46,13 +46,16 @@ public class PermissionServiceImpl implements PermissionService{
         //             .orElseThrow(() -> new RuntimeException("Permission not found with id " + id));
         //     return permissionMapper.permissionEntityToPermissionResponseDto(entity);
         // }
-
+        @Transactional(readOnly = true)
+@Override
         public PermissionResponseDto getPermissionById(Long id) {
             return permissionRepository.findById(id)
                 .map(permissionMapper::permissionEntityToPermissionResponseDto)
                 .orElseThrow(() -> new PermissionNotFoundException(id));
         }
 
+        @Transactional
+        @Override
     // Método para crear una nuevo Permiso
     public PermissionResponseDto save(PermissionRequestDto dto) {
         PermissionEntity entity = permissionMapper.permissionRequestDtoToPermissionEntity(dto);
@@ -60,10 +63,9 @@ public class PermissionServiceImpl implements PermissionService{
         return permissionMapper.permissionEntityToPermissionResponseDto(savedEntity);
     }
 
-
-
     // Método para actualizar un Permiso
     @Transactional
+    @Override
     public PermissionResponseDto update(Long id, PermissionRequestDto dto) {
         PermissionEntity entity = permissionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Permission not found with id " + id));
