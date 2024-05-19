@@ -2,16 +2,26 @@ package com.ucacue.UcaApp.controller.V2;
 
 import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ucacue.UcaApp.exception.ResourceNotFound;
+import com.ucacue.UcaApp.exception.RoleNotFoundException;
+import com.ucacue.UcaApp.model.dto.role.RoleRequestDto;
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
 import com.ucacue.UcaApp.service.rol.RolService;
+import com.ucacue.UcaApp.web.response.ApiResponse;
+import com.ucacue.UcaApp.web.response.roleNotFound.RoleNotFoundResponse;
+
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v2")
@@ -33,5 +43,32 @@ public class RolController_v2 {
             return new ResponseEntity<Map<String, Object>>(responseGlobalExcp, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
+    @PostMapping("/rol")
+    public ResponseEntity<?> create(@Valid @RequestBody RoleRequestDto roleRequestDto) {
+        if (roleRequestDto.getPermissionsIds() == null || roleRequestDto.getPermissionsIds().isEmpty()) {
+            RoleNotFoundResponse response = new RoleNotFoundResponse(
+            HttpStatus.NOT_FOUND.value(),
+            List.of(Map.entry("error", "permissionsIds not found in request")),
+            "Role not found"
+            );
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        try {
+            RoleResponseDto savedRol = rolService.save(roleRequestDto);
+            ApiResponse response = new ApiResponse(HttpStatus.CREATED.value(), savedRol, "Rol created successfully");
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        }catch (ConstraintViolationException ex) {
+            throw ex;
+        }catch (RoleNotFoundException e) {
+            throw e;
+        }catch (DataAccessException e) {
+			throw e;
+		} catch (Exception e) {
+            Map<String, Object> responseGlobalExcp = new HashMap<>();
+            responseGlobalExcp.put("Internal Server Error: ", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(responseGlobalExcp, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

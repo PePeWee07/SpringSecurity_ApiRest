@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ucacue.UcaApp.exception.RoleNotFoundException;
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
+import com.ucacue.UcaApp.model.dto.role.RoleRequestDto;
 import com.ucacue.UcaApp.model.entity.RolesEntity;
 import com.ucacue.UcaApp.model.mapper.RoleMapper;
 import com.ucacue.UcaApp.repository.RolesRepository;
@@ -31,9 +32,19 @@ public class RolServiceImpl implements RolService{
             .map(roleMapper::rolesEntityToRoleResponseDto);
     }
 
+    @Transactional(readOnly = true)
+    @Override
     public RolesEntity getMapperHelpRoleById(Long id) {
         return rolesRepository.findById(id)
             .orElseThrow(() -> new RoleNotFoundException(id));
+    }
+
+    @Transactional
+    @Override
+    public RoleResponseDto save(RoleRequestDto roleRequestDto) {
+        RolesEntity rolesEntity = roleMapper.roleRequestDtoToRolesEntity(roleRequestDto);
+        rolesEntity = rolesRepository.save(rolesEntity);
+        return roleMapper.rolesEntityToRoleResponseDto(rolesEntity);
     }
     
 }
