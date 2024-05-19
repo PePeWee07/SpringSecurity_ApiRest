@@ -8,6 +8,7 @@
 
 + FEATURES:
     - llaves unicas no captura exception en updateUser ni Rol saved (Metodo no contempla todo los resultados)
+    
     - Caprutar globlalmente el token cuando: 
         - org.springframework.dao.InvalidDataAccessApiUsageException (no acceso a ruta)
         - com.auth0.jwt.exceptions.TokenExpiredException: The Token has expired on 2024-05-17T14:10:29Z.
