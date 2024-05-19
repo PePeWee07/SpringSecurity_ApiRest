@@ -11,7 +11,7 @@ import com.ucacue.UcaApp.model.dto.role.RoleRequestDto;
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
 import com.ucacue.UcaApp.model.entity.PermissionEntity;
 import com.ucacue.UcaApp.model.entity.RolesEntity;
-import com.ucacue.UcaApp.util.Mapperhelper2;
+import com.ucacue.UcaApp.util.PermissionEntityFetcher;
 
 @Mapper(componentModel = "spring")
 public interface RoleMapper {
@@ -21,19 +21,19 @@ public interface RoleMapper {
     @Mapping(source = "permissionList", target = "permissionList")
     RoleResponseDto rolesEntityToRoleResponseDto(RolesEntity entity);
 
-    default RolesEntity roleRequestDtoToRolesEntity(RoleRequestDto dto, @Context Mapperhelper2 mapperHelper) {
+    default RolesEntity roleRequestDtoToRolesEntity(RoleRequestDto dto, @Context PermissionEntityFetcher permissionEntityFetcher) {
         RolesEntity entity = new RolesEntity();
         entity.setId(dto.getId());
         entity.setName(dto.getName());
 
-        Set<PermissionEntity> permissionEntities = permissionIdsToPermissionEntities(dto.getPermissionsIds(), mapperHelper);
+        Set<PermissionEntity> permissionEntities = permissionIdsToPermissionEntities(dto.getPermissionsIds(), permissionEntityFetcher);
         entity.setPermissionList(permissionEntities);
         return entity;
     }
 
-    default Set<PermissionEntity> permissionIdsToPermissionEntities(Set<Long> permissionIds, Mapperhelper2 mapperHelper){
+    default Set<PermissionEntity> permissionIdsToPermissionEntities(Set<Long> permissionIds, PermissionEntityFetcher permissionEntityFetcher){
         return permissionIds.stream()
-                      .map(id -> mapperHelper.mapPermissionIdToPermissionEntity(id)) // Usando MapperHelper para convertir ID a PermissionEntity
+                      .map(id -> permissionEntityFetcher.mapPermissionIdToPermissionEntity(id)) // Usando permissionEntityFetcher para convertir ID a PermissionEntity
                       .collect(Collectors.toSet()); 
     }
 

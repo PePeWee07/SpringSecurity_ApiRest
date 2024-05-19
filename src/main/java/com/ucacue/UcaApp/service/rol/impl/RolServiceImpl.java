@@ -15,7 +15,7 @@ import com.ucacue.UcaApp.model.entity.RolesEntity;
 import com.ucacue.UcaApp.model.mapper.RoleMapper;
 import com.ucacue.UcaApp.repository.RolesRepository;
 import com.ucacue.UcaApp.service.rol.RolService;
-import com.ucacue.UcaApp.util.Mapperhelper2;
+import com.ucacue.UcaApp.util.PermissionEntityFetcher;
 
 @Service
 public class RolServiceImpl implements RolService{
@@ -27,7 +27,7 @@ public class RolServiceImpl implements RolService{
     private RolesRepository rolesRepository;
 
     @Autowired
-    private Mapperhelper2 mapperHelper2; 
+    private PermissionEntityFetcher mapperHelper2; 
 
     @Transactional(readOnly = true)
     @Override

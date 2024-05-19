@@ -20,7 +20,7 @@ import com.ucacue.UcaApp.model.mapper.UserMapper;
 import com.ucacue.UcaApp.repository.UserRepository;
 import com.ucacue.UcaApp.service.user.UserService;
 import com.ucacue.UcaApp.util.JwtUtils;
-import com.ucacue.UcaApp.util.MapperHelper;
+import com.ucacue.UcaApp.util.RoleEntityFetcher;
 
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     private UserMapper userMapper;
 
     @Autowired
-    private MapperHelper mapperHelper; 
+    private RoleEntityFetcher roleEntityFetcher; 
 
     @Autowired
     private JwtUtils jwtUtils;
@@ -125,8 +125,8 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     @Transactional
     @Override
     public UserResponseDto save(UserRequestDto userRequestDto) {
-        // Pasa el mapperHelper como argumento adicional a toUserEntity
-        UserEntity userEntity = userMapper.toUserEntity(userRequestDto, mapperHelper);
+        // Pasa el RoleEntityFetcher como argumento adicional a toUserEntity
+        UserEntity userEntity = userMapper.toUserEntity(userRequestDto, roleEntityFetcher);
         userEntity = userRepository.save(userEntity);
         return userMapper.toUserResponseDto(userEntity);
     }
@@ -134,7 +134,7 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     @Transactional
     @Override
     public AuthResponse RegisterUser(UserRequestDto userRequestDto) {
-        UserEntity userEntity = userMapper.toUserEntity(userRequestDto, mapperHelper);
+        UserEntity userEntity = userMapper.toUserEntity(userRequestDto, roleEntityFetcher);
         userEntity = userRepository.save(userEntity);
 
         ArrayList<SimpleGrantedAuthority> authorities = new ArrayList<>();
@@ -153,8 +153,8 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     public UserResponseDto update(Long id, UserRequestDto userRequestDto) {
         UserEntity userEntity = userRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("User no encontrado con ID: " + id));
-        // Pasa el mapperHelper como argumento adicional a toUserEntity
-        userMapper.updateEntityFromDto(userRequestDto, userEntity, mapperHelper);
+        // Pasa el RoleEntityFetcher como argumento adicional a toUserEntity
+        userMapper.updateEntityFromDto(userRequestDto, userEntity, roleEntityFetcher);
         userEntity = userRepository.save(userEntity);
         return userMapper.toUserResponseDto(userEntity);
     }

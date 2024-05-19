@@ -7,7 +7,7 @@
 
 
 + FEATURES:
-    - llaves unicas no captura exception en update
+    - llaves unicas no captura exception en updateUser ni Rol saved (Metodo no contempla todo los resultados)
     - Caprutar globlalmente el token cuando: 
         - org.springframework.dao.InvalidDataAccessApiUsageException (no acceso a ruta)
         - com.auth0.jwt.exceptions.TokenExpiredException: The Token has expired on 2024-05-17T14:10:29Z.
@@ -15,5 +15,4 @@
         - Unauthorized Token 
 
     - CRUD: para rolesEntity y permissionEntity (POST, PUT, DELETE, GET)
-    - GET PERSMISSIONS: En la consultas no alcanza a caprutar los permisos q tiene los roles al traer datos usuarios
 

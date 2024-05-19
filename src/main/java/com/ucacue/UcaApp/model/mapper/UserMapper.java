@@ -13,7 +13,7 @@ import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 import com.ucacue.UcaApp.model.entity.RolesEntity;
 import com.ucacue.UcaApp.model.entity.UserEntity;
-import com.ucacue.UcaApp.util.MapperHelper;
+import com.ucacue.UcaApp.util.RoleEntityFetcher;
 
 
 
@@ -48,7 +48,7 @@ public interface UserMapper {
     }
 
 
-    default UserEntity toUserEntity(UserRequestDto UserRequestDto, @Context MapperHelper mapperHelper) {
+    default UserEntity toUserEntity(UserRequestDto UserRequestDto, @Context RoleEntityFetcher RoleEntityFetcher) {
         UserEntity entity = new UserEntity();
         entity.setId(UserRequestDto.getId());
         entity.setName(UserRequestDto.getName());
@@ -64,23 +64,23 @@ public interface UserMapper {
         entity.setCredentialNoExpired(UserRequestDto.isCredentialNoExpired());
         entity.setCreationDate(UserRequestDto.getCreationDate());
 
-        // Ahora pasamos el mapperHelper a rolesIdsToRolesEntities
-        Set<RolesEntity> roles = rolesIdsToRolesEntities(UserRequestDto.getRolesIds(), mapperHelper);
+        // Ahora pasamos el RoleEntityFetcher a rolesIdsToRolesEntities
+        Set<RolesEntity> roles = rolesIdsToRolesEntities(UserRequestDto.getRolesIds(), RoleEntityFetcher);
 
         entity.setRoles(roles);
         return entity;
     }
     
-    default Set<RolesEntity> rolesIdsToRolesEntities(Set<Long> roleIds, MapperHelper mapperHelper) {
+    default Set<RolesEntity> rolesIdsToRolesEntities(Set<Long> roleIds, RoleEntityFetcher RoleEntityFetcher) {
         // Agregar siempre el ID 2 del ROL_USER al conjunto de roles
         //roleIds.add(2L);
 
         return roleIds.stream()
-                      .map(id -> mapperHelper.mapRoleIdToRolesEntity(id)) // Usando MapperHelper para convertir ID a RolesEntity
+                      .map(id -> RoleEntityFetcher.mapRoleIdToRolesEntity(id)) // Usando RoleEntityFetcher para convertir ID a RolesEntity
                       .collect(Collectors.toSet());
     }
 
-    default void updateEntityFromDto(UserRequestDto dto, @MappingTarget UserEntity entity, @Context MapperHelper mapperHelper) {
+    default void updateEntityFromDto(UserRequestDto dto, @MappingTarget UserEntity entity, @Context RoleEntityFetcher RoleEntityFetcher) {
         if (dto.getName() != null) entity.setName(dto.getName());
         if (dto.getLastName() != null) entity.setLastName(dto.getLastName());
         if (dto.getEmail() != null) entity.setEmail(dto.getEmail());
@@ -94,7 +94,7 @@ public interface UserMapper {
         entity.setCredentialNoExpired(dto.isCredentialNoExpired());
         if (dto.getCreationDate() != null) entity.setCreationDate(dto.getCreationDate());
 
-        Set<RolesEntity> roles = rolesIdsToRolesEntities(dto.getRolesIds(), mapperHelper);
+        Set<RolesEntity> roles = rolesIdsToRolesEntities(dto.getRolesIds(), RoleEntityFetcher);
         entity.setRoles(roles);
     }
 }

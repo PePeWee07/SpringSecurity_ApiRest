@@ -9,7 +9,7 @@ import com.ucacue.UcaApp.service.rol.RolService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Component
-public class MapperHelper {
+public class RoleEntityFetcher {
 
     @Autowired
     private RolService rolService;

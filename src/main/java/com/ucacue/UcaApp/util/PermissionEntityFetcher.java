@@ -7,7 +7,7 @@ import com.ucacue.UcaApp.model.entity.PermissionEntity;
 import com.ucacue.UcaApp.service.permission.PermissionService;
 
 @Component
-public class Mapperhelper2 {
+public class PermissionEntityFetcher {
     
     @Autowired
     private PermissionService permissionService;
