@@ -10,6 +10,8 @@ public interface RolService {
 
     RolesEntity getMapperHelpRoleById(Long id);
 
+    List<RoleResponseDto> findAll();
+
     Optional<RoleResponseDto> getRoleById(Long id);
 
     RoleResponseDto save(RoleRequestDto roleRequestDto);

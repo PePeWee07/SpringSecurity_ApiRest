@@ -31,6 +31,17 @@ public class RolController_v2 {
     @Autowired
     private RolService rolService;
 
+    @GetMapping("/roles")
+    public ResponseEntity<?> findAll() {
+        try {
+            return ResponseEntity.ok(rolService.findAll());
+        } catch (Exception e) {
+            Map<String, Object> responseGlobalExcp = new HashMap<>();
+            responseGlobalExcp.put("Internal Server Error: ", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(responseGlobalExcp, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/rol/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id) {
         RoleResponseDto user = rolService.getRoleById(id)

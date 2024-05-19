@@ -2,7 +2,9 @@ package com.ucacue.UcaApp.service.rol.impl;
 
 
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,15 @@ public class RolServiceImpl implements RolService{
 
     @Autowired
     private PermissionEntityFetcher mapperHelper2; 
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<RoleResponseDto> findAll() {
+        return rolesRepository.findAll()
+            .stream()
+            .map(roleMapper::rolesEntityToRoleResponseDto)
+            .collect(Collectors.toList());
+    }
 
     @Transactional(readOnly = true)
     @Override
