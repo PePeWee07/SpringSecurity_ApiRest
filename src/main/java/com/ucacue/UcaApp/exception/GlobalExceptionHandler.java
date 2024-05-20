@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -25,11 +25,12 @@ import com.ucacue.UcaApp.web.response.userNotFound.UserNotFoundResponse;
 
 import jakarta.validation.ConstraintViolationException;
 
-
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     Map<String, Object> responseGlobalExcp = new HashMap<>();
+
+    //------------------------------------------------------------ EXCEPCIONES DE CRUD ------------------------------------------------------------
 
     // Método genérico para manejar otras excepciones
     @ExceptionHandler(Exception.class)
@@ -169,49 +170,80 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
     }
 
+    //------------------------------------------------------------ EXCEPCIONES DE AUTENTICACION ------------------------------------------------------------
+
+    // Manejo de excepción para UsernameNotFoundException
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleUsernameNotFoundException(UsernameNotFoundException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
     // Metodo para manejar errores de credenciales invalidas
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<FieldValidationResponse> handleBadCredentialsException(BadCredentialsException ex) {
-        String field;
-        String errorDetailMessage;
-        String errorCode;
-
-        if (ex.getMessage().equals("Invalid username or password")) {
-            field = null;
-            errorDetailMessage = "Invalid username or password";
-            errorCode = "INVALID_CREDENTIALS_ERROR";
-        } else if (ex.getMessage().equals("Incorrect Password")) {
-            field = "password";
-            errorDetailMessage = "Incorrect Password";
-            errorCode = "INCORRECT_PASSWORD_ERROR";
-        } else {
-            field = "username";
-            errorDetailMessage = "The user " + ex.getMessage() + " not found";
-            errorCode = "USER_NOT_FOUND_ERROR";
-        }
-
-        // Construye la respuesta de error
-        FieldErrorDetail errorDetail = new FieldErrorDetail(
-            field,
-            errorDetailMessage,
-            ex.getMessage(),
-            errorCode
-        );
-
-        List<FieldErrorDetail> errors = Collections.singletonList(errorDetail);
-
-        FieldValidationResponse apiResponse = new FieldValidationResponse(HttpStatus.BAD_REQUEST.value(), errors, "Bad credentials");
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
+    public ResponseEntity<Map<String, String>> handleBadCredentialsException(BadCredentialsException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "Invalid credentials");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
-
-
-    // Metodo para manejar errores de usuario no encontrado
-    @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<String> handleUsernameNotFoundException(UsernameNotFoundException ex) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ex.getMessage());
+    // Metodo para manejar errores de cuenta expirada
+    @ExceptionHandler(AccountExpiredException.class)
+    public ResponseEntity<Map<String, String>> handleAccountExpiredException(AccountExpiredException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "Account expired");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
+    // Metodo para manejar errores de cuenta bloqueada
+    @ExceptionHandler(LockedException.class)
+    public ResponseEntity<Map<String, String>> handleLockedException(LockedException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "Account locked");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    // Metodo para manejar errores de cuenta deshabilitada
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<Map<String, String>> handleDisabledException(DisabledException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "Account disabled");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
 }
+
+
+        // @ExceptionHandler(BadCredentialsException.class)
+        // public ResponseEntity<FieldValidationResponse> handleBadCredentialsException(BadCredentialsException ex) {
+        //     String field;
+        //     String errorDetailMessage;
+        //     String errorCode;
+    
+        //     if (ex.getMessage().equals("Invalid username or password")) {
+        //         field = null;
+        //         errorDetailMessage = "Invalid username or password";
+        //         errorCode = "INVALID_CREDENTIALS_ERROR";
+        //     } else if (ex.getMessage().equals("Incorrect Password")) {
+        //         field = "password";
+        //         errorDetailMessage = "Incorrect Password";
+        //         errorCode = "INCORRECT_PASSWORD_ERROR";
+        //     } else {
+        //         field = "username";
+        //         errorDetailMessage = "The user " + ex.getMessage() + " not found";
+        //         errorCode = "USER_NOT_FOUND_ERROR";
+        //     }
+    
+        //     // Construye la respuesta de error
+        //     FieldErrorDetail errorDetail = new FieldErrorDetail(
+        //         field,
+        //         errorDetailMessage,
+        //         ex.getMessage(),
+        //         errorCode
+        //     );
+    
+        //     List<FieldErrorDetail> errors = Collections.singletonList(errorDetail);
+    
+        //     FieldValidationResponse apiResponse = new FieldValidationResponse(HttpStatus.BAD_REQUEST.value(), errors, "Bad credentials");
+        //     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
+        // }

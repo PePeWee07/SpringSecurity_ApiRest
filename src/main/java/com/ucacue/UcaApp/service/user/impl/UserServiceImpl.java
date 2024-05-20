@@ -30,6 +30,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.User;
 
@@ -53,9 +54,9 @@ public class UserServiceImpl implements UserService, UserDetailsService{
 
     @Transactional(readOnly = true)
     @Override
-    public UserDetails loadUserByUsername(String email) throws BadCredentialsException {
-    UserEntity userEntity = userRepository.findByEmail(email)
-        .orElseThrow(() -> new BadCredentialsException(email));
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        UserEntity userEntity = userRepository.findByEmail(email)
+            .orElseThrow(() -> new UserNotFoundException(email, UserNotFoundException.SearchType.EMAIL));
 
         List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
         userEntity.getRoles()
@@ -101,6 +102,23 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         return new UsernamePasswordAuthenticationToken(username, password, userDetails.getAuthorities());
     }
 
+    @Transactional
+    @Override
+    public AuthResponse RegisterUser(UserRequestDto userRequestDto) {
+        UserEntity userEntity = userMapper.toUserEntity(userRequestDto, roleEntityFetcher);
+        userEntity = userRepository.save(userEntity);
+
+        ArrayList<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        userEntity.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_".concat(role.getName()))));
+        userEntity.getRoles().stream().flatMap(role -> role.getPermissionList().stream()).forEach(permission -> authorities.add(new SimpleGrantedAuthority(permission.getName())));
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userEntity.getEmail(), userEntity.getPassword(), authorities);
+        String accessToken = jwtUtils.createToken(authentication);
+
+        AuthResponse authResponse = new AuthResponse(userEntity.getEmail(), "User created successfully", accessToken, true);
+        return authResponse;
+    }
+
     @Transactional(readOnly = true)
     @Override
     public List<UserResponseDto> findAll() {
@@ -130,23 +148,6 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         UserEntity userEntity = userMapper.toUserEntity(userRequestDto, roleEntityFetcher);
         userEntity = userRepository.save(userEntity);
         return userMapper.toUserResponseDto(userEntity);
-    }
-
-    @Transactional
-    @Override
-    public AuthResponse RegisterUser(UserRequestDto userRequestDto) {
-        UserEntity userEntity = userMapper.toUserEntity(userRequestDto, roleEntityFetcher);
-        userEntity = userRepository.save(userEntity);
-
-        ArrayList<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        userEntity.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_".concat(role.getName()))));
-        userEntity.getRoles().stream().flatMap(role -> role.getPermissionList().stream()).forEach(permission -> authorities.add(new SimpleGrantedAuthority(permission.getName())));
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userEntity.getEmail(), userEntity.getPassword(), authorities);
-        String accessToken = jwtUtils.createToken(authentication);
-
-        AuthResponse authResponse = new AuthResponse(userEntity.getEmail(), "User created successfully", accessToken, true);
-        return authResponse;
     }
 
     @Transactional
