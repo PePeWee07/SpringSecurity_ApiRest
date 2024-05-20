@@ -48,14 +48,8 @@ public class PermissionController_v2 {
             PermissionResponseDto savedRol = permissionService.save(permissionRequestDto);
             ApiResponse response = new ApiResponse(HttpStatus.CREATED.value(), savedRol, "Permission created successfully");
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        }catch (ConstraintViolationException ex) {
-            throw ex;
-        }catch (DataAccessException e) {
-			throw e;
-		} catch (Exception e) {
-            Map<String, Object> responseGlobalExcp = new HashMap<>();
-            responseGlobalExcp.put("Internal Server Error: ", e.getMessage());
-            return new ResponseEntity<Map<String, Object>>(responseGlobalExcp, HttpStatus.INTERNAL_SERVER_ERROR);
+        }catch (Exception e) {
+            throw e;
         }
     }
 
