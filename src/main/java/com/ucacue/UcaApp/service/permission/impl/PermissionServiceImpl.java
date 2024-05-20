@@ -16,7 +16,7 @@ import com.ucacue.UcaApp.repository.PermissionRepository;
 import com.ucacue.UcaApp.service.permission.PermissionService;
 
 @Service
-public class PermissionServiceImpl implements PermissionService{
+public class PermissionServiceImpl implements PermissionService {
 
     @Autowired
     private PermissionRepository permissionRepository;
@@ -28,34 +28,34 @@ public class PermissionServiceImpl implements PermissionService{
     @Override
     public PermissionEntity getMapperHelpPermissionById(Long id) {
         return permissionRepository.findById(id)
-             .orElseThrow(() -> new PermissionNotFoundException(id));
+                .orElseThrow(() -> new PermissionNotFoundException(id));
     }
 
     @Override
     public List<PermissionResponseDto> findAll() {
         return permissionRepository.findAll()
-            .stream()
-            .map(permissionMapper::permissionEntityToPermissionResponseDto)
-            .collect(Collectors.toList());
-        
+                .stream()
+                .map(permissionMapper::permissionEntityToPermissionResponseDto)
+                .collect(Collectors.toList());
     }
 
-        // Método para obtener un Permiso por ID
-        // public PermissionResponseDto getPermissionById(Long id) {
-        //     PermissionEntity entity = permissionRepository.findById(id)
-        //             .orElseThrow(() -> new RuntimeException("Permission not found with id " + id));
-        //     return permissionMapper.permissionEntityToPermissionResponseDto(entity);
-        // }
-        @Transactional(readOnly = true)
-@Override
-        public PermissionResponseDto getPermissionById(Long id) {
-            return permissionRepository.findById(id)
+    // Método para obtener un Permiso por ID
+    // public PermissionResponseDto getPermissionById(Long id) {
+    // PermissionEntity entity = permissionRepository.findById(id)
+    // .orElseThrow(() -> new RuntimeException("Permission not found with id " +
+    // id));
+    // return permissionMapper.permissionEntityToPermissionResponseDto(entity);
+    // }
+    @Transactional(readOnly = true)
+    @Override
+    public PermissionResponseDto getPermissionById(Long id) {
+        return permissionRepository.findById(id)
                 .map(permissionMapper::permissionEntityToPermissionResponseDto)
                 .orElseThrow(() -> new PermissionNotFoundException(id));
-        }
+    }
 
-        @Transactional
-        @Override
+    @Transactional
+    @Override
     // Método para crear una nuevo Permiso
     public PermissionResponseDto save(PermissionRequestDto dto) {
         PermissionEntity entity = permissionMapper.permissionRequestDtoToPermissionEntity(dto);
@@ -74,7 +74,6 @@ public class PermissionServiceImpl implements PermissionService{
         return permissionMapper.permissionEntityToPermissionResponseDto(updatedEntity);
     }
 
-    
     @Override
     public boolean exists(Long id) {
         return permissionRepository.existsById(id);
@@ -85,5 +84,5 @@ public class PermissionServiceImpl implements PermissionService{
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'deletePermissionById'");
     }
-    
+
 }
