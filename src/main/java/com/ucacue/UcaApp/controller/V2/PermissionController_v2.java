@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.ucacue.UcaApp.exception.PermissionNotFoundException;
 import com.ucacue.UcaApp.model.dto.permission.PermissionRequestDto;
 import com.ucacue.UcaApp.model.dto.permission.PermissionResponseDto;
 import com.ucacue.UcaApp.service.permission.PermissionService;
@@ -25,7 +24,7 @@ public class PermissionController_v2 {
     private PermissionService permissionService;
 
      @GetMapping("/permissions")
-    public ResponseEntity<?> findAll() {
+    public ResponseEntity<List<PermissionResponseDto>> findAll() {
         try {
             return ResponseEntity.ok(permissionService.findAll());
         } catch (Exception e) {
@@ -34,17 +33,13 @@ public class PermissionController_v2 {
     }
 
     @GetMapping("/permission/{id}")
-    public ResponseEntity<?> getPermissionById(@PathVariable Long id) {
+    public ResponseEntity<PermissionResponseDto> getPermissionById(@PathVariable Long id) {
         try {
             PermissionResponseDto response = permissionService.getPermissionById(id);
             return ResponseEntity.ok(response);
-        } catch (PermissionNotFoundException e){
+        } catch (Exception e){
             throw e;
-        } catch (Exception e) {
-            Map<String, Object> responseGlobalExcp = new HashMap<>();
-            responseGlobalExcp.put("Internal Server Error: ", e.getMessage());
-            return new ResponseEntity<Map<String, Object>>(responseGlobalExcp, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        } 
     }
 
     @PostMapping("/permission")
