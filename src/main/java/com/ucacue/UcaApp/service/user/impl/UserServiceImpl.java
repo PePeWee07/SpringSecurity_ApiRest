@@ -121,13 +121,12 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     public UserResponseDto getUserById(Long id) {
         return userRepository.findById(id)
             .map(userMapper::toUserResponseDto)
-            .orElseThrow(() -> new UserNotFoundException(id));
+            .orElseThrow(() -> new UserNotFoundException(id, UserNotFoundException.SearchType.ID));
     }
 
     @Transactional
     @Override
     public UserResponseDto save(UserRequestDto userRequestDto) {
-        // Pasa el RoleEntityFetcher como argumento adicional a toUserEntity
         UserEntity userEntity = userMapper.toUserEntity(userRequestDto, roleEntityFetcher);
         userEntity = userRepository.save(userEntity);
         return userMapper.toUserResponseDto(userEntity);
@@ -154,17 +153,10 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     @Override
     public UserResponseDto update(Long id, UserRequestDto userRequestDto) {
         UserEntity userEntity = userRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("User no encontrado con ID: " + id));
-        // Pasa el RoleEntityFetcher como argumento adicional a toUserEntity
+            .orElseThrow(() -> new UserNotFoundException(id, UserNotFoundException.SearchType.ID));
         userMapper.updateEntityFromDto(userRequestDto, userEntity, roleEntityFetcher);
         userEntity = userRepository.save(userEntity);
         return userMapper.toUserResponseDto(userEntity);
-    }
-
-    @Transactional
-    @Override
-    public void delete(Long id) {
-        userRepository.deleteById(id);
     }
 
     @Transactional(readOnly = true)
@@ -175,10 +167,17 @@ public class UserServiceImpl implements UserService, UserDetailsService{
 
     @Override
 	@Transactional(readOnly=true)
-	public Optional<UserResponseDto> findByEmail(String email) {
+	public UserResponseDto findByEmail(String email) {
         return userRepository.findByEmail(email)
-            .map(userMapper::toUserResponseDto);
+            .map(userMapper::toUserResponseDto)
+            .orElseThrow(() -> new UserNotFoundException(email, UserNotFoundException.SearchType.EMAIL));
 	}
+
+    @Override
+    public void delete(Long id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+    }
 
     //  PARA ALTA CONCURRENCIA DE USUARIOS REALIZANDO MUCHAS PETICIONES USAR CACHE
     // @Override

@@ -2,15 +2,21 @@ package com.ucacue.UcaApp.model.dto.user;
 
 import lombok.*;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
+
+import jakarta.validation.constraints.NotEmpty;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserRequestDto {
+public class UserRequestDto implements Serializable{
+
+    private static final long serialVersionUID = 1L;
+    
     private Long id; // Opcional, depende de la operación
 
     private String name;
@@ -37,7 +43,6 @@ public class UserRequestDto {
 
     private Date  creationDate;
 
+    @NotEmpty(message = "rolesIds cannot be empty")
     private Set<Long> rolesIds;
-
-
 }

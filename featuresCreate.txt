@@ -7,7 +7,7 @@
 
 
 + FEATURES:
-    - "Internal Server Error: ": "Could not commit JPA transaction" (UPDATE NULL CLEIN (ROL-PERMISSION))
+    - "Internal Server Error: ": "Could not commit JPA transaction" (UPDATE NULL CLEIN (ROL-PERMISSION-USER))
 
     - Caprutar globlalmente el token cuando: 
         - org.springframework.dao.InvalidDataAccessApiUsageException (no acceso a ruta)

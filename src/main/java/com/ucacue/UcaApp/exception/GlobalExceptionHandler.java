@@ -80,12 +80,13 @@ public class GlobalExceptionHandler {
     //Metodo para manejar mensajes de error de usuarios no econtrados
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<UserNotFoundResponse> handleUserNotFoundException(UserNotFoundException ex) {
+        String searchField = ex.getSearchType().name().toLowerCase();
         UserNotFoundResponse response = new UserNotFoundResponse(
             HttpStatus.NOT_FOUND.value(),
-            List.of(Map.entry("error", "Permission ID " + ex.getUserId()+ " not found")),
+            List.of(Map.entry("error", "User " + searchField + " " + ex.getUserIdentifier() + " not found")),
             "User not found"
         );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     // Metodo para manejar mensajes de error de datos no pasados en (POST)

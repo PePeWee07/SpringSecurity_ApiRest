@@ -57,8 +57,8 @@ public class UserEntity implements Serializable{
     private String DNI;
 
     @NotNull
-    @Size(min = 1, max = 150, message = "Password must be a maximum of 150 characters")
-    @Column(name = "password", length = 150, nullable = false)
+    @Size(min = 1, max = 60, message = "Password must be a maximum of 60 characters")
+    @Column(name = "password", length = 60, nullable = false)
     private String password;
 
     @NotNull
@@ -78,7 +78,7 @@ public class UserEntity implements Serializable{
     private boolean credentialNoExpired;
 
     @NotNull
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "America/Guayaquil")
     @Column(name = "creationDate", nullable = false)
     private Date  creationDate;
 

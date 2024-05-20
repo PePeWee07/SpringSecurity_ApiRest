@@ -1,15 +1,24 @@
 package com.ucacue.UcaApp.exception;
 
 public class UserNotFoundException extends RuntimeException {
-    private Long userId;
+    private Object userIdentifier;
+    private SearchType searchType;
 
-    public UserNotFoundException(Long userId) {
-        super("User not found with ID: " + userId);
-        this.userId = userId;
+    public enum SearchType {
+        ID, EMAIL
     }
 
-    public Long getUserId() {
-        return userId;
+    public UserNotFoundException(Object userIdentifier, SearchType searchType) {
+        super("User not found with " + searchType.name().toLowerCase() + ": " + userIdentifier);
+        this.userIdentifier = userIdentifier;
+        this.searchType = searchType;
+    }
+
+    public Object getUserIdentifier() {
+        return userIdentifier;
+    }
+
+    public SearchType getSearchType() {
+        return searchType;
     }
 }
-

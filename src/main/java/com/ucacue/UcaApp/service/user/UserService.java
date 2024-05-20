@@ -7,7 +7,6 @@ import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 
-import java.util.Optional;
 import java.util.List;
 
 public interface UserService {
@@ -18,7 +17,7 @@ public interface UserService {
 
     UserResponseDto getUserById(Long id);
     
-    Optional<UserResponseDto> findByEmail(String email);
+    UserResponseDto findByEmail(String email);
 
     UserResponseDto save(UserRequestDto userRequestDto);
     AuthResponse RegisterUser(UserRequestDto userRequestDto);
