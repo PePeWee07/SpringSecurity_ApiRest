@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import com.ucacue.UcaApp.model.dto.role.RoleRequestDto;
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
 import com.ucacue.UcaApp.model.entity.PermissionEntity;
-import com.ucacue.UcaApp.model.entity.RolesEntity;
+import com.ucacue.UcaApp.model.entity.RoleEntity;
 import com.ucacue.UcaApp.util.PermissionEntityFetcher;
 
 @Mapper(componentModel = "spring")
@@ -20,11 +20,11 @@ public interface RoleMapper {
     RoleMapper INSTANCE = Mappers.getMapper(RoleMapper.class);
 
     @Mapping(source = "permissionList", target = "permissionList")
-    RoleResponseDto rolesEntityToRoleResponseDto(RolesEntity entity);
+    RoleResponseDto rolesEntityToRoleResponseDto(RoleEntity entity);
 
-    default RolesEntity roleRequestDtoToRolesEntity(RoleRequestDto dto,
+    default RoleEntity roleRequestDtoToRolesEntity(RoleRequestDto dto,
             @Context PermissionEntityFetcher permissionEntityFetcher) {
-        RolesEntity entity = new RolesEntity();
+        RoleEntity entity = new RoleEntity();
         entity.setName(dto.getName());
 
         Set<PermissionEntity> permissionEntities = permissionIdsToPermissionEntities(dto.getPermissionsIds(),
@@ -41,7 +41,7 @@ public interface RoleMapper {
                 .collect(Collectors.toSet());
     }
 
-    default void upddateEntityFromDto(RoleRequestDto dto, @MappingTarget RolesEntity entity,
+    default void upddateEntityFromDto(RoleRequestDto dto, @MappingTarget RoleEntity entity,
             @Context PermissionEntityFetcher permissionEntityFetcher) {
         if (dto.getName() != null)
             entity.setName(dto.getName());

@@ -11,7 +11,7 @@ import org.mapstruct.factory.Mappers;
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
-import com.ucacue.UcaApp.model.entity.RolesEntity;
+import com.ucacue.UcaApp.model.entity.RoleEntity;
 import com.ucacue.UcaApp.model.entity.UserEntity;
 import com.ucacue.UcaApp.util.RoleEntityFetcher;
 
@@ -65,13 +65,13 @@ public interface UserMapper {
         entity.setCreationDate(UserRequestDto.getCreationDate());
 
         // Ahora pasamos el RoleEntityFetcher a rolesIdsToRolesEntities
-        Set<RolesEntity> roles = rolesIdsToRolesEntities(UserRequestDto.getRolesIds(), RoleEntityFetcher);
+        Set<RoleEntity> roles = rolesIdsToRolesEntities(UserRequestDto.getRolesIds(), RoleEntityFetcher);
 
         entity.setRoles(roles);
         return entity;
     }
     
-    default Set<RolesEntity> rolesIdsToRolesEntities(Set<Long> roleIds, RoleEntityFetcher RoleEntityFetcher) {
+    default Set<RoleEntity> rolesIdsToRolesEntities(Set<Long> roleIds, RoleEntityFetcher RoleEntityFetcher) {
         // Agregar siempre el ID 2 del ROL_USER al conjunto de roles
         //roleIds.add(2L);
 
@@ -94,7 +94,7 @@ public interface UserMapper {
         entity.setCredentialNoExpired(dto.isCredentialNoExpired());
         if (dto.getCreationDate() != null) entity.setCreationDate(dto.getCreationDate());
 
-        Set<RolesEntity> roles = rolesIdsToRolesEntities(dto.getRolesIds(), RoleEntityFetcher);
+        Set<RoleEntity> roles = rolesIdsToRolesEntities(dto.getRolesIds(), RoleEntityFetcher);
         entity.setRoles(roles);
     }
 }

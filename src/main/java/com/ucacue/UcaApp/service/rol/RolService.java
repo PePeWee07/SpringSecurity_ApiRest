@@ -4,11 +4,11 @@ import java.util.*;
 
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
 import com.ucacue.UcaApp.model.dto.role.RoleRequestDto;
-import com.ucacue.UcaApp.model.entity.RolesEntity;
+import com.ucacue.UcaApp.model.entity.RoleEntity;
 
 public interface RolService {
 
-    RolesEntity getMapperHelpRoleById(Long id);
+    RoleEntity getMapperHelpRoleById(Long id);
 
     List<RoleResponseDto> findAll();
 

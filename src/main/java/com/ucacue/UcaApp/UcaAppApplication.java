@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import com.ucacue.UcaApp.model.entity.PermissionEntity;
-import com.ucacue.UcaApp.model.entity.RolesEntity;
+import com.ucacue.UcaApp.model.entity.RoleEntity;
 import com.ucacue.UcaApp.model.entity.UserEntity;
 import com.ucacue.UcaApp.repository.UserRepository;
 
@@ -44,12 +44,12 @@ public class UcaAppApplication {
                     .build();
 
             /* Create ROLES */
-            RolesEntity roleAdmin = RolesEntity.builder()
+            RoleEntity roleAdmin = RoleEntity.builder()
                     .name("ADMIN")
                     .permissionList(Set.of(createPermission, readPermission, updatePermission, deletePermission, refactorPermission))
                     .build();
 
-            RolesEntity roleUser = RolesEntity.builder()
+            RoleEntity roleUser = RoleEntity.builder()
                     .name("USER")
                     .permissionList(Set.of(readPermission))
                     .build();

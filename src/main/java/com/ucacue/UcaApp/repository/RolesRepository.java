@@ -4,11 +4,10 @@ import java.util.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.ucacue.UcaApp.model.entity.RolesEntity;
+import com.ucacue.UcaApp.model.entity.RoleEntity;
 
 @Repository
-public interface RolesRepository extends JpaRepository<RolesEntity, Long>{
-    RolesEntity findByName(String name);
-
-    List<RolesEntity> findByNameIn(List<String> roleNames);
+public interface RolesRepository extends JpaRepository<RoleEntity, Long>{
+    RoleEntity findByName(String name);
+    List<RoleEntity> findByNameIn(List<String> roleNames);
 } 

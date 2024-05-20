@@ -18,7 +18,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Builder
 @Entity
 @Table(name = "roles")
-public class RolesEntity implements Serializable{
+public class RoleEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,9 +30,8 @@ public class RolesEntity implements Serializable{
     private String name;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "roles_permissions", joinColumns = @JoinColumn(name = "role_id"),
-    inverseJoinColumns = @JoinColumn(name = "permission_id"),
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"role_id", "permission_id"})})
+    @JoinTable(name = "roles_permissions", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "permission_id"), uniqueConstraints = {
+            @UniqueConstraint(columnNames = { "role_id", "permission_id" }) })
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<PermissionEntity> permissionList = new HashSet<>();
 }

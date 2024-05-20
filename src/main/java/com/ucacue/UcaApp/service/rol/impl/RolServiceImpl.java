@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ucacue.UcaApp.exception.RoleNotFoundException;
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
 import com.ucacue.UcaApp.model.dto.role.RoleRequestDto;
-import com.ucacue.UcaApp.model.entity.RolesEntity;
+import com.ucacue.UcaApp.model.entity.RoleEntity;
 import com.ucacue.UcaApp.model.mapper.RoleMapper;
 import com.ucacue.UcaApp.repository.RolesRepository;
 import com.ucacue.UcaApp.service.rol.RolService;
@@ -49,7 +49,7 @@ public class RolServiceImpl implements RolService{
 
     @Transactional(readOnly = true)
     @Override
-    public RolesEntity getMapperHelpRoleById(Long id) {
+    public RoleEntity getMapperHelpRoleById(Long id) {
         return roleRepository.findById(id)
             .orElseThrow(() -> new RoleNotFoundException(id));
     }
@@ -57,7 +57,7 @@ public class RolServiceImpl implements RolService{
     @Transactional
     @Override
     public RoleResponseDto save(RoleRequestDto roleRequestDto) {
-        RolesEntity rolesEntity = roleMapper.roleRequestDtoToRolesEntity(roleRequestDto, mapperHelper2);
+        RoleEntity rolesEntity = roleMapper.roleRequestDtoToRolesEntity(roleRequestDto, mapperHelper2);
         rolesEntity = roleRepository.save(rolesEntity);
         return roleMapper.rolesEntityToRoleResponseDto(rolesEntity);
     }
@@ -65,7 +65,7 @@ public class RolServiceImpl implements RolService{
     @Transactional
     @Override
     public RoleResponseDto update(Long id, RoleRequestDto roleRequestDto) {
-        RolesEntity rolesEntity = roleRepository.findById(id)
+        RoleEntity rolesEntity = roleRepository.findById(id)
             .orElseThrow(() -> new RoleNotFoundException(id));
         roleMapper.upddateEntityFromDto(roleRequestDto, rolesEntity, mapperHelper2);
         rolesEntity = roleRepository.save(rolesEntity);
