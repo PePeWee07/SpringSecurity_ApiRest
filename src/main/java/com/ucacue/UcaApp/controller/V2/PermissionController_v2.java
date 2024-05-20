@@ -41,7 +41,7 @@ public class PermissionController_v2 {
     }
 
     @PostMapping("/permission")
-    public ResponseEntity<?> create(@Valid @RequestBody PermissionRequestDto permissionRequestDto) {
+    public ResponseEntity<ApiResponse> create(@Valid @RequestBody PermissionRequestDto permissionRequestDto) {
         try {
             PermissionResponseDto savedRol = permissionService.save(permissionRequestDto);
             ApiResponse response = new ApiResponse(HttpStatus.CREATED.value(), savedRol,
@@ -53,7 +53,7 @@ public class PermissionController_v2 {
     }
 
     @PutMapping("/permission/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id,
+    public ResponseEntity<ApiResponse> update(@PathVariable Long id,
             @Valid @RequestBody PermissionRequestDto permissionRequestDto) {
         try {
             PermissionResponseDto updatedRol = permissionService.update(id, permissionRequestDto);
