@@ -3,6 +3,8 @@ package com.ucacue.UcaApp.model.dto.role;
 import lombok.*;
 import java.util.*;
 
+import jakarta.validation.constraints.NotEmpty;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,5 +16,6 @@ public class RoleRequestDto {
 
     private String name;
 
+    @NotEmpty(message = "permissionsIds cannot be empty")
     private Set<Long> permissionsIds;
 }
