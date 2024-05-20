@@ -8,7 +8,7 @@ import com.ucacue.UcaApp.model.entity.RoleEntity;
 
 public interface RolService {
 
-    RoleEntity getMapperHelpRoleById(Long id);
+    RoleEntity getMapperFetcherRoleById(Long id);
 
     List<RoleResponseDto> findAll();
 

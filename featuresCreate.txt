@@ -7,6 +7,8 @@
 
 
 + FEATURES:
+    - "Internal Server Error: ": "Could not commit JPA transaction" (UPDATE NULL CLEIN (ROL-PERMISSION))
+
     - Caprutar globlalmente el token cuando: 
         - org.springframework.dao.InvalidDataAccessApiUsageException (no acceso a ruta)
         - com.auth0.jwt.exceptions.TokenExpiredException: The Token has expired on 2024-05-17T14:10:29Z.

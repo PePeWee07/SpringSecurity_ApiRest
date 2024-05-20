@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import com.ucacue.UcaApp.model.entity.RoleEntity;
 
 @Repository
-public interface RolesRepository extends JpaRepository<RoleEntity, Long>{
+public interface RoleRepository extends JpaRepository<RoleEntity, Long>{
     RoleEntity findByName(String name);
     List<RoleEntity> findByNameIn(List<String> roleNames);
 } 

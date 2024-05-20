@@ -31,7 +31,7 @@ public class PermissionController_v2 {
     }
 
     @GetMapping("/permission/{id}")
-    public ResponseEntity<PermissionResponseDto> getPermissionById(@PathVariable Long id) {
+    public ResponseEntity<PermissionResponseDto> findById(@PathVariable Long id) {
         try {
             PermissionResponseDto response = permissionService.getPermissionById(id);
             return ResponseEntity.ok(response);

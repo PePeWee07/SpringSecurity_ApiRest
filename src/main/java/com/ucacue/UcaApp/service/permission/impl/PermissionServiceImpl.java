@@ -76,5 +76,4 @@ public class PermissionServiceImpl implements PermissionService {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'deletePermissionById'");
     }
-
 }
