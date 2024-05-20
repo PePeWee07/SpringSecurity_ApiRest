@@ -103,40 +103,40 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<?> handleDataAccessException(DataAccessException ex) {
         String errorMessage = ex.getMostSpecificCause().getMessage();
-        // String detailMessage = extractDetailMessageCause(errorMessage);
-        // String field = extractDetailMessageField(detailMessage);
-        // String rejectedValue = extractDetailRejectedValue(detailMessage);
+        String detailMessage = extractDetailMessageCause(errorMessage);
+        String field = extractDetailMessageField(detailMessage);
+        String rejectedValue = extractDetailRejectedValue(detailMessage);
 
-        // List<KeyViolateDetail> errorDetails = List.of(new KeyViolateDetail(
-        //     field,
-        //     "Key violates unique constraint",
-        //     rejectedValue,
-        //     "KEY_VIOLATE_UNIQUE"
-        // ));
+        List<KeyViolateDetail> errorDetails = List.of(new KeyViolateDetail(
+            field,
+            "Key violates unique constraint",
+            rejectedValue,
+            "KEY_VIOLATE_UNIQUE"
+        ));
 
-        // KeyViolateUniqueResponse response = new KeyViolateUniqueResponse(
-        //     HttpStatus.BAD_REQUEST.value(),
-        //     errorDetails,
-        //     "Key violates unique constraint"
+        KeyViolateUniqueResponse response = new KeyViolateUniqueResponse(
+            HttpStatus.BAD_REQUEST.value(),
+            errorDetails,
+            "Key violates unique constraint"
             
-        // );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
-    // private String extractDetailMessageCause(String errorMessage) {
-    //     int startIndex = errorMessage.indexOf("Detail: ") + "Detail: ".length();
-    //     int endIndex = errorMessage.length();
-    //     return errorMessage.substring(startIndex, endIndex);
-    // }
-    // private String extractDetailMessageField(String detailMessage) {
-    //     int startIndex = detailMessage.indexOf("Key (") + "Key (".length();
-    //     int endIndex = detailMessage.indexOf(")=");
-    //     return detailMessage.substring(startIndex, endIndex);
-    // }
-    // private String extractDetailRejectedValue(String detailMessage) {
-    //     int startIndex = detailMessage.indexOf("=(") + "=(".length();
-    //     int endIndex = detailMessage.indexOf(") ");
-    //     return detailMessage.substring(startIndex, endIndex);
-    // }
+    private String extractDetailMessageCause(String errorMessage) {
+        int startIndex = errorMessage.indexOf("Detail: ") + "Detail: ".length();
+        int endIndex = errorMessage.length();
+        return errorMessage.substring(startIndex, endIndex);
+    }
+    private String extractDetailMessageField(String detailMessage) {
+        int startIndex = detailMessage.indexOf("Key (") + "Key (".length();
+        int endIndex = detailMessage.indexOf(")=");
+        return detailMessage.substring(startIndex, endIndex);
+    }
+    private String extractDetailRejectedValue(String detailMessage) {
+        int startIndex = detailMessage.indexOf("=(") + "=(".length();
+        int endIndex = detailMessage.indexOf(") ");
+        return detailMessage.substring(startIndex, endIndex);
+    }
     
     //Metodo para manejar errores de tipo de paremtro en URLS
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)

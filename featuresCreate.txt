@@ -7,14 +7,12 @@
 
 
 + FEATURES:
-    - llaves unicas no captura exception en updateUser ni Rol saved (Metodo no contempla todo los resultados)
-    
     - Caprutar globlalmente el token cuando: 
         - org.springframework.dao.InvalidDataAccessApiUsageException (no acceso a ruta)
         - com.auth0.jwt.exceptions.TokenExpiredException: The Token has expired on 2024-05-17T14:10:29Z.
         - com.auth0.jwt.exceptions.SignatureVerificationException: The Token's Signature resulted invalid when verified using the Algorithm: HmacSHA256
         - Unauthorized Token 
 
-    - CRUD: para rolesEntity (DELETE)
-    - CRUD: para permissionEntity (DELETE) & Exceptions
+    - CRUD: para rolesEntity (DELETE) (Tener en cuenta q ConstraintViolationException distorciona el error para @Delete)
+    - CRUD: para permissionEntity (DELETE)
 
