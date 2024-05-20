@@ -30,6 +30,14 @@ import jakarta.validation.ConstraintViolationException;
 public class GlobalExceptionHandler {
 
     Map<String, Object> responseGlobalExcp = new HashMap<>();
+
+    // Método genérico para manejar otras excepciones
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
+        Map<String, Object> responseGlobalExcp = new HashMap<>();
+        responseGlobalExcp.put("Internal Server Error: ", ex.getMessage());
+        return new ResponseEntity<>(responseGlobalExcp, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
     
     //Metodo para manejar mensajes de error de recursos no encontrados
     @ExceptionHandler(ResourceNotFound.class)

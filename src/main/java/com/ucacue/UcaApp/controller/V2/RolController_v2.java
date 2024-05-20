@@ -63,7 +63,7 @@ public class RolController_v2 {
             RoleAndPermissionNotFoundResponse response = new RoleAndPermissionNotFoundResponse(
             HttpStatus.NOT_FOUND.value(),
             List.of(Map.entry("error", "permissionsIds not found in request")),
-            "Permission not found"
+            "permissionsIds not found"
             );
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
@@ -72,16 +72,9 @@ public class RolController_v2 {
             RoleResponseDto savedRol = rolService.save(roleRequestDto);
             ApiResponse response = new ApiResponse(HttpStatus.CREATED.value(), savedRol, "Rol created successfully");
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        }catch (ConstraintViolationException ex) {
-            throw ex;
-        }catch (PermissionNotFoundException e) {
+        }catch (Exception e) {
+            // Las excepciones específicas serán manejadas por el GlobalExceptionHandler
             throw e;
-        }catch (DataAccessException e) {
-			throw e;
-		} catch (Exception e) {
-            Map<String, Object> responseGlobalExcp = new HashMap<>();
-            responseGlobalExcp.put("Internal Server Error: ", e.getMessage());
-            return new ResponseEntity<Map<String, Object>>(responseGlobalExcp, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

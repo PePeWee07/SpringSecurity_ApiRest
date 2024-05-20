@@ -26,7 +26,7 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Transactional(readOnly = true)
     @Override
-    public PermissionEntity getMapperHelpPermissionById(Long id) {
+    public PermissionEntity getMapperFetcherPermissionById(Long id) {
         return permissionRepository.findById(id)
                 .orElseThrow(() -> new PermissionNotFoundException(id));
     }
@@ -50,14 +50,12 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Transactional
     @Override
-    // Método para crear una nuevo Permiso
     public PermissionResponseDto save(PermissionRequestDto dto) {
         PermissionEntity entity = permissionMapper.permissionRequestDtoToPermissionEntity(dto);
         PermissionEntity savedEntity = permissionRepository.save(entity);
         return permissionMapper.permissionEntityToPermissionResponseDto(savedEntity);
     }
 
-    // Método para actualizar un Permiso
     @Transactional
     @Override
     public PermissionResponseDto update(Long id, PermissionRequestDto dto) {

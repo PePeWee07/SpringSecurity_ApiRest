@@ -22,25 +22,31 @@ public interface RoleMapper {
     @Mapping(source = "permissionList", target = "permissionList")
     RoleResponseDto rolesEntityToRoleResponseDto(RolesEntity entity);
 
-    default RolesEntity roleRequestDtoToRolesEntity(RoleRequestDto dto, @Context PermissionEntityFetcher permissionEntityFetcher) {
+    default RolesEntity roleRequestDtoToRolesEntity(RoleRequestDto dto,
+            @Context PermissionEntityFetcher permissionEntityFetcher) {
         RolesEntity entity = new RolesEntity();
         entity.setName(dto.getName());
 
-        Set<PermissionEntity> permissionEntities = permissionIdsToPermissionEntities(dto.getPermissionsIds(), permissionEntityFetcher);
+        Set<PermissionEntity> permissionEntities = permissionIdsToPermissionEntities(dto.getPermissionsIds(),
+                permissionEntityFetcher);
         entity.setPermissionList(permissionEntities);
         return entity;
     }
 
-    default Set<PermissionEntity> permissionIdsToPermissionEntities(Set<Long> permissionIds, PermissionEntityFetcher permissionEntityFetcher){
+    // Metodo para convertir una lista de ids de permisos a una lista de entidades de permisos
+    default Set<PermissionEntity> permissionIdsToPermissionEntities(Set<Long> permissionIds,
+            PermissionEntityFetcher permissionEntityFetcher) {
         return permissionIds.stream()
-                      .map(id -> permissionEntityFetcher.mapPermissionIdToPermissionEntity(id)) // Usando permissionEntityFetcher para convertir ID a PermissionEntity
-                      .collect(Collectors.toSet()); 
+                .map(id -> permissionEntityFetcher.mapPermissionIdToPermissionEntity(id))
+                .collect(Collectors.toSet());
     }
 
-    default void upddateEntityFromDto(RoleRequestDto dto, @MappingTarget RolesEntity entity, @Context PermissionEntityFetcher permissionEntityFetcher) {
-        if(dto.getName() != null) entity.setName(dto.getName());
-        if(dto.getPermissionsIds() != null) entity.setPermissionList(permissionIdsToPermissionEntities(dto.getPermissionsIds(), permissionEntityFetcher));
+    default void upddateEntityFromDto(RoleRequestDto dto, @MappingTarget RolesEntity entity,
+            @Context PermissionEntityFetcher permissionEntityFetcher) {
+        if (dto.getName() != null)
+            entity.setName(dto.getName());
+        if (dto.getPermissionsIds() != null)
+            entity.setPermissionList(
+                    permissionIdsToPermissionEntities(dto.getPermissionsIds(), permissionEntityFetcher));
     }
-
-    //List<RoleResponseDto> rolesEntityListToRoleResponseDtoList(List<RolesEntity> entities);
 }

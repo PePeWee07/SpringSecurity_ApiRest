@@ -29,9 +29,7 @@ public class PermissionController_v2 {
         try {
             return ResponseEntity.ok(permissionService.findAll());
         } catch (Exception e) {
-            Map<String, Object> responseGlobalExcp = new HashMap<>();
-            responseGlobalExcp.put("Internal Server Error: ", e.getMessage());
-            return new ResponseEntity<Map<String, Object>>(responseGlobalExcp, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw e;
         }
     }
 
