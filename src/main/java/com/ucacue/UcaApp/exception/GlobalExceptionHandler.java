@@ -88,7 +88,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    // Metodo para manejar mensajes de error de datos no pasados en POST y PUT
+    // Metodo para manejar mensajes de error de datos no pasados en (POST)
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException ex) {
         List<ConstraintErrorDetail> errorDetails = ex.getConstraintViolations().stream()
