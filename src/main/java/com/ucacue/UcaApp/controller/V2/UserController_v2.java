@@ -8,6 +8,7 @@ import com.ucacue.UcaApp.web.response.ApiResponse;
 import com.ucacue.UcaApp.web.response.roleandPermissionNotFound.RoleAndPermissionNotFoundResponse;
 import com.ucacue.UcaApp.exception.ResourceNotFound;
 import com.ucacue.UcaApp.exception.RoleNotFoundException;
+import com.ucacue.UcaApp.exception.UserNotFoundException;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 
@@ -65,11 +66,11 @@ public class UserController_v2 {
 
     @GetMapping("/user/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id) {
-        UserResponseDto user = userService.findById(id)
-                                                   .orElseThrow(() -> new ResourceNotFound("User not found with ID: " + id));
-
         try {
+            UserResponseDto user = userService.getUserById(id);
             return ResponseEntity.ok(user);
+        } catch (UserNotFoundException e){
+            throw e;
         } catch (Exception e) {
             logger.error("Error getting User by ID: {}", e.getMessage());
             Map<String, Object> responseGlobalExcp = new HashMap<>();

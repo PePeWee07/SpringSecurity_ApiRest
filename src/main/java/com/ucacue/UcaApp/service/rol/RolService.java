@@ -12,7 +12,7 @@ public interface RolService {
 
     List<RoleResponseDto> findAll();
 
-    Optional<RoleResponseDto> getRoleById(Long id);
+    RoleResponseDto getRoleById(Long id);
 
     RoleResponseDto save(RoleRequestDto roleRequestDto);
 

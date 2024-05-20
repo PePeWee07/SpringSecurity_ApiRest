@@ -21,6 +21,7 @@ import com.ucacue.UcaApp.web.response.fieldValidation.FieldValidationResponse;
 import com.ucacue.UcaApp.web.response.keyViolateUnique.KeyViolateDetail;
 import com.ucacue.UcaApp.web.response.keyViolateUnique.KeyViolateUniqueResponse;
 import com.ucacue.UcaApp.web.response.roleandPermissionNotFound.RoleAndPermissionNotFoundResponse;
+import com.ucacue.UcaApp.web.response.userNotFound.UserNotFoundResponse;
 
 import jakarta.validation.ConstraintViolationException;
 
@@ -64,6 +65,17 @@ public class GlobalExceptionHandler {
             HttpStatus.NOT_FOUND.value(),
             List.of(Map.entry("error", "Permission ID " + ex.getPermissionId()+ " not found")),
             "Permission not found"
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    //Metodo para manejar mensajes de error de usuarios no econtrados
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<UserNotFoundResponse> handleUserNotFoundException(UserNotFoundException ex) {
+        UserNotFoundResponse response = new UserNotFoundResponse(
+            HttpStatus.NOT_FOUND.value(),
+            List.of(Map.entry("error", "Permission ID " + ex.getUserId()+ " not found")),
+            "User not found"
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }

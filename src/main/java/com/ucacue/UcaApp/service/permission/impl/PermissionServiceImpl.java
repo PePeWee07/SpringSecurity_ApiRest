@@ -31,6 +31,7 @@ public class PermissionServiceImpl implements PermissionService {
                 .orElseThrow(() -> new PermissionNotFoundException(id));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<PermissionResponseDto> findAll() {
         return permissionRepository.findAll()
@@ -39,13 +40,6 @@ public class PermissionServiceImpl implements PermissionService {
                 .collect(Collectors.toList());
     }
 
-    // Método para obtener un Permiso por ID
-    // public PermissionResponseDto getPermissionById(Long id) {
-    // PermissionEntity entity = permissionRepository.findById(id)
-    // .orElseThrow(() -> new RuntimeException("Permission not found with id " +
-    // id));
-    // return permissionMapper.permissionEntityToPermissionResponseDto(entity);
-    // }
     @Transactional(readOnly = true)
     @Override
     public PermissionResponseDto getPermissionById(Long id) {
@@ -68,7 +62,7 @@ public class PermissionServiceImpl implements PermissionService {
     @Override
     public PermissionResponseDto update(Long id, PermissionRequestDto dto) {
         PermissionEntity entity = permissionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Permission not found with id " + id));
+                .orElseThrow(() -> new PermissionNotFoundException(id));
         permissionMapper.updateEntityFromDto(dto, entity);
         PermissionEntity updatedEntity = permissionRepository.save(entity);
         return permissionMapper.permissionEntityToPermissionResponseDto(updatedEntity);

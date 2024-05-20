@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ucacue.UcaApp.exception.UserNotFoundException;
 import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
 import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
@@ -117,9 +118,10 @@ public class UserServiceImpl implements UserService, UserDetailsService{
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<UserResponseDto> findById(Long id) {
+    public UserResponseDto getUserById(Long id) {
         return userRepository.findById(id)
-            .map(userMapper::toUserResponseDto);
+            .map(userMapper::toUserResponseDto)
+            .orElseThrow(() -> new UserNotFoundException(id));
     }
 
     @Transactional
