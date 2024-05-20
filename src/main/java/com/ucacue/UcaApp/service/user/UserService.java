@@ -16,7 +16,7 @@ public interface UserService {
 
     Page<UserResponseDto> findAllForPage(Pageable pageable);
 
-    Optional<UserResponseDto> findById(Long id);
+    UserResponseDto getUserById(Long id);
     
     Optional<UserResponseDto> findByEmail(String email);
 

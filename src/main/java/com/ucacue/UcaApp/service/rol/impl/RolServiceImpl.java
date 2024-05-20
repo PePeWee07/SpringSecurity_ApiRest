@@ -2,8 +2,7 @@ package com.ucacue.UcaApp.service.rol.impl;
 
 
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,9 +41,10 @@ public class RolServiceImpl implements RolService{
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<RoleResponseDto> getRoleById(Long id) {
+    public RoleResponseDto getRoleById(Long id) {
         return roleRepository.findById(id)
-            .map(roleMapper::rolesEntityToRoleResponseDto);
+            .map(roleMapper::rolesEntityToRoleResponseDto)
+            .orElseThrow(() -> new RoleNotFoundException(id));
     }
 
     @Transactional(readOnly = true)

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ucacue.UcaApp.exception.PermissionNotFoundException;
-import com.ucacue.UcaApp.exception.ResourceNotFound;
+import com.ucacue.UcaApp.exception.RoleNotFoundException;
 import com.ucacue.UcaApp.model.dto.role.RoleRequestDto;
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
 import com.ucacue.UcaApp.service.rol.RolService;
@@ -45,11 +45,11 @@ public class RolController_v2 {
 
     @GetMapping("/rol/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id) {
-        RoleResponseDto user = rolService.getRoleById(id)
-            .orElseThrow(() -> new ResourceNotFound("Rol not found with ID: " + id));
-
         try {
-            return ResponseEntity.ok(user);
+            RoleResponseDto response = rolService.getRoleById(id);
+            return ResponseEntity.ok(response);
+        } catch (RoleNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             Map<String, Object> responseGlobalExcp = new HashMap<>();
             responseGlobalExcp.put("Internal Server Error: ", e.getMessage());
@@ -63,7 +63,7 @@ public class RolController_v2 {
             RoleAndPermissionNotFoundResponse response = new RoleAndPermissionNotFoundResponse(
             HttpStatus.NOT_FOUND.value(),
             List.of(Map.entry("error", "permissionsIds not found in request")),
-            "Role not found"
+            "Permission not found"
             );
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
@@ -87,14 +87,11 @@ public class RolController_v2 {
 
     @PutMapping("/rol/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody RoleRequestDto roleRequestDto) {
-        if (!rolService.exists(id)) {
-            throw new ResourceNotFound("Rol not found with ID: " + id);
-        }
         if (roleRequestDto.getPermissionsIds() == null || roleRequestDto.getPermissionsIds().isEmpty()) {
             RoleAndPermissionNotFoundResponse response = new RoleAndPermissionNotFoundResponse(
             HttpStatus.NOT_FOUND.value(),
             List.of(Map.entry("error", "permissionsIds not found in request")),
-            "Role not found"
+            "Permission not found"
             );
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
