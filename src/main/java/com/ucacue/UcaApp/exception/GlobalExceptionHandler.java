@@ -182,11 +182,15 @@ public class GlobalExceptionHandler {
 
     // Metodo para manejar errores de credenciales invalidas
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Map<String, String>> handleBadCredentialsException(BadCredentialsException ex) {
-        Map<String, String> response = new HashMap<>();
-        response.put("error", "Invalid credentials");
+    public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException ex) {
+        ErrorResponse response = new ErrorResponse(
+            HttpStatus.UNAUTHORIZED.value(),
+            "Invalid username or password",
+            "Bad credentials"
+        );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
+
 
     // Metodo para manejar errores de cuenta expirada
     @ExceptionHandler(AccountExpiredException.class)

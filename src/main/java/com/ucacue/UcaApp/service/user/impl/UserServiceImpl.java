@@ -35,7 +35,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.User;
 
 @Service
-public class UserServiceImpl implements UserService, UserDetailsService{
+public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     private UserMapper userMapper;
 
     @Autowired
-    private RoleEntityFetcher roleEntityFetcher; 
+    private RoleEntityFetcher roleEntityFetcher;
 
     @Autowired
     private JwtUtils jwtUtils;
@@ -56,26 +56,27 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         UserEntity userEntity = userRepository.findByEmail(email)
-            .orElseThrow(() -> new UserNotFoundException(email, UserNotFoundException.SearchType.EMAIL));
+                .orElseThrow(() -> new UserNotFoundException(email, UserNotFoundException.SearchType.EMAIL));
 
         List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
         userEntity.getRoles()
-            .forEach(role -> authorityList.add(new SimpleGrantedAuthority("ROLE_".concat(role.getName()))));      
+                .forEach(role -> authorityList.add(new SimpleGrantedAuthority("ROLE_".concat(role.getName()))));
         userEntity.getRoles().stream()
-            .flatMap(role -> role.getPermissionList().stream())
-            .forEach(permission -> authorityList.add(new SimpleGrantedAuthority(permission.getName())));
-        
+                .flatMap(role -> role.getPermissionList().stream())
+                .forEach(permission -> authorityList.add(new SimpleGrantedAuthority(permission.getName())));
+
         return new User(
-            userEntity.getEmail(),
-            userEntity.getPassword(),
-            userEntity.isEnabled(),
-            userEntity.isAccountNoExpired(),
-            userEntity.isCredentialNoExpired(),
-            userEntity.isAccountNoLocked(),
-            authorityList
-        );
+                userEntity.getEmail(),
+                userEntity.getPassword(),
+                userEntity.isEnabled(),
+                userEntity.isAccountNoExpired(),
+                userEntity.isCredentialNoExpired(),
+                userEntity.isAccountNoLocked(),
+                authorityList);
     }
 
+    @Transactional
+    @Override
     public AuthResponse loginUser(AuthLoginRequest authLoginRequest) {
         String username = authLoginRequest.username();
         String password = authLoginRequest.password();
@@ -84,19 +85,22 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String accessToken = jwtUtils.createToken(authentication);
-        AuthResponse authResponse = new AuthResponse(username, "User loged succesfully", accessToken, true);
-        return authResponse;
+        return new AuthResponse(username, "User logged in successfully", accessToken, true);
     }
 
+    @Transactional
+    @Override
     public Authentication authenticate(String username, String password) {
-        UserDetails userDetails = this.loadUserByUsername(username);
-
-        if (userDetails == null) {
-            throw new BadCredentialsException(String.format("Invalid username or password"));
+        UserDetails userDetails = null;
+        try {
+            userDetails = this.loadUserByUsername(username);
+        } catch (UserNotFoundException ex) {
+            // Dejar este catch vacio para permitir que el flujo de la lógica continúe, de
+            // modo que la validación de la contraseña pueda ocurrir inmediatamente después.
         }
 
-        if (!passwordEncoder.matches(password, userDetails.getPassword())) {
-            throw new BadCredentialsException("Incorrect Password");
+        if (userDetails == null || !passwordEncoder.matches(password, userDetails.getPassword())) {
+            throw new BadCredentialsException("Invalid username or password");
         }
 
         return new UsernamePasswordAuthenticationToken(username, password, userDetails.getAuthorities());
@@ -109,13 +113,17 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         userEntity = userRepository.save(userEntity);
 
         ArrayList<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        userEntity.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_".concat(role.getName()))));
-        userEntity.getRoles().stream().flatMap(role -> role.getPermissionList().stream()).forEach(permission -> authorities.add(new SimpleGrantedAuthority(permission.getName())));
+        userEntity.getRoles()
+                .forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_".concat(role.getName()))));
+        userEntity.getRoles().stream().flatMap(role -> role.getPermissionList().stream())
+                .forEach(permission -> authorities.add(new SimpleGrantedAuthority(permission.getName())));
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userEntity.getEmail(), userEntity.getPassword(), authorities);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userEntity.getEmail(),
+                userEntity.getPassword(), authorities);
         String accessToken = jwtUtils.createToken(authentication);
 
-        AuthResponse authResponse = new AuthResponse(userEntity.getEmail(), "User created successfully", accessToken, true);
+        AuthResponse authResponse = new AuthResponse(userEntity.getEmail(), "User created successfully", accessToken,
+                true);
         return authResponse;
     }
 
@@ -123,23 +131,23 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     @Override
     public List<UserResponseDto> findAll() {
         return userRepository.findAll().stream()
-            .map(userMapper::toUserResponseDto)
-            .collect(Collectors.toList());
+                .map(userMapper::toUserResponseDto)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     @Override
     public Page<UserResponseDto> findAllForPage(Pageable pageable) {
         return userRepository.findAll(pageable)
-            .map(userMapper::toUserResponseDto);
+                .map(userMapper::toUserResponseDto);
     }
 
     @Transactional(readOnly = true)
     @Override
     public UserResponseDto getUserById(Long id) {
         return userRepository.findById(id)
-            .map(userMapper::toUserResponseDto)
-            .orElseThrow(() -> new UserNotFoundException(id, UserNotFoundException.SearchType.ID));
+                .map(userMapper::toUserResponseDto)
+                .orElseThrow(() -> new UserNotFoundException(id, UserNotFoundException.SearchType.ID));
     }
 
     @Transactional
@@ -154,7 +162,7 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     @Override
     public UserResponseDto update(Long id, UserRequestDto userRequestDto) {
         UserEntity userEntity = userRepository.findById(id)
-            .orElseThrow(() -> new UserNotFoundException(id, UserNotFoundException.SearchType.ID));
+                .orElseThrow(() -> new UserNotFoundException(id, UserNotFoundException.SearchType.ID));
         userMapper.updateEntityFromDto(userRequestDto, userEntity, roleEntityFetcher);
         userEntity = userRepository.save(userEntity);
         return userMapper.toUserResponseDto(userEntity);
@@ -167,12 +175,12 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     }
 
     @Override
-	@Transactional(readOnly=true)
-	public UserResponseDto findByEmail(String email) {
+    @Transactional(readOnly = true)
+    public UserResponseDto findByEmail(String email) {
         return userRepository.findByEmail(email)
-            .map(userMapper::toUserResponseDto)
-            .orElseThrow(() -> new UserNotFoundException(email, UserNotFoundException.SearchType.EMAIL));
-	}
+                .map(userMapper::toUserResponseDto)
+                .orElseThrow(() -> new UserNotFoundException(email, UserNotFoundException.SearchType.EMAIL));
+    }
 
     @Override
     public void delete(Long id) {
@@ -180,16 +188,19 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         throw new UnsupportedOperationException("Unimplemented method 'delete'");
     }
 
-    //  PARA ALTA CONCURRENCIA DE USUARIOS REALIZANDO MUCHAS PETICIONES USAR CACHE
+    // PARA ALTA CONCURRENCIA DE USUARIOS REALIZANDO MUCHAS PETICIONES USAR CACHE
     // @Override
-    // public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-    //     return cache.computeIfAbsent(email, this::findUserByEmail);
+    // public UserDetails loadUserByUsername(String email) throws
+    // UsernameNotFoundException {
+    // return cache.computeIfAbsent(email, this::findUserByEmail);
     // }
     // private UserDetails findUserByEmail(String email) {
-    //     UserEntity userEntity = userRepository.findByEmail(email)
-    //         .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
-    //     return new org.springframework.security.core.userdetails.User(
-    //         userEntity.getEmail(), userEntity.getPassword(), getAuthorities(userEntity.getRoles()));
+    // UserEntity userEntity = userRepository.findByEmail(email)
+    // .orElseThrow(() -> new UsernameNotFoundException("User not found with email:
+    // " + email));
+    // return new org.springframework.security.core.userdetails.User(
+    // userEntity.getEmail(), userEntity.getPassword(),
+    // getAuthorities(userEntity.getRoles()));
     // }
 
 }
