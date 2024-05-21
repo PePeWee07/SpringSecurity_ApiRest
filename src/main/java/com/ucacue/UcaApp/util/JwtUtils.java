@@ -51,34 +51,21 @@ public class JwtUtils {
             Algorithm algorithm = Algorithm.HMAC256(privateKey);
             JWTVerifier verifier = JWT.require(algorithm).withIssuer(userGenerator).build();
             return verifier.verify(token);
-
         } catch (Exception e) {
             throw e;
         }
     }
 
     public String getUsernameFromToken(DecodedJWT token) {
-        try {
             return token.getSubject().toString();
-        } catch (Exception e) {
-            throw e;
-        }
     }
 
     public Claim getClaimFromToken(DecodedJWT token, String claim) {
-        try {
             return token.getClaim(claim);
-        } catch (Exception e) {
-            throw e;
-        }
     }
 
     public Map<String, Claim> getClaimsFromToken(DecodedJWT token) {
-        try {
             return token.getClaims();
-        } catch (Exception e) {
-            throw e;
-        }
     }
 
 }

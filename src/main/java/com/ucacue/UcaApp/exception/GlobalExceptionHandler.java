@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
         Map<String, Object> responseGlobalExcp = new HashMap<>();
-        responseGlobalExcp.put("Internal Server Error: ", ex.getMessage());
+        responseGlobalExcp.put("Internal Server Error: ", ex);
         return new ResponseEntity<>(responseGlobalExcp, HttpStatus.INTERNAL_SERVER_ERROR);
     }
     
