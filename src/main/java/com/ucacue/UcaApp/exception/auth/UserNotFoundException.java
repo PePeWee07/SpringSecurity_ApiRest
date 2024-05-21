@@ -1,4 +1,4 @@
-package com.ucacue.UcaApp.exception;
+package com.ucacue.UcaApp.exception.auth;
 
 public class UserNotFoundException extends RuntimeException {
     private Object userIdentifier;

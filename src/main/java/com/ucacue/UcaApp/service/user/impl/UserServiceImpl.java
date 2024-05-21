@@ -10,8 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
-import com.ucacue.UcaApp.exception.UserAlreadyExistsException;
-import com.ucacue.UcaApp.exception.UserNotFoundException;
+
+import com.ucacue.UcaApp.exception.auth.UserAlreadyExistsException;
+import com.ucacue.UcaApp.exception.auth.UserNotFoundException;
 import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
 import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
