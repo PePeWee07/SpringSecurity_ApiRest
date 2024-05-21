@@ -7,7 +7,9 @@
 
 
 + FEATURES:
-    - "Internal Server Error: ": "Could not commit JPA transaction" (UPDATE NULL CLEIN (ROL-PERMISSION-USER))
+    - "Internal Server Error: ": "Could not commit JPA transaction" (UPDATE NULL CLEIN "name" (ROL-PERMISSION-USER))
+
+    - TENER EN CUENTA validacion de boolean no esta funcionando isEnabled y en defecto se envia un false
 
     - Caprutar globlalmente el token cuando: 
         - org.springframework.dao.InvalidDataAccessApiUsageException (no acceso a ruta)

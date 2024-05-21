@@ -13,6 +13,7 @@ import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 import com.ucacue.UcaApp.model.entity.RoleEntity;
 import com.ucacue.UcaApp.model.entity.UserEntity;
+import com.ucacue.UcaApp.util.PasswordEncoderUtil;
 import com.ucacue.UcaApp.util.RoleEntityFetcher;
 
 
@@ -48,7 +49,7 @@ public interface UserMapper {
     }
 
 
-    default UserEntity toUserEntity(UserRequestDto UserRequestDto, @Context RoleEntityFetcher RoleEntityFetcher) {
+    default UserEntity toUserEntity(UserRequestDto UserRequestDto, @Context RoleEntityFetcher RoleEntityFetcher, @Context PasswordEncoderUtil passwordEncoderUtil) {
         UserEntity entity = new UserEntity();
         entity.setId(UserRequestDto.getId());
         entity.setName(UserRequestDto.getName());
@@ -57,7 +58,7 @@ public interface UserMapper {
         entity.setPhoneNumber(UserRequestDto.getPhoneNumber());
         entity.setAddress(UserRequestDto.getAddress());
         entity.setDNI(UserRequestDto.getDNI());
-        entity.setPassword(UserRequestDto.getPassword());
+        entity.setPassword(passwordEncoderUtil.encodePassword(UserRequestDto.getPassword()));
         entity.setEnabled(UserRequestDto.isEnabled());
         entity.setAccountNoExpired(UserRequestDto.isAccountNoExpired());
         entity.setAccountNoLocked(UserRequestDto.isAccountNoLocked());
@@ -80,7 +81,7 @@ public interface UserMapper {
                       .collect(Collectors.toSet());
     }
 
-    default void updateEntityFromDto(UserRequestDto dto, @MappingTarget UserEntity entity, @Context RoleEntityFetcher RoleEntityFetcher) {
+    default void updateEntityFromDto(UserRequestDto dto, @MappingTarget UserEntity entity, @Context RoleEntityFetcher RoleEntityFetcher, @Context PasswordEncoderUtil passwordEncoderUtil) {
         if (dto.getName() != null) entity.setName(dto.getName());
         if (dto.getLastName() != null) entity.setLastName(dto.getLastName());
         if (dto.getEmail() != null) entity.setEmail(dto.getEmail());

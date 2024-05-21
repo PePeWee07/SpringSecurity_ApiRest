@@ -21,6 +21,7 @@ import com.ucacue.UcaApp.model.mapper.UserMapper;
 import com.ucacue.UcaApp.repository.UserRepository;
 import com.ucacue.UcaApp.service.user.UserService;
 import com.ucacue.UcaApp.util.JwtUtils;
+import com.ucacue.UcaApp.util.PasswordEncoderUtil;
 import com.ucacue.UcaApp.util.RoleEntityFetcher;
 import com.ucacue.UcaApp.util.UserStatusValidator;
 
@@ -32,7 +33,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.User;
-
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {
 
@@ -50,6 +50,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+    
+    @Autowired
+    private PasswordEncoderUtil passwordEncoderUtil;
 
     @Transactional(readOnly = true)
     @Override
@@ -84,8 +87,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public Authentication authenticate(String username, String password) {
         UserDetails userDetails = this.loadUserByUsername(username);
-        UserStatusValidator.validate(userDetails); // Validar el estado del usuario
 
+        System.out.println("***********Exception************ ");
+        System.out.println(userDetails);
+        UserStatusValidator.validate(userDetails); // Validar el estado del usuario
+        
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {
             throw new BadCredentialsException("Invalid username or password");
         }
@@ -97,7 +103,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 @Override
 public AuthResponse RegisterUser(UserRequestDto userRequestDto) {
     try {
-        UserEntity userEntity = userMapper.toUserEntity(userRequestDto, roleEntityFetcher);
+        UserEntity userEntity = userMapper.toUserEntity(userRequestDto, roleEntityFetcher, passwordEncoderUtil);
 
         if (userRepository.existsByEmail(userEntity.getEmail())) {
             throw new UserAlreadyExistsException(userEntity.getEmail());
@@ -144,7 +150,7 @@ public AuthResponse RegisterUser(UserRequestDto userRequestDto) {
     @Transactional
     @Override
     public UserResponseDto save(UserRequestDto userRequestDto) {
-        UserEntity userEntity = userMapper.toUserEntity(userRequestDto, roleEntityFetcher);
+        UserEntity userEntity = userMapper.toUserEntity(userRequestDto, roleEntityFetcher, passwordEncoderUtil);
         userEntity = userRepository.save(userEntity);
         return userMapper.toUserResponseDto(userEntity);
     }
@@ -154,7 +160,7 @@ public AuthResponse RegisterUser(UserRequestDto userRequestDto) {
     public UserResponseDto update(Long id, UserRequestDto userRequestDto) {
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id, UserNotFoundException.SearchType.ID));
-        userMapper.updateEntityFromDto(userRequestDto, userEntity, roleEntityFetcher);
+        userMapper.updateEntityFromDto(userRequestDto, userEntity, roleEntityFetcher, passwordEncoderUtil);
         userEntity = userRepository.save(userEntity);
         return userMapper.toUserResponseDto(userEntity);
     }

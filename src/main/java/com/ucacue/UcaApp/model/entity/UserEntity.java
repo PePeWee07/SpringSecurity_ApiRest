@@ -67,8 +67,8 @@ public class UserEntity implements UserDetails{
     private String password;
 
     @NotNull
-    @Column(name = "is_enabled")
-    private boolean isEnabled;
+    @Column(name = "enabled")
+    private boolean enabled;
 
     @NotNull
     @Column(name = "account_No_Expired")
@@ -109,7 +109,7 @@ public class UserEntity implements UserDetails{
 
     @Override
     public boolean isEnabled() {
-        return this.isEnabled;
+        return this.enabled;
     }
 
     @Override
