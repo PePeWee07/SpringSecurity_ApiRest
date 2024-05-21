@@ -89,8 +89,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Authentication authenticate(String username, String password) {
         UserDetails userDetails = this.loadUserByUsername(username);
 
-        System.out.println("***********Exception************ ");
-        System.out.println(userDetails);
         UserStatusValidator.validate(userDetails); // Validar el estado del usuario
         
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {

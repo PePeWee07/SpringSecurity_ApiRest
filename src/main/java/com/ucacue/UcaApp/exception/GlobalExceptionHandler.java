@@ -14,15 +14,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.ucacue.UcaApp.exception.auth.UserAlreadyExistsException;
 import com.ucacue.UcaApp.exception.auth.UserNotFoundException;
 import com.ucacue.UcaApp.exception.crud.ErrorResponse;
 import com.ucacue.UcaApp.exception.crud.PermissionNotFoundException;
 import com.ucacue.UcaApp.exception.crud.ResourceNotFound;
 import com.ucacue.UcaApp.exception.crud.RoleNotFoundException;
-import com.ucacue.UcaApp.exception.token.JwtTokenCreationException;
-import com.ucacue.UcaApp.exception.token.JwtTokenException;
-import com.ucacue.UcaApp.exception.token.JwtTokenVerificationException;
 import com.ucacue.UcaApp.web.response.constraintViolation.ConstraintErrorDetail;
 import com.ucacue.UcaApp.web.response.constraintViolation.ConstraintViolationResponse;
 import com.ucacue.UcaApp.web.response.fieldValidation.FieldErrorDetail;
@@ -260,34 +258,13 @@ public class GlobalExceptionHandler {
 
     //------------------------------------------------------------ EXCEPCIONES DE TOKEN ------------------------------------------------------------
 
-    @ExceptionHandler(JwtTokenException.class)
-    public ResponseEntity<ErrorResponse> handleJwtTokenException(JwtTokenException ex) {
+    @ExceptionHandler(JWTVerificationException.class)
+    public ResponseEntity<ErrorResponse> handleJWTVerificationException(JWTVerificationException ex) {
         ErrorResponse response = new ErrorResponse(
-                HttpStatus.UNAUTHORIZED.value(),
-                "JWT Error",
-                ex.getMessage()
+            HttpStatus.UNAUTHORIZED.value(),
+            "Invalid Token",
+            ex.getMessage()
         );
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
-
-    @ExceptionHandler(JwtTokenCreationException.class)
-    public ResponseEntity<ErrorResponse> handleJwtTokenCreationException(JwtTokenCreationException ex) {
-        ErrorResponse response = new ErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "JWT Creation Error",
-                ex.getMessage()
-        );
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-    }
-
-    @ExceptionHandler(JwtTokenVerificationException.class)
-    public ResponseEntity<ErrorResponse> handleJwtTokenVerificationException(JwtTokenVerificationException ex) {
-        ErrorResponse response = new ErrorResponse(
-                HttpStatus.UNAUTHORIZED.value(),
-                "JWT Verification Error",
-                ex.getMessage()
-        );
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-    }
-
 }
