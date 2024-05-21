@@ -1,12 +1,8 @@
 package com.ucacue.UcaApp.controller.V2;
 
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 
-import java.util.*;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,12 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ucacue.UcaApp.exception.RoleNotFoundException;
 import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
 import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
 import com.ucacue.UcaApp.service.user.impl.UserServiceImpl;
-import com.ucacue.UcaApp.web.response.roleandPermissionNotFound.RoleAndPermissionNotFoundResponse;
 
 @RestController
 @RequestMapping("/auth")
@@ -31,25 +25,9 @@ public class AuthenticationController {
     @PostMapping("/sign-up")
     public ResponseEntity<?> register(@RequestBody @Valid UserRequestDto userRequest) {
         try {
-            if (userRequest.getRolesIds() == null || userRequest.getRolesIds().isEmpty()) {
-                RoleAndPermissionNotFoundResponse response = new RoleAndPermissionNotFoundResponse(
-                        HttpStatus.NOT_FOUND.value(),
-                        List.of(Map.entry("error", "rolesIds not found in request")),
-                        "Role not found");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-            }
-
             return new ResponseEntity<>(userServiceImpl.RegisterUser(userRequest), HttpStatus.CREATED);
-        } catch (ConstraintViolationException ex) {
-            throw ex;
-        } catch (RoleNotFoundException e) {
-            throw e;
-        } catch (DataAccessException e) {
-            throw e;
         } catch (Exception e) {
-            Map<String, Object> responseGlobalExcp = new HashMap<>();
-            responseGlobalExcp.put("Internal Server Error: ", e.getMessage());
-            return new ResponseEntity<Map<String, Object>>(responseGlobalExcp, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw e;
         }
     }
 

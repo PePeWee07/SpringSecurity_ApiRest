@@ -174,9 +174,12 @@ public class GlobalExceptionHandler {
 
     // Manejo de excepción para UsernameNotFoundException
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleUsernameNotFoundException(UsernameNotFoundException ex) {
-        Map<String, String> response = new HashMap<>();
-        response.put("error", ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleUsernameNotFoundException(UsernameNotFoundException ex) {
+        ErrorResponse response = new ErrorResponse(
+            HttpStatus.NOT_FOUND.value(),
+            "User not found",
+            ex.getMessage()
+        );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -191,63 +194,47 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
-
     // Metodo para manejar errores de cuenta expirada
     @ExceptionHandler(AccountExpiredException.class)
-    public ResponseEntity<Map<String, String>> handleAccountExpiredException(AccountExpiredException ex) {
-        Map<String, String> response = new HashMap<>();
-        response.put("error", "Account expired");
+    public ResponseEntity<ErrorResponse> handleAccountExpiredException(AccountExpiredException ex) {
+        ErrorResponse response = new ErrorResponse(
+            HttpStatus.UNAUTHORIZED.value(),
+            "Account expired",
+            ex.getMessage()
+        );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     // Metodo para manejar errores de cuenta bloqueada
     @ExceptionHandler(LockedException.class)
-    public ResponseEntity<Map<String, String>> handleLockedException(LockedException ex) {
-        Map<String, String> response = new HashMap<>();
-        response.put("error", "Account locked");
+    public ResponseEntity<ErrorResponse> handleLockedException(LockedException ex) {
+        ErrorResponse response = new ErrorResponse(
+            HttpStatus.UNAUTHORIZED.value(),
+            "Account locked",
+            ex.getMessage()
+        );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     // Metodo para manejar errores de cuenta deshabilitada
     @ExceptionHandler(DisabledException.class)
-    public ResponseEntity<Map<String, String>> handleDisabledException(DisabledException ex) {
-        Map<String, String> response = new HashMap<>();
-        response.put("error", "Account disabled");
+    public ResponseEntity<ErrorResponse> handleDisabledException(DisabledException ex) {
+        ErrorResponse response = new ErrorResponse(
+            HttpStatus.UNAUTHORIZED.value(),
+            "Account disabled",
+            ex.getMessage()
+        );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
+
+    // Metodo para manejar errores de usaurio ya registrados
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
+        ErrorResponse response = new ErrorResponse(
+            HttpStatus.CONFLICT.value(),
+            "User already exists",
+            ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
 }
-
-
-        // @ExceptionHandler(BadCredentialsException.class)
-        // public ResponseEntity<FieldValidationResponse> handleBadCredentialsException(BadCredentialsException ex) {
-        //     String field;
-        //     String errorDetailMessage;
-        //     String errorCode;
-    
-        //     if (ex.getMessage().equals("Invalid username or password")) {
-        //         field = null;
-        //         errorDetailMessage = "Invalid username or password";
-        //         errorCode = "INVALID_CREDENTIALS_ERROR";
-        //     } else if (ex.getMessage().equals("Incorrect Password")) {
-        //         field = "password";
-        //         errorDetailMessage = "Incorrect Password";
-        //         errorCode = "INCORRECT_PASSWORD_ERROR";
-        //     } else {
-        //         field = "username";
-        //         errorDetailMessage = "The user " + ex.getMessage() + " not found";
-        //         errorCode = "USER_NOT_FOUND_ERROR";
-        //     }
-    
-        //     // Construye la respuesta de error
-        //     FieldErrorDetail errorDetail = new FieldErrorDetail(
-        //         field,
-        //         errorDetailMessage,
-        //         ex.getMessage(),
-        //         errorCode
-        //     );
-    
-        //     List<FieldErrorDetail> errors = Collections.singletonList(errorDetail);
-    
-        //     FieldValidationResponse apiResponse = new FieldValidationResponse(HttpStatus.BAD_REQUEST.value(), errors, "Bad credentials");
-        //     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
-        // }

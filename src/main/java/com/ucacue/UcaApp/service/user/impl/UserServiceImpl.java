@@ -10,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
-
+import com.ucacue.UcaApp.exception.UserAlreadyExistsException;
 import com.ucacue.UcaApp.exception.UserNotFoundException;
 import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
 import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
@@ -107,25 +107,39 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Transactional
-    @Override
-    public AuthResponse RegisterUser(UserRequestDto userRequestDto) {
+@Override
+public AuthResponse RegisterUser(UserRequestDto userRequestDto) {
+    try {
         UserEntity userEntity = userMapper.toUserEntity(userRequestDto, roleEntityFetcher);
+
+        if (userRepository.existsByEmail(userEntity.getEmail())) {
+            throw new UserAlreadyExistsException(userEntity.getEmail());
+        }
+        
         userEntity = userRepository.save(userEntity);
 
         ArrayList<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        userEntity.getRoles()
-                .forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_".concat(role.getName()))));
-        userEntity.getRoles().stream().flatMap(role -> role.getPermissionList().stream())
-                .forEach(permission -> authorities.add(new SimpleGrantedAuthority(permission.getName())));
+        userEntity.getRoles().forEach(role -> 
+            authorities.add(new SimpleGrantedAuthority("ROLE_".concat(role.getName())))
+        );
+        userEntity.getRoles().stream()
+            .flatMap(role -> role.getPermissionList().stream())
+            .forEach(permission -> 
+            authorities.add(new SimpleGrantedAuthority(permission.getName()))
+        );
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userEntity.getEmail(),
-                userEntity.getPassword(), authorities);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+            userEntity.getEmail(), userEntity.getPassword(), authorities
+        );
+
         String accessToken = jwtUtils.createToken(authentication);
 
-        AuthResponse authResponse = new AuthResponse(userEntity.getEmail(), "User created successfully", accessToken,
-                true);
-        return authResponse;
+        return new AuthResponse(userEntity.getEmail(), "User created successfully", accessToken, true);
+    }  catch (Exception e) {
+        throw  e;
     }
+}
+
 
     @Transactional(readOnly = true)
     @Override
