@@ -4,10 +4,15 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
-import java.io.Serializable;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -18,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Builder
 @Entity
 @Table(name = "users")
-public class UserEntity implements Serializable{
+public class UserEntity implements UserDetails{
 
     private static final long serialVersionUID = 1L;
     
@@ -86,4 +91,43 @@ public class UserEntity implements Serializable{
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"),
     uniqueConstraints= {@UniqueConstraint(columnNames= {"user_id", "role_id"})})
     private Set<RoleEntity> roles = new HashSet<>();
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return this.accountNoExpired;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return this.accountNoLocked;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return this.credentialNoExpired;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.isEnabled;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles.stream()
+                .flatMap(role -> {
+                    Set<GrantedAuthority> authorities = new HashSet<>();
+                    authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
+                    role.getPermissionList().forEach(permission -> 
+                        authorities.add(new SimpleGrantedAuthority(permission.getName()))
+                    );
+                    return authorities.stream();
+                })
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
 }

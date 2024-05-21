@@ -194,6 +194,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
+    // Metodo para manejar errores de cuenta deshabilitada
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<ErrorResponse> handleDisabledException(DisabledException ex) {
+        ErrorResponse response = new ErrorResponse(
+            HttpStatus.UNAUTHORIZED.value(),
+            "Account disabled",
+            ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
     // Metodo para manejar errores de cuenta expirada
     @ExceptionHandler(AccountExpiredException.class)
     public ResponseEntity<ErrorResponse> handleAccountExpiredException(AccountExpiredException ex) {
@@ -201,9 +212,9 @@ public class GlobalExceptionHandler {
             HttpStatus.UNAUTHORIZED.value(),
             "Account expired",
             ex.getMessage()
-        );
+        );    
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-    }
+    }    
 
     // Metodo para manejar errores de cuenta bloqueada
     @ExceptionHandler(LockedException.class)
@@ -212,16 +223,16 @@ public class GlobalExceptionHandler {
             HttpStatus.UNAUTHORIZED.value(),
             "Account locked",
             ex.getMessage()
-        );
+        );    
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
-
-    // Metodo para manejar errores de cuenta deshabilitada
-    @ExceptionHandler(DisabledException.class)
-    public ResponseEntity<ErrorResponse> handleDisabledException(DisabledException ex) {
+    
+    // Método para manejar errores de credenciales expiradas
+    @ExceptionHandler(CredentialsExpiredException.class)
+    public ResponseEntity<ErrorResponse> handleCredentialsExpiredException(CredentialsExpiredException ex) {
         ErrorResponse response = new ErrorResponse(
             HttpStatus.UNAUTHORIZED.value(),
-            "Account disabled",
+            "Credentials expired",
             ex.getMessage()
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);

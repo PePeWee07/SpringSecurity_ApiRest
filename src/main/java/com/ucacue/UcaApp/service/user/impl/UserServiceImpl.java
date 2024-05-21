@@ -22,11 +22,10 @@ import com.ucacue.UcaApp.repository.UserRepository;
 import com.ucacue.UcaApp.service.user.UserService;
 import com.ucacue.UcaApp.util.JwtUtils;
 import com.ucacue.UcaApp.util.RoleEntityFetcher;
+import com.ucacue.UcaApp.util.UserStatusValidator;
 
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -58,13 +57,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException(email, UserNotFoundException.SearchType.EMAIL));
 
-        List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
-        userEntity.getRoles()
-                .forEach(role -> authorityList.add(new SimpleGrantedAuthority("ROLE_".concat(role.getName()))));
-        userEntity.getRoles().stream()
-                .flatMap(role -> role.getPermissionList().stream())
-                .forEach(permission -> authorityList.add(new SimpleGrantedAuthority(permission.getName())));
-
         return new User(
                 userEntity.getEmail(),
                 userEntity.getPassword(),
@@ -72,7 +64,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 userEntity.isAccountNoExpired(),
                 userEntity.isCredentialNoExpired(),
                 userEntity.isAccountNoLocked(),
-                authorityList);
+                userEntity.getAuthorities());
     }
 
     @Transactional
@@ -91,15 +83,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Transactional
     @Override
     public Authentication authenticate(String username, String password) {
-        UserDetails userDetails = null;
-        try {
-            userDetails = this.loadUserByUsername(username);
-        } catch (UserNotFoundException ex) {
-            // Dejar este catch vacio para permitir que el flujo de la lógica continúe, de
-            // modo que la validación de la contraseña pueda ocurrir inmediatamente después.
-        }
+        UserDetails userDetails = this.loadUserByUsername(username);
+        UserStatusValidator.validate(userDetails); // Validar el estado del usuario
 
-        if (userDetails == null || !passwordEncoder.matches(password, userDetails.getPassword())) {
+        if (!passwordEncoder.matches(password, userDetails.getPassword())) {
             throw new BadCredentialsException("Invalid username or password");
         }
 
@@ -118,18 +105,8 @@ public AuthResponse RegisterUser(UserRequestDto userRequestDto) {
         
         userEntity = userRepository.save(userEntity);
 
-        ArrayList<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        userEntity.getRoles().forEach(role -> 
-            authorities.add(new SimpleGrantedAuthority("ROLE_".concat(role.getName())))
-        );
-        userEntity.getRoles().stream()
-            .flatMap(role -> role.getPermissionList().stream())
-            .forEach(permission -> 
-            authorities.add(new SimpleGrantedAuthority(permission.getName()))
-        );
-
         Authentication authentication = new UsernamePasswordAuthenticationToken(
-            userEntity.getEmail(), userEntity.getPassword(), authorities
+            userEntity.getEmail(), userEntity.getPassword(), userEntity.getAuthorities()
         );
 
         String accessToken = jwtUtils.createToken(authentication);
