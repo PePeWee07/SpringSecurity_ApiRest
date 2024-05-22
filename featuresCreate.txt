@@ -7,9 +7,9 @@
 
 
 + FEATURES:
-    - MOVER A LUGAR SEGURO --> JwtUtils (privateKey, userGenerator)
-
     - Añadir los Logs
+
+    - Añadir endpoint para q el usaurio edite su perfil pero no sus roles
 
     - CRUD: para rolesEntity (DELETE) (Tener en cuenta q ConstraintViolationException distorciona el error para @Delete)
     - CRUD: para permissionEntity (DELETE)

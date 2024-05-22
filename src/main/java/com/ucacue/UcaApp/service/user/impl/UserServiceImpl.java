@@ -34,6 +34,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.User;
+
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {
 
@@ -51,7 +52,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-    
+
     @Autowired
     private PasswordEncoderUtil passwordEncoderUtil;
 
@@ -90,7 +91,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         UserDetails userDetails = this.loadUserByUsername(username);
 
         UserStatusValidator.validate(userDetails); // Validar el estado del usuario
-        
+
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {
             throw new BadCredentialsException("Invalid username or password");
         }
@@ -99,29 +100,27 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Transactional
-@Override
-public AuthResponse RegisterUser(UserRequestDto userRequestDto) {
-    try {
-        UserEntity userEntity = userMapper.toUserEntity(userRequestDto, roleEntityFetcher, passwordEncoderUtil);
+    @Override
+    public AuthResponse RegisterUser(UserRequestDto userRequestDto) {
+        try {
+            UserEntity userEntity = userMapper.toUserEntity(userRequestDto, roleEntityFetcher, passwordEncoderUtil);
 
-        if (userRepository.existsByEmail(userEntity.getEmail())) {
-            throw new UserAlreadyExistsException(userEntity.getEmail());
+            if (userRepository.existsByEmail(userEntity.getEmail())) {
+                throw new UserAlreadyExistsException(userEntity.getEmail());
+            }
+
+            userEntity = userRepository.save(userEntity);
+
+            Authentication authentication = new UsernamePasswordAuthenticationToken(
+                    userEntity.getEmail(), userEntity.getPassword(), userEntity.getAuthorities());
+
+            String accessToken = jwtUtils.createToken(authentication);
+
+            return new AuthResponse(userEntity.getEmail(), "User created successfully", accessToken, true);
+        } catch (Exception e) {
+            throw e;
         }
-        
-        userEntity = userRepository.save(userEntity);
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-            userEntity.getEmail(), userEntity.getPassword(), userEntity.getAuthorities()
-        );
-
-        String accessToken = jwtUtils.createToken(authentication);
-
-        return new AuthResponse(userEntity.getEmail(), "User created successfully", accessToken, true);
-    }  catch (Exception e) {
-        throw  e;
     }
-}
-
 
     @Transactional(readOnly = true)
     @Override

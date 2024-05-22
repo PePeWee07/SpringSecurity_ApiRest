@@ -16,8 +16,6 @@ import com.ucacue.UcaApp.model.entity.UserEntity;
 import com.ucacue.UcaApp.util.PasswordEncoderUtil;
 import com.ucacue.UcaApp.util.RoleEntityFetcher;
 
-
-
 @Mapper(componentModel = "spring")
 public interface UserMapper {
    
@@ -47,7 +45,6 @@ public interface UserMapper {
 
         return dto;
     }
-
 
     default UserEntity toUserEntity(UserRequestDto UserRequestDto, @Context RoleEntityFetcher RoleEntityFetcher, @Context PasswordEncoderUtil passwordEncoderUtil) {
         UserEntity entity = new UserEntity();
