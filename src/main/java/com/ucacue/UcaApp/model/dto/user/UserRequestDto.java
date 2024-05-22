@@ -33,7 +33,7 @@ public class UserRequestDto implements Serializable{
 
     private String password;
 
-    private  boolean isEnabled;
+    private  boolean enabled;
 
     private boolean accountNoExpired;
 

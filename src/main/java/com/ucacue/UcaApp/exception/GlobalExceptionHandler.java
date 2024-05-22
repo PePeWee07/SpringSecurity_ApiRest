@@ -14,6 +14,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.ucacue.UcaApp.exception.auth.UserAlreadyExistsException;
+import com.ucacue.UcaApp.exception.auth.UserNotFoundException;
+import com.ucacue.UcaApp.exception.crud.ErrorResponse;
+import com.ucacue.UcaApp.exception.crud.PermissionNotFoundException;
+import com.ucacue.UcaApp.exception.crud.ResourceNotFound;
+import com.ucacue.UcaApp.exception.crud.RoleNotFoundException;
 import com.ucacue.UcaApp.web.response.constraintViolation.ConstraintErrorDetail;
 import com.ucacue.UcaApp.web.response.constraintViolation.ConstraintViolationResponse;
 import com.ucacue.UcaApp.web.response.fieldValidation.FieldErrorDetail;
@@ -33,12 +40,12 @@ public class GlobalExceptionHandler {
     //------------------------------------------------------------ EXCEPCIONES DE CRUD ------------------------------------------------------------
 
     // Método genérico para manejar otras excepciones
-    // @ExceptionHandler(Exception.class)
-    // public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
-    //     Map<String, Object> responseGlobalExcp = new HashMap<>();
-    //     responseGlobalExcp.put("Internal Server Error: ", ex.getMessage());
-    //     return new ResponseEntity<>(responseGlobalExcp, HttpStatus.INTERNAL_SERVER_ERROR);
-    // }
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
+        Map<String, Object> responseGlobalExcp = new HashMap<>();
+        responseGlobalExcp.put("Internal Server Error: ", ex);
+        return new ResponseEntity<>(responseGlobalExcp, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
     
     //Metodo para manejar mensajes de error de recursos no encontrados
     @ExceptionHandler(ResourceNotFound.class)
@@ -247,5 +254,17 @@ public class GlobalExceptionHandler {
             ex.getMessage()
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    //------------------------------------------------------------ EXCEPCIONES DE TOKEN ------------------------------------------------------------
+
+    @ExceptionHandler(JWTVerificationException.class)
+    public ResponseEntity<ErrorResponse> handleJWTVerificationException(JWTVerificationException ex) {
+        ErrorResponse response = new ErrorResponse(
+            HttpStatus.UNAUTHORIZED.value(),
+            "Invalid Token",
+            ex.getMessage()
+        );
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 }

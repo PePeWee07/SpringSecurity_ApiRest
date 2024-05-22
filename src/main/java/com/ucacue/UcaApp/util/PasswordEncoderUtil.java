@@ -11,6 +11,10 @@ public class PasswordEncoderUtil {
     private PasswordEncoder passwordEncoder;
 
     public String encodePassword(String rawPassword) {
-        return passwordEncoder.encode(rawPassword);
+        try {
+            return passwordEncoder.encode(rawPassword);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

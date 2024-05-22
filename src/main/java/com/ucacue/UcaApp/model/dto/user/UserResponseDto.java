@@ -33,7 +33,7 @@ public class UserResponseDto implements Serializable{
 
     // PASSWORD NO SE DEBE DEVOLVER
 
-    private  boolean isEnabled;
+    private  boolean enabled;
 
     private boolean accountNoExpired;
 
