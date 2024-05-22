@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.ucacue.UcaApp.model.entity.PermissionEntity;
 
 @Repository
-public interface PermissionRepository extends JpaRepository<PermissionEntity, Long>{
+public interface PermissionRepository extends JpaRepository<PermissionEntity, Long> {
 
-} 
+}

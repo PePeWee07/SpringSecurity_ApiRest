@@ -4,11 +4,11 @@ import java.util.*;
 
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
 import com.ucacue.UcaApp.model.dto.role.RoleRequestDto;
-import com.ucacue.UcaApp.model.entity.RolesEntity;
+import com.ucacue.UcaApp.model.entity.RoleEntity;
 
 public interface RolService {
 
-    RolesEntity getMapperHelpRoleById(Long id);
+    RoleEntity getMapperFetcherRoleById(Long id);
 
     List<RoleResponseDto> findAll();
 
@@ -21,5 +21,4 @@ public interface RolService {
     boolean exists(Long id);
 
     public void deleteRoleById(Long id);
-
 } 

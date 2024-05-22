@@ -6,16 +6,22 @@ import java.util.stream.Collectors;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import com.ucacue.UcaApp.web.response.constraintViolation.ConstraintErrorDetail;
-import com.ucacue.UcaApp.web.response.constraintViolation.ConstraintViolationResponse;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.ucacue.UcaApp.exception.auth.UserAlreadyExistsException;
+import com.ucacue.UcaApp.exception.auth.UserNotFoundException;
+import com.ucacue.UcaApp.exception.crud.ErrorResponse;
+import com.ucacue.UcaApp.exception.crud.PermissionNotFoundException;
+import com.ucacue.UcaApp.exception.crud.ResourceNotFound;
+import com.ucacue.UcaApp.exception.crud.RoleNotFoundException;
 import com.ucacue.UcaApp.web.response.fieldValidation.FieldErrorDetail;
 import com.ucacue.UcaApp.web.response.fieldValidation.FieldValidationResponse;
 import com.ucacue.UcaApp.web.response.keyViolateUnique.KeyViolateDetail;
@@ -25,11 +31,26 @@ import com.ucacue.UcaApp.web.response.userNotFound.UserNotFoundResponse;
 
 import jakarta.validation.ConstraintViolationException;
 
-
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     Map<String, Object> responseGlobalExcp = new HashMap<>();
+
+    //------------------------------------------------------------ EXCEPCIONES DE CRUD ------------------------------------------------------------
+
+    // Método genérico para manejar otras excepciones
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
+        Map<String, Object> responseGlobalExcp = new HashMap<>();
+        responseGlobalExcp.put("message", "Internal Server Error");
+        // Incluye solo el mensaje de la excepción
+        responseGlobalExcp.put("details", ex.getMessage());
+        // Si es necesario, incluir detalles de la causa
+        if (ex.getCause() != null) {
+            responseGlobalExcp.put("cause", ex.getCause().getMessage());
+        }
+        return new ResponseEntity<>(responseGlobalExcp, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
     
     //Metodo para manejar mensajes de error de recursos no encontrados
     @ExceptionHandler(ResourceNotFound.class)
@@ -72,31 +93,50 @@ public class GlobalExceptionHandler {
     //Metodo para manejar mensajes de error de usuarios no econtrados
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<UserNotFoundResponse> handleUserNotFoundException(UserNotFoundException ex) {
+        String searchField = ex.getSearchType().name().toLowerCase();
         UserNotFoundResponse response = new UserNotFoundResponse(
             HttpStatus.NOT_FOUND.value(),
-            List.of(Map.entry("error", "Permission ID " + ex.getUserId()+ " not found")),
+            List.of(Map.entry("error", "User " + searchField + " " + ex.getUserIdentifier() + " not found")),
             "User not found"
         );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    // Metodo para manejar mensajes de error de datos no pasados en POST y PUT
+    // Metodo para manejar mensajes de error de datos no pasados en (POST)
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException ex) {
-        List<ConstraintErrorDetail> errorDetails = ex.getConstraintViolations().stream()
-            .map(cv -> new ConstraintErrorDetail(
-                cv.getPropertyPath().toString(),
-                cv.getMessage(),
-                "FIELD_VALIDATION_ERROR"
-            ))
-            .collect(Collectors.toList());
+    public ResponseEntity<Map<String, Object>> handleConstraintViolationException(ConstraintViolationException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Validation Failed");
 
-        ConstraintViolationResponse errorResponse = new ConstraintViolationResponse(
-            HttpStatus.BAD_REQUEST.value(),
-            errorDetails,
-            "Body are incorrect or missing data."
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        List<Map<String, String>> violations = ex.getConstraintViolations().stream()
+                .map(violation -> {
+                    Map<String, String> violationDetails = new HashMap<>();
+                    violationDetails.put("field", violation.getPropertyPath().toString());
+                    violationDetails.put("message", violation.getMessage());
+                    return violationDetails;
+                })
+                .collect(Collectors.toList());
+
+        response.put("details", violations);
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    // Metodo para asegura que se manejen las violaciones de restricciones de validación de manera adecuada
+    @ExceptionHandler(TransactionSystemException.class)
+    public ResponseEntity<Map<String, Object>> handleTransactionSystemException(TransactionSystemException ex) {
+        Throwable cause = ex.getRootCause();
+        if (cause instanceof ConstraintViolationException) {
+            return handleConstraintViolationException((ConstraintViolationException) cause);
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Transaction Error");
+        response.put("details", ex.getMessage());
+        if (ex.getCause() != null) {
+            response.put("cause", ex.getCause().getMessage());
+        }
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     // Metodo para manjear key value violates unique
@@ -160,49 +200,94 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
     }
 
+    //------------------------------------------------------------ EXCEPCIONES DE AUTENTICACION ------------------------------------------------------------
+
+    // Manejo de excepción para UsernameNotFoundException
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUsernameNotFoundException(UsernameNotFoundException ex) {
+        ErrorResponse response = new ErrorResponse(
+            HttpStatus.NOT_FOUND.value(),
+            "User not found",
+            ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
     // Metodo para manejar errores de credenciales invalidas
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<FieldValidationResponse> handleBadCredentialsException(BadCredentialsException ex) {
-        String field;
-        String errorDetailMessage;
-        String errorCode;
-
-        if (ex.getMessage().equals("Invalid username or password")) {
-            field = null;
-            errorDetailMessage = "Invalid username or password";
-            errorCode = "INVALID_CREDENTIALS_ERROR";
-        } else if (ex.getMessage().equals("Incorrect Password")) {
-            field = "password";
-            errorDetailMessage = "Incorrect Password";
-            errorCode = "INCORRECT_PASSWORD_ERROR";
-        } else {
-            field = "username";
-            errorDetailMessage = "The user " + ex.getMessage() + " not found";
-            errorCode = "USER_NOT_FOUND_ERROR";
-        }
-
-        // Construye la respuesta de error
-        FieldErrorDetail errorDetail = new FieldErrorDetail(
-            field,
-            errorDetailMessage,
-            ex.getMessage(),
-            errorCode
+    public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException ex) {
+        ErrorResponse response = new ErrorResponse(
+            HttpStatus.UNAUTHORIZED.value(),
+            "Invalid username or password",
+            "Bad credentials"
         );
-
-        List<FieldErrorDetail> errors = Collections.singletonList(errorDetail);
-
-        FieldValidationResponse apiResponse = new FieldValidationResponse(HttpStatus.BAD_REQUEST.value(), errors, "Bad credentials");
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
-
-
-    // Metodo para manejar errores de usuario no encontrado
-    @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<String> handleUsernameNotFoundException(UsernameNotFoundException ex) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ex.getMessage());
+    // Metodo para manejar errores de cuenta deshabilitada
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<ErrorResponse> handleDisabledException(DisabledException ex) {
+        ErrorResponse response = new ErrorResponse(
+            HttpStatus.UNAUTHORIZED.value(),
+            "Account disabled",
+            ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
+    // Metodo para manejar errores de cuenta expirada
+    @ExceptionHandler(AccountExpiredException.class)
+    public ResponseEntity<ErrorResponse> handleAccountExpiredException(AccountExpiredException ex) {
+        ErrorResponse response = new ErrorResponse(
+            HttpStatus.UNAUTHORIZED.value(),
+            "Account expired",
+            ex.getMessage()
+        );    
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }    
+
+    // Metodo para manejar errores de cuenta bloqueada
+    @ExceptionHandler(LockedException.class)
+    public ResponseEntity<ErrorResponse> handleLockedException(LockedException ex) {
+        ErrorResponse response = new ErrorResponse(
+            HttpStatus.UNAUTHORIZED.value(),
+            "Account locked",
+            ex.getMessage()
+        );    
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+    
+    // Método para manejar errores de credenciales expiradas
+    @ExceptionHandler(CredentialsExpiredException.class)
+    public ResponseEntity<ErrorResponse> handleCredentialsExpiredException(CredentialsExpiredException ex) {
+        ErrorResponse response = new ErrorResponse(
+            HttpStatus.UNAUTHORIZED.value(),
+            "Credentials expired",
+            ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    // Metodo para manejar errores de usaurio ya registrados
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
+        ErrorResponse response = new ErrorResponse(
+            HttpStatus.CONFLICT.value(),
+            "User already exists",
+            ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    //------------------------------------------------------------ EXCEPCIONES DE TOKEN ------------------------------------------------------------
+
+    @ExceptionHandler(JWTVerificationException.class)
+    public ResponseEntity<ErrorResponse> handleJWTVerificationException(JWTVerificationException ex) {
+        ErrorResponse response = new ErrorResponse(
+            HttpStatus.UNAUTHORIZED.value(),
+            "Invalid Token",
+            ex.getMessage()
+        );
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
 }

@@ -1,6 +1,6 @@
 package com.ucacue.UcaApp.model.entity;
 
-
+import java.io.Serializable;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -14,7 +14,9 @@ import lombok.*;
 @Builder
 @Entity
 @Table(name = "permissions")
-public class PermissionEntity {
+public class PermissionEntity implements Serializable{
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

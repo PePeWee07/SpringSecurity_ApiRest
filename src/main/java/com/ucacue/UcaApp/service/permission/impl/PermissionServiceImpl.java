@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ucacue.UcaApp.exception.PermissionNotFoundException;
+import com.ucacue.UcaApp.exception.crud.PermissionNotFoundException;
 import com.ucacue.UcaApp.model.dto.permission.PermissionRequestDto;
 import com.ucacue.UcaApp.model.dto.permission.PermissionResponseDto;
 import com.ucacue.UcaApp.model.entity.PermissionEntity;
@@ -26,7 +26,7 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Transactional(readOnly = true)
     @Override
-    public PermissionEntity getMapperHelpPermissionById(Long id) {
+    public PermissionEntity getMapperFetcherPermissionById(Long id) {
         return permissionRepository.findById(id)
                 .orElseThrow(() -> new PermissionNotFoundException(id));
     }
@@ -50,14 +50,12 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Transactional
     @Override
-    // Método para crear una nuevo Permiso
     public PermissionResponseDto save(PermissionRequestDto dto) {
         PermissionEntity entity = permissionMapper.permissionRequestDtoToPermissionEntity(dto);
         PermissionEntity savedEntity = permissionRepository.save(entity);
         return permissionMapper.permissionEntityToPermissionResponseDto(savedEntity);
     }
 
-    // Método para actualizar un Permiso
     @Transactional
     @Override
     public PermissionResponseDto update(Long id, PermissionRequestDto dto) {
@@ -78,5 +76,4 @@ public class PermissionServiceImpl implements PermissionService {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'deletePermissionById'");
     }
-
 }

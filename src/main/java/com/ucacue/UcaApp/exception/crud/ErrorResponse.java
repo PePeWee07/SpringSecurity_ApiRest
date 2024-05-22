@@ -1,5 +1,4 @@
-package com.ucacue.UcaApp.exception;
-
+package com.ucacue.UcaApp.exception.crud;
 
     public class ErrorResponse {
         private int status;

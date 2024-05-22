@@ -10,18 +10,20 @@ import com.ucacue.UcaApp.model.entity.PermissionEntity;
 
 @Mapper(componentModel = "spring")
 public interface PermissionMapper {
-    
-    PermissionMapper INSTANCE = Mappers.getMapper(PermissionMapper.class);
 
-    // Mapea de PermissionEntity a PermissionResponseDto
-    PermissionResponseDto permissionEntityToPermissionResponseDto(PermissionEntity entity);
+  PermissionMapper INSTANCE = Mappers.getMapper(PermissionMapper.class);
 
-    // Mapea de PermissionRequestDto a PermissionEntity
-    PermissionEntity permissionRequestDtoToPermissionEntity(PermissionRequestDto dto);
+  // Mapea de PermissionEntity a PermissionResponseDto
+  PermissionResponseDto permissionEntityToPermissionResponseDto(PermissionEntity entity);
 
-    // Actualiza una entidad existente desde un DTO
-    default void updateEntityFromDto(PermissionRequestDto dto, @MappingTarget PermissionEntity entity){
-      if(dto.getId() != null) entity.setId(dto.getId());
-      if(dto.getName() != null) entity.setName(dto.getName());
-    }
+  // Mapea de PermissionRequestDto a PermissionEntity
+  PermissionEntity permissionRequestDtoToPermissionEntity(PermissionRequestDto dto);
+
+  // Actualiza una entidad existente desde un DTO
+  default void updateEntityFromDto(PermissionRequestDto dto, @MappingTarget PermissionEntity entity) {
+    if (dto.getId() != null)
+      entity.setId(dto.getId());
+    if (dto.getName() != null)
+      entity.setName(dto.getName());
+  }
 }

@@ -4,10 +4,15 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
-import java.io.Serializable;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -18,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Builder
 @Entity
 @Table(name = "users")
-public class UserEntity implements Serializable{
+public class UserEntity implements UserDetails{
 
     private static final long serialVersionUID = 1L;
     
@@ -57,13 +62,13 @@ public class UserEntity implements Serializable{
     private String DNI;
 
     @NotNull
-    @Size(min = 1, max = 150, message = "Password must be a maximum of 150 characters")
-    @Column(name = "password", length = 150, nullable = false)
+    @Size(min = 1, max = 60, message = "Password must be a maximum of 60 characters")
+    @Column(name = "password", length = 60, nullable = false)
     private String password;
 
     @NotNull
-    @Column(name = "is_enabled")
-    private boolean isEnabled;
+    @Column(name = "enabled")
+    private boolean enabled;
 
     @NotNull
     @Column(name = "account_No_Expired")
@@ -78,12 +83,51 @@ public class UserEntity implements Serializable{
     private boolean credentialNoExpired;
 
     @NotNull
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "America/Guayaquil")
     @Column(name = "creationDate", nullable = false)
     private Date  creationDate;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"),
     uniqueConstraints= {@UniqueConstraint(columnNames= {"user_id", "role_id"})})
-    private Set<RolesEntity> roles = new HashSet<>();
+    private Set<RoleEntity> roles = new HashSet<>();
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return this.accountNoExpired;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return this.accountNoLocked;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return this.credentialNoExpired;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.enabled;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles.stream()
+                .flatMap(role -> {
+                    Set<GrantedAuthority> authorities = new HashSet<>();
+                    authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
+                    role.getPermissionList().forEach(permission -> 
+                        authorities.add(new SimpleGrantedAuthority(permission.getName()))
+                    );
+                    return authorities.stream();
+                })
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
 }

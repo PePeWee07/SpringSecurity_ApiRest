@@ -5,9 +5,10 @@ import com.ucacue.UcaApp.model.dto.permission.PermissionResponseDto;
 import com.ucacue.UcaApp.model.entity.PermissionEntity;
 
 import java.util.*;
+
 public interface PermissionService {
 
-    PermissionEntity getMapperHelpPermissionById(Long ind);
+    PermissionEntity getMapperFetcherPermissionById(Long ind);
 
     List<PermissionResponseDto> findAll();
 

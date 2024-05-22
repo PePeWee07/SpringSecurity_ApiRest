@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import com.ucacue.UcaApp.model.entity.PermissionEntity;
-import com.ucacue.UcaApp.model.entity.RolesEntity;
+import com.ucacue.UcaApp.model.entity.RoleEntity;
 import com.ucacue.UcaApp.model.entity.UserEntity;
 import com.ucacue.UcaApp.repository.UserRepository;
 
@@ -44,12 +44,12 @@ public class UcaAppApplication {
                     .build();
 
             /* Create ROLES */
-            RolesEntity roleAdmin = RolesEntity.builder()
+            RoleEntity roleAdmin = RoleEntity.builder()
                     .name("ADMIN")
                     .permissionList(Set.of(createPermission, readPermission, updatePermission, deletePermission, refactorPermission))
                     .build();
 
-            RolesEntity roleUser = RolesEntity.builder()
+            RoleEntity roleUser = RoleEntity.builder()
                     .name("USER")
                     .permissionList(Set.of(readPermission))
                     .build();
@@ -65,7 +65,7 @@ public class UcaAppApplication {
 					.DNI("V0001")
 					.creationDate(new Date())
                     .password("$2a$10$cMY29RPYoIHMJSuwRfoD3eQxU1J5Rww4VnNOUOAEPqCBshkNfrEf6")
-                    .isEnabled(true)
+                    .enabled(true)
                     .accountNoExpired(true)
                     .accountNoLocked(true)
                     .credentialNoExpired(true)
@@ -82,7 +82,7 @@ public class UcaAppApplication {
 					.DNI("V0002")
 					.creationDate(new Date())
                     .password("$2a$10$cMY29RPYoIHMJSuwRfoD3eQxU1J5Rww4VnNOUOAEPqCBshkNfrEf6")
-                    .isEnabled(true)
+                    .enabled(true)
                     .accountNoExpired(true)
                     .accountNoLocked(true)
                     .credentialNoExpired(true)

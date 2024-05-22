@@ -1,5 +1,6 @@
 package com.ucacue.UcaApp.model.dto.role;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.ucacue.UcaApp.model.dto.permission.PermissionResponseDto;
@@ -13,8 +14,13 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoleResponseDto {
+public class RoleResponseDto implements Serializable{
+
+    private static final long serialVersionUID = 1L;
+
     private Long id;
+
     private String name;
+    
     private List<PermissionResponseDto> permissionList;
 }

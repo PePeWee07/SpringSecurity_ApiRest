@@ -1,7 +1,5 @@
 package com.ucacue.UcaApp.service.rol.impl;
 
-
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -9,12 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ucacue.UcaApp.exception.RoleNotFoundException;
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
+import com.ucacue.UcaApp.exception.crud.RoleNotFoundException;
 import com.ucacue.UcaApp.model.dto.role.RoleRequestDto;
-import com.ucacue.UcaApp.model.entity.RolesEntity;
+import com.ucacue.UcaApp.model.entity.RoleEntity;
 import com.ucacue.UcaApp.model.mapper.RoleMapper;
-import com.ucacue.UcaApp.repository.RolesRepository;
+import com.ucacue.UcaApp.repository.RoleRepository;
 import com.ucacue.UcaApp.service.rol.RolService;
 import com.ucacue.UcaApp.util.PermissionEntityFetcher;
 
@@ -25,10 +23,17 @@ public class RolServiceImpl implements RolService{
     private RoleMapper roleMapper;
 
     @Autowired
-    private RolesRepository roleRepository;
+    private RoleRepository roleRepository;
 
     @Autowired
-    private PermissionEntityFetcher mapperHelper2; 
+    private PermissionEntityFetcher permissionEntityFetcher; 
+
+    @Transactional(readOnly = true)
+    @Override
+    public RoleEntity getMapperFetcherRoleById(Long id) {
+        return roleRepository.findById(id)
+            .orElseThrow(() -> new RoleNotFoundException(id));
+    }
 
     @Transactional(readOnly = true)
     @Override
@@ -37,7 +42,7 @@ public class RolServiceImpl implements RolService{
             .stream()
             .map(roleMapper::rolesEntityToRoleResponseDto)
             .collect(Collectors.toList());
-    }
+    }        
 
     @Transactional(readOnly = true)
     @Override
@@ -45,19 +50,12 @@ public class RolServiceImpl implements RolService{
         return roleRepository.findById(id)
             .map(roleMapper::rolesEntityToRoleResponseDto)
             .orElseThrow(() -> new RoleNotFoundException(id));
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public RolesEntity getMapperHelpRoleById(Long id) {
-        return roleRepository.findById(id)
-            .orElseThrow(() -> new RoleNotFoundException(id));
-    }
+    }        
 
     @Transactional
     @Override
     public RoleResponseDto save(RoleRequestDto roleRequestDto) {
-        RolesEntity rolesEntity = roleMapper.roleRequestDtoToRolesEntity(roleRequestDto, mapperHelper2);
+        RoleEntity rolesEntity = roleMapper.roleRequestDtoToRolesEntity(roleRequestDto, permissionEntityFetcher);
         rolesEntity = roleRepository.save(rolesEntity);
         return roleMapper.rolesEntityToRoleResponseDto(rolesEntity);
     }
@@ -65,9 +63,9 @@ public class RolServiceImpl implements RolService{
     @Transactional
     @Override
     public RoleResponseDto update(Long id, RoleRequestDto roleRequestDto) {
-        RolesEntity rolesEntity = roleRepository.findById(id)
+        RoleEntity rolesEntity = roleRepository.findById(id)
             .orElseThrow(() -> new RoleNotFoundException(id));
-        roleMapper.upddateEntityFromDto(roleRequestDto, rolesEntity, mapperHelper2);
+        roleMapper.upddateEntityFromDto(roleRequestDto, rolesEntity, permissionEntityFetcher);
         rolesEntity = roleRepository.save(rolesEntity);
         return roleMapper.rolesEntityToRoleResponseDto(rolesEntity);
     }
@@ -80,10 +78,7 @@ public class RolServiceImpl implements RolService{
 
     @Override
     public void deleteRoleById(Long id) {
-        if (!roleRepository.existsById(id)) {
-            throw new RoleNotFoundException(id);
-        }
-        roleRepository.deleteById(id);
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteRoleById'");
     }
-    
 }

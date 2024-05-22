@@ -1,8 +1,8 @@
 package com.ucacue.UcaApp.model.dto.user;
 
-
 import lombok.*;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -13,7 +13,10 @@ import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserResponseDto {
+public class UserResponseDto implements Serializable{
+
+    private static final long serialVersionUID = 1L;
+
     private Long id;
 
     private String name;
@@ -30,7 +33,7 @@ public class UserResponseDto {
 
     // PASSWORD NO SE DEBE DEVOLVER
 
-    private  boolean isEnabled;
+    private  boolean enabled;
 
     private boolean accountNoExpired;
 

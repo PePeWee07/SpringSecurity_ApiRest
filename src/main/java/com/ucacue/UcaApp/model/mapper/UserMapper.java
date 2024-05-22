@@ -11,11 +11,10 @@ import org.mapstruct.factory.Mappers;
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
-import com.ucacue.UcaApp.model.entity.RolesEntity;
+import com.ucacue.UcaApp.model.entity.RoleEntity;
 import com.ucacue.UcaApp.model.entity.UserEntity;
+import com.ucacue.UcaApp.util.PasswordEncoderUtil;
 import com.ucacue.UcaApp.util.RoleEntityFetcher;
-
-
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -47,8 +46,7 @@ public interface UserMapper {
         return dto;
     }
 
-
-    default UserEntity toUserEntity(UserRequestDto UserRequestDto, @Context RoleEntityFetcher RoleEntityFetcher) {
+    default UserEntity toUserEntity(UserRequestDto UserRequestDto, @Context RoleEntityFetcher RoleEntityFetcher, @Context PasswordEncoderUtil passwordEncoderUtil) {
         UserEntity entity = new UserEntity();
         entity.setId(UserRequestDto.getId());
         entity.setName(UserRequestDto.getName());
@@ -57,7 +55,7 @@ public interface UserMapper {
         entity.setPhoneNumber(UserRequestDto.getPhoneNumber());
         entity.setAddress(UserRequestDto.getAddress());
         entity.setDNI(UserRequestDto.getDNI());
-        entity.setPassword(UserRequestDto.getPassword());
+        entity.setPassword(passwordEncoderUtil.encodePassword(UserRequestDto.getPassword()));
         entity.setEnabled(UserRequestDto.isEnabled());
         entity.setAccountNoExpired(UserRequestDto.isAccountNoExpired());
         entity.setAccountNoLocked(UserRequestDto.isAccountNoLocked());
@@ -65,13 +63,13 @@ public interface UserMapper {
         entity.setCreationDate(UserRequestDto.getCreationDate());
 
         // Ahora pasamos el RoleEntityFetcher a rolesIdsToRolesEntities
-        Set<RolesEntity> roles = rolesIdsToRolesEntities(UserRequestDto.getRolesIds(), RoleEntityFetcher);
+        Set<RoleEntity> roles = rolesIdsToRolesEntities(UserRequestDto.getRolesIds(), RoleEntityFetcher);
 
         entity.setRoles(roles);
         return entity;
     }
     
-    default Set<RolesEntity> rolesIdsToRolesEntities(Set<Long> roleIds, RoleEntityFetcher RoleEntityFetcher) {
+    default Set<RoleEntity> rolesIdsToRolesEntities(Set<Long> roleIds, RoleEntityFetcher RoleEntityFetcher) {
         // Agregar siempre el ID 2 del ROL_USER al conjunto de roles
         //roleIds.add(2L);
 
@@ -80,7 +78,7 @@ public interface UserMapper {
                       .collect(Collectors.toSet());
     }
 
-    default void updateEntityFromDto(UserRequestDto dto, @MappingTarget UserEntity entity, @Context RoleEntityFetcher RoleEntityFetcher) {
+    default void updateEntityFromDto(UserRequestDto dto, @MappingTarget UserEntity entity, @Context RoleEntityFetcher RoleEntityFetcher, @Context PasswordEncoderUtil passwordEncoderUtil) {
         if (dto.getName() != null) entity.setName(dto.getName());
         if (dto.getLastName() != null) entity.setLastName(dto.getLastName());
         if (dto.getEmail() != null) entity.setEmail(dto.getEmail());
@@ -94,7 +92,7 @@ public interface UserMapper {
         entity.setCredentialNoExpired(dto.isCredentialNoExpired());
         if (dto.getCreationDate() != null) entity.setCreationDate(dto.getCreationDate());
 
-        Set<RolesEntity> roles = rolesIdsToRolesEntities(dto.getRolesIds(), RoleEntityFetcher);
+        Set<RoleEntity> roles = rolesIdsToRolesEntities(dto.getRolesIds(), RoleEntityFetcher);
         entity.setRoles(roles);
     }
 }

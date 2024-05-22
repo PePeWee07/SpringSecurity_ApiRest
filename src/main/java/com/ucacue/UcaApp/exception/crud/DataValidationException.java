@@ -1,4 +1,4 @@
-package com.ucacue.UcaApp.exception;
+package com.ucacue.UcaApp.exception.crud;
 
 public class DataValidationException extends RuntimeException {
 
