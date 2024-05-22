@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,8 +22,6 @@ import com.ucacue.UcaApp.exception.crud.ErrorResponse;
 import com.ucacue.UcaApp.exception.crud.PermissionNotFoundException;
 import com.ucacue.UcaApp.exception.crud.ResourceNotFound;
 import com.ucacue.UcaApp.exception.crud.RoleNotFoundException;
-import com.ucacue.UcaApp.web.response.constraintViolation.ConstraintErrorDetail;
-import com.ucacue.UcaApp.web.response.constraintViolation.ConstraintViolationResponse;
 import com.ucacue.UcaApp.web.response.fieldValidation.FieldErrorDetail;
 import com.ucacue.UcaApp.web.response.fieldValidation.FieldValidationResponse;
 import com.ucacue.UcaApp.web.response.keyViolateUnique.KeyViolateDetail;
@@ -43,7 +42,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
         Map<String, Object> responseGlobalExcp = new HashMap<>();
-        responseGlobalExcp.put("Internal Server Error: ", ex);
+        responseGlobalExcp.put("message", "Internal Server Error");
+        // Incluye solo el mensaje de la excepción
+        responseGlobalExcp.put("details", ex.getMessage());
+        // Si es necesario, incluir detalles de la causa
+        if (ex.getCause() != null) {
+            responseGlobalExcp.put("cause", ex.getCause().getMessage());
+        }
         return new ResponseEntity<>(responseGlobalExcp, HttpStatus.INTERNAL_SERVER_ERROR);
     }
     
@@ -99,21 +104,39 @@ public class GlobalExceptionHandler {
 
     // Metodo para manejar mensajes de error de datos no pasados en (POST)
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException ex) {
-        List<ConstraintErrorDetail> errorDetails = ex.getConstraintViolations().stream()
-            .map(cv -> new ConstraintErrorDetail(
-                cv.getPropertyPath().toString(),
-                cv.getMessage(),
-                "FIELD_VALIDATION_ERROR"
-            ))
-            .collect(Collectors.toList());
+    public ResponseEntity<Map<String, Object>> handleConstraintViolationException(ConstraintViolationException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Validation Failed");
 
-        ConstraintViolationResponse errorResponse = new ConstraintViolationResponse(
-            HttpStatus.BAD_REQUEST.value(),
-            errorDetails,
-            "Body are incorrect or missing data."
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        List<Map<String, String>> violations = ex.getConstraintViolations().stream()
+                .map(violation -> {
+                    Map<String, String> violationDetails = new HashMap<>();
+                    violationDetails.put("field", violation.getPropertyPath().toString());
+                    violationDetails.put("message", violation.getMessage());
+                    return violationDetails;
+                })
+                .collect(Collectors.toList());
+
+        response.put("details", violations);
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    // Metodo para asegura que se manejen las violaciones de restricciones de validación de manera adecuada
+    @ExceptionHandler(TransactionSystemException.class)
+    public ResponseEntity<Map<String, Object>> handleTransactionSystemException(TransactionSystemException ex) {
+        Throwable cause = ex.getRootCause();
+        if (cause instanceof ConstraintViolationException) {
+            return handleConstraintViolationException((ConstraintViolationException) cause);
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Transaction Error");
+        response.put("details", ex.getMessage());
+        if (ex.getCause() != null) {
+            response.put("cause", ex.getCause().getMessage());
+        }
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     // Metodo para manjear key value violates unique

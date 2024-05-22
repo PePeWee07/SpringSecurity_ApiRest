@@ -7,8 +7,9 @@
 
 
 + FEATURES:
-    - "Internal Server Error: ": "Could not commit JPA transaction" (UPDATE NULL CLEIN "name" (ROL-PERMISSION-USER))
+    - MOVER A LUGAR SEGURO --> JwtUtils (privateKey, userGenerator)
+
+    - Añadir los Logs
 
     - CRUD: para rolesEntity (DELETE) (Tener en cuenta q ConstraintViolationException distorciona el error para @Delete)
     - CRUD: para permissionEntity (DELETE)
-    - MOVER A LUGAR SEGURO --> JwtUtils (privateKey, userGenerator)

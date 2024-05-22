@@ -15,12 +15,16 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import org.springframework.beans.factory.annotation.Value;
+
 @Component
 public class JwtUtils {
 
-    private static final String privateKey = "26aecab6ab011d486b2418c1bd2191c74a71405f1669d2ec4d0d4dc3775eda7c";
+    @Value("${security.private-key}")
+    private String privateKey;
 
-    private static final String userGenerator = "AUTH0JWT-BACKEND";
+    @Value("${security.user-generator}")
+    private String userGenerator;
 
     public String createToken(Authentication authentication) {
         try {
