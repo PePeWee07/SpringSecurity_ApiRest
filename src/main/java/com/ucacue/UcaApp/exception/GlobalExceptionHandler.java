@@ -33,12 +33,12 @@ public class GlobalExceptionHandler {
     //------------------------------------------------------------ EXCEPCIONES DE CRUD ------------------------------------------------------------
 
     // Método genérico para manejar otras excepciones
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
-        Map<String, Object> responseGlobalExcp = new HashMap<>();
-        responseGlobalExcp.put("Internal Server Error: ", ex.getMessage());
-        return new ResponseEntity<>(responseGlobalExcp, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    // @ExceptionHandler(Exception.class)
+    // public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
+    //     Map<String, Object> responseGlobalExcp = new HashMap<>();
+    //     responseGlobalExcp.put("Internal Server Error: ", ex.getMessage());
+    //     return new ResponseEntity<>(responseGlobalExcp, HttpStatus.INTERNAL_SERVER_ERROR);
+    // }
     
     //Metodo para manejar mensajes de error de recursos no encontrados
     @ExceptionHandler(ResourceNotFound.class)
