@@ -1,5 +1,10 @@
 package com.ucacue.UcaApp.controller.v1;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -12,8 +17,10 @@ public class TestAuthController {
     }
 
     @PostMapping("/post")
-    public String helloPost(){
-        return "Hello World - POST";
+    public ResponseEntity<Map<String, String>> helloPost() {
+        Map<String, String> response = new HashMap<>();
+        response.put("mensaje", "Hello World - POST");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PutMapping("/put")
