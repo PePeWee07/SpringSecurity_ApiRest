@@ -1,5 +1,6 @@
 package com.ucacue.UcaApp.util.token;
 
+import org.hibernate.mapping.Collection;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -10,8 +11,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ucacue.UcaApp.web.response.TokenError.ApiTokenErrorResponse;
 import com.ucacue.UcaApp.web.response.TokenError.TokenErrorDetail;
+import com.ucacue.UcaApp.web.response.fieldValidation.FieldErrorDetail;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 @Component
 public class CustomJwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
@@ -32,28 +36,28 @@ public class CustomJwtAuthenticationEntryPoint implements AuthenticationEntryPoi
             errorResponse = new ApiTokenErrorResponse(
                     HttpServletResponse.SC_UNAUTHORIZED,
                     "error",
-                    new TokenErrorDetail(exception.getMessage()),
+                    LIST,
                     "Token has expired"
             );
         } else if (exception instanceof com.auth0.jwt.exceptions.JWTDecodeException) {
             errorResponse = new ApiTokenErrorResponse(
                     HttpServletResponse.SC_BAD_REQUEST,
                     "error",
-                    new TokenErrorDetail(exception.getMessage()),
+                    LIST,
                     "Token decoding error"
             );
         } else if (exception instanceof com.auth0.jwt.exceptions.JWTVerificationException) {
             errorResponse = new ApiTokenErrorResponse(
                     HttpServletResponse.SC_BAD_REQUEST,
                     "error",
-                    new TokenErrorDetail(exception.getMessage()),
+                    LIST,
                     "Token verification error"
             );
         } else {
             errorResponse = new ApiTokenErrorResponse(
                     HttpServletResponse.SC_UNAUTHORIZED,
                     "error",
-                    new TokenErrorDetail(exception.getMessage()),
+                    LIST,
                     authException.getMessage()
             );
         }

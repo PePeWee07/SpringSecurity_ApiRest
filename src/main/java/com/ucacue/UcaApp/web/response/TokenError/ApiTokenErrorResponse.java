@@ -1,20 +1,23 @@
 package com.ucacue.UcaApp.web.response.TokenError;
 
+import java.util.List;
+
 public class ApiTokenErrorResponse {
 
     private int code;
     private String status;
-    private TokenErrorDetail tokenErrorDetail;
+    private List<TokenErrorDetail> errors;
     private String message;
 
-    // Constructor for Error
-    public ApiTokenErrorResponse(int code, String status, TokenErrorDetail tokenErrorDetail, String message) {
+    // Constructor for error
+    public ApiTokenErrorResponse(int code, List<TokenErrorDetail> errors, String message) {
         this.code = code;
-        this.status = status;
-        this.tokenErrorDetail = tokenErrorDetail;
+        this.status = "error";
+        this.errors = errors;
         this.message = message;
     }
 
+    // Getters and Setters
     public int getCode() {
         return code;
     }
@@ -31,12 +34,12 @@ public class ApiTokenErrorResponse {
         this.status = status;
     }
 
-    public TokenErrorDetail getTokenErrorDetail() {
-        return tokenErrorDetail;
+    public List<TokenErrorDetail> getErrors() {
+        return errors;
     }
 
-    public void setTokenErrorDetail(TokenErrorDetail tokenErrorDetail) {
-        this.tokenErrorDetail = tokenErrorDetail;
+    public void setErrors(List<TokenErrorDetail> errors) {
+        this.errors = errors;
     }
 
     public String getMessage() {
@@ -47,6 +50,3 @@ public class ApiTokenErrorResponse {
         this.message = message;
     }
 }
-
-    
-
