@@ -9,6 +9,8 @@
 + FEATURES:
     - Añadir los Logs
 
+    - Exceptions: Token
+
     - Añadir endpoint para q el usaurio edite su perfil pero no sus roles
 
     - CRUD: para rolesEntity (DELETE) (Tener en cuenta q ConstraintViolationException distorciona el error para @Delete)
