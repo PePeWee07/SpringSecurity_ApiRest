@@ -2,6 +2,8 @@ package com.ucacue.UcaApp.controller.V2;
 
 import java.util.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,8 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/v2")
 public class PermissionController_v2 {
 
+    private static final Logger logger = LoggerFactory.getLogger(PermissionController_v2.class);
+
     @Autowired
     private PermissionService permissionService;
 
@@ -26,6 +30,7 @@ public class PermissionController_v2 {
         try {
             return ResponseEntity.ok(permissionService.findAll());
         } catch (Exception e) {
+            logger.info("Error: {@GET /permissions}", e.getMessage());
             throw e;
         }
     }
@@ -36,6 +41,7 @@ public class PermissionController_v2 {
             PermissionResponseDto response = permissionService.getPermissionById(id);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            logger.info("Error: {@GET /permission/{id}}", e.getMessage());
             throw e;
         }
     }
@@ -48,6 +54,7 @@ public class PermissionController_v2 {
                     "Permission created successfully");
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
+            logger.info("Error: {@POST /permission}", e.getMessage());
             throw e;
         }
     }
@@ -61,6 +68,7 @@ public class PermissionController_v2 {
                     "Permission updated successfully");
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
+            logger.info("Error: {@PUT /permission/{id}}", e.getMessage());
             throw e;
         }
     }

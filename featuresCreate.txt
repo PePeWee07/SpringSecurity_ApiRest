@@ -7,8 +7,6 @@
 
 
 + FEATURES:
-    - Añadir los Logs
-
     - Exceptions: Token
 
     - Añadir endpoint para q el usaurio edite su perfil pero no sus roles

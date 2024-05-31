@@ -1,5 +1,7 @@
 package com.ucacue.UcaApp.controller.V2;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +25,8 @@ import java.util.*;
 @RequestMapping("/api/v2")
 public class UserController_v2 {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserController_v2.class);
+
     @Autowired
     private UserService userService;
 
@@ -31,6 +35,7 @@ public class UserController_v2 {
         try {
             return ResponseEntity.ok(userService.findAll());
         } catch (Exception e) {
+            logger.info("Error: {@GET /users}", e.getMessage());
             throw e;
         }
     }
@@ -44,6 +49,7 @@ public class UserController_v2 {
             Page<UserResponseDto> userPage = userService.findAllForPage(pageable);
             return ResponseEntity.ok(userPage);
         } catch (Exception e) {
+            logger.info("Error: {@GET /users/page/{page}}", e.getMessage());
             throw e;
         }
     }
@@ -54,6 +60,7 @@ public class UserController_v2 {
             UserResponseDto user = userService.getUserById(id);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
+            logger.info("Error: {@GET /user/{id}}", e.getMessage());
             throw e;
         }
     }
@@ -64,6 +71,7 @@ public class UserController_v2 {
             UserResponseDto user = userService.findByEmail(email);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
+            logger.info("Error: {@GET /user/email/{email}}", e.getMessage());
             throw e;
         }
     }
@@ -75,6 +83,7 @@ public class UserController_v2 {
             ApiResponse response = new ApiResponse(HttpStatus.CREATED.value(), savedUser, "User created successfully");
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
+            logger.info("Error: {@POST /user}", e.getMessage());
             throw e;
         }
     }
@@ -87,6 +96,7 @@ public class UserController_v2 {
             ApiResponse response = new ApiResponse(HttpStatus.OK.value(), updatedUser, "User updated successfully");
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
+            logger.info("Error: {@PUT /user/{id}}", e.getMessage());
             throw e;
         }
     }
