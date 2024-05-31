@@ -33,5 +33,5 @@ build/
 .vscode/
 
 # Excluir directorio de logs
-src/main/logs/
+/logs
 *.log

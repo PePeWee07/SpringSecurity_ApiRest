@@ -2,6 +2,8 @@ package com.ucacue.UcaApp.controller.V2;
 
 import jakarta.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,8 @@ import com.ucacue.UcaApp.service.user.impl.UserServiceImpl;
 @RequestMapping("/auth")
 public class AuthenticationController {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
+
     @Autowired
     private UserServiceImpl userServiceImpl;
 
@@ -27,6 +31,7 @@ public class AuthenticationController {
         try {
             return new ResponseEntity<>(userServiceImpl.RegisterUser(userRequest), HttpStatus.CREATED);
         } catch (Exception e) {
+            logger.info("Error: {/Sign-up}", e.getMessage());
             throw e;
         }
     }
@@ -37,6 +42,7 @@ public class AuthenticationController {
             AuthResponse response = userServiceImpl.loginUser(authLoginRequest);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            logger.info("Error: {/log-in}", e.getMessage());
             throw e;
         }
     }
