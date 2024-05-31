@@ -21,10 +21,10 @@ import com.ucacue.UcaApp.model.entity.UserEntity;
 import com.ucacue.UcaApp.model.mapper.UserMapper;
 import com.ucacue.UcaApp.repository.UserRepository;
 import com.ucacue.UcaApp.service.user.UserService;
-import com.ucacue.UcaApp.util.JwtUtils;
-import com.ucacue.UcaApp.util.PasswordEncoderUtil;
 import com.ucacue.UcaApp.util.RoleEntityFetcher;
 import com.ucacue.UcaApp.util.UserStatusValidator;
+import com.ucacue.UcaApp.util.token.JwtUtils;
+import com.ucacue.UcaApp.util.token.PasswordEncoderUtil;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.*;

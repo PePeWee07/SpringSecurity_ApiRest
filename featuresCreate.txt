@@ -7,7 +7,7 @@
 
 
 + FEATURES:
-    - Exceptions: Token
+    - Exceptions: Cmabiar excepciones de AUTENTICACION similar a Token 
 
     - Añadir endpoint para q el usaurio edite su perfil pero no sus roles
 

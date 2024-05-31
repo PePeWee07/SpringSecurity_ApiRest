@@ -1,0 +1,63 @@
+package com.ucacue.UcaApp.util.token;
+
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.stereotype.Component;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ucacue.UcaApp.web.response.TokenError.ApiTokenErrorResponse;
+import com.ucacue.UcaApp.web.response.TokenError.TokenErrorDetail;
+
+import java.io.IOException;
+
+@Component
+public class CustomJwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Override
+    public void commence(HttpServletRequest request,
+                         HttpServletResponse response,
+                         AuthenticationException authException) throws IOException, ServletException {
+        Throwable exception = (Throwable) request.getAttribute("exception");
+
+        response.setContentType("application/json");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+        ApiTokenErrorResponse errorResponse;
+        if (exception instanceof com.auth0.jwt.exceptions.TokenExpiredException) {
+            errorResponse = new ApiTokenErrorResponse(
+                    HttpServletResponse.SC_UNAUTHORIZED,
+                    "error",
+                    new TokenErrorDetail(exception.getMessage()),
+                    "Token has expired"
+            );
+        } else if (exception instanceof com.auth0.jwt.exceptions.JWTDecodeException) {
+            errorResponse = new ApiTokenErrorResponse(
+                    HttpServletResponse.SC_BAD_REQUEST,
+                    "error",
+                    new TokenErrorDetail(exception.getMessage()),
+                    "Token decoding error"
+            );
+        } else if (exception instanceof com.auth0.jwt.exceptions.JWTVerificationException) {
+            errorResponse = new ApiTokenErrorResponse(
+                    HttpServletResponse.SC_BAD_REQUEST,
+                    "error",
+                    new TokenErrorDetail(exception.getMessage()),
+                    "Token verification error"
+            );
+        } else {
+            errorResponse = new ApiTokenErrorResponse(
+                    HttpServletResponse.SC_UNAUTHORIZED,
+                    "error",
+                    new TokenErrorDetail(exception.getMessage()),
+                    authException.getMessage()
+            );
+        }
+
+        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+    }
+}
