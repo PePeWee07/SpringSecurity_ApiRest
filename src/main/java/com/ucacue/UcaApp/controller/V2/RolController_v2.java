@@ -1,5 +1,7 @@
 package com.ucacue.UcaApp.controller.V2;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,8 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/v2")
 public class RolController_v2 {
 
+    private static final Logger logger = LoggerFactory.getLogger(RolController_v2.class);
+
     @Autowired
     private RolService rolService;
 
@@ -31,6 +35,7 @@ public class RolController_v2 {
         try {
             return ResponseEntity.ok(rolService.findAll());
         } catch (Exception e) {
+            logger.info("Error: {@GET /roles}", e.getMessage());
             throw e;
         }
     }
@@ -41,6 +46,7 @@ public class RolController_v2 {
             RoleResponseDto response = rolService.getRoleById(id);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            logger.info("Error: {@GET /rol/{id}}", e.getMessage());
             throw e;
         }
     }
@@ -52,6 +58,7 @@ public class RolController_v2 {
             ApiResponse response = new ApiResponse(HttpStatus.CREATED.value(), savedRol, "Rol created successfully");
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
+            logger.info("Error: {@POST /rol}", e.getMessage());
             throw e;
         }
     }
@@ -63,6 +70,7 @@ public class RolController_v2 {
             ApiResponse response = new ApiResponse(HttpStatus.CREATED.value(), updatedRol, "Rol updated successfully");
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
+            logger.info("Error: {@PUT /rol/{id}}", e.getMessage());
             throw e;
         }
     }

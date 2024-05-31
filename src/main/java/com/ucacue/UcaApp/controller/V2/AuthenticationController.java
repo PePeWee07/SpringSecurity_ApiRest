@@ -31,7 +31,7 @@ public class AuthenticationController {
         try {
             return new ResponseEntity<>(userServiceImpl.RegisterUser(userRequest), HttpStatus.CREATED);
         } catch (Exception e) {
-            logger.info("Error: {/Sign-up}", e.getMessage());
+            logger.info("Error: {@POST /Sign-up}", e.getMessage());
             throw e;
         }
     }
@@ -42,7 +42,7 @@ public class AuthenticationController {
             AuthResponse response = userServiceImpl.loginUser(authLoginRequest);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            logger.info("Error: {/log-in}", e.getMessage());
+            logger.info("Error: {@POST /log-in}", e.getMessage());
             throw e;
         }
     }
