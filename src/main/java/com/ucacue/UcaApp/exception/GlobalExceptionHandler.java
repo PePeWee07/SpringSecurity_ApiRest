@@ -233,7 +233,7 @@ public class GlobalExceptionHandler {
         AuthErrorResponse response = new AuthErrorResponse(
             HttpStatus.BAD_REQUEST.value(),
             Collections.singletonList(errorDetail),
-            "Login Error"
+            "Error Credentials"
         );
         
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
