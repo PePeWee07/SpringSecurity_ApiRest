@@ -23,18 +23,20 @@
         </encoder>
         <rollingPolicy
                 class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- rollover daily and when the file reaches 10 MegaBytes -->
-            <fileNamePattern>${LOGS}/archived/spring-boot-logger-%d{yyyy-MM-dd HH:mm:ss}.%i.log
-            </fileNamePattern>
+            <!-- rollover daily and when the file reaches 30 MegaBytes -->
+            <fileNamePattern>${LOGS}/archived/spring-boot-logger-%d{yyyy-MM-dd HH:mm:ss}.%i.log</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy
                     class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>30MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>30</maxHistory> <!-- Mantener archivos de 30 días -->
         </rollingPolicy>
     </appender>
 
+    <!-- Ajustar niveles de log para reducir registros innecesarios -->
     <logger name="org.springframework" level="INFO" />
     <logger name="com.ucacue" level="DEBUG" />
+    <logger name="com.zaxxer.hikari" level="WARN" />
 
     <!-- Root Logger Configuration Levels: ERROR, WARN, INFO, DEBUG, or TRACE. -->
     <root level="DEBUG">
@@ -43,7 +45,7 @@
     </root>
 
     <!-- Logger for your specific package -->
-    <logger name="com.example.demo" level="trace" additivity="false">
+    <logger name="com.ucacue.UcaApp" level="trace" additivity="false">
         <appender-ref ref="RollingFile"/>
         <appender-ref ref="Console"/>
     </logger>
