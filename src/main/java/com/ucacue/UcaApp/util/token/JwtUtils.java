@@ -1,4 +1,4 @@
-package com.ucacue.UcaApp.util;
+package com.ucacue.UcaApp.util.token;
 
 import java.util.Date;
 import java.util.Map;

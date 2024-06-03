@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.ucacue.UcaApp.exception.auth.UserAlreadyExistsException;
 import com.ucacue.UcaApp.exception.auth.UserNotFoundException;
 import com.ucacue.UcaApp.exception.crud.ErrorResponse;
@@ -281,13 +280,8 @@ public class GlobalExceptionHandler {
 
     //------------------------------------------------------------ EXCEPCIONES DE TOKEN ------------------------------------------------------------
 
-    @ExceptionHandler(JWTVerificationException.class)
-    public ResponseEntity<ErrorResponse> handleJWTVerificationException(JWTVerificationException ex) {
-        ErrorResponse response = new ErrorResponse(
-            HttpStatus.UNAUTHORIZED.value(),
-            "Invalid Token",
-            ex.getMessage()
-        );
-        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
-    }
+    // Se controla desde JwtAuthenticationEntryPoint()
+    // Por que: Las excepciones ocurren antes de que el controlador las maneje
+
+     //------------------------------------------------------------ EXCEPCIONES DE ??? ------------------------------------------------------------
 }
