@@ -15,12 +15,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import com.ucacue.UcaApp.exception.auth.UserAlreadyExistsException;
-import com.ucacue.UcaApp.exception.auth.UserNotFoundException;
-import com.ucacue.UcaApp.exception.crud.ErrorResponse;
+import com.ucacue.UcaApp.exception.auth.UserNotFoundAuthException;
 import com.ucacue.UcaApp.exception.crud.PermissionNotFoundException;
 import com.ucacue.UcaApp.exception.crud.ResourceNotFound;
 import com.ucacue.UcaApp.exception.crud.RoleNotFoundException;
+import com.ucacue.UcaApp.exception.crud.UserAlreadyExistsException;
+import com.ucacue.UcaApp.exception.crud.UserNotFoundException;
+import com.ucacue.UcaApp.web.response.AuthResponse.AuthErrorDetail;
+import com.ucacue.UcaApp.web.response.AuthResponse.AuthErrorResponse;
 import com.ucacue.UcaApp.web.response.fieldValidation.FieldErrorDetail;
 import com.ucacue.UcaApp.web.response.fieldValidation.FieldValidationResponse;
 import com.ucacue.UcaApp.web.response.keyViolateUnique.KeyViolateDetail;
@@ -203,79 +205,146 @@ public class GlobalExceptionHandler {
 
     // Manejo de excepción para UsernameNotFoundException
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleUsernameNotFoundException(UsernameNotFoundException ex) {
-        ErrorResponse response = new ErrorResponse(
+    public ResponseEntity<AuthErrorResponse> handleUsernameNotFoundException(UsernameNotFoundException ex) {
+        AuthErrorDetail errorDetail = new AuthErrorDetail(
             HttpStatus.NOT_FOUND.value(),
-            "User not found",
-            ex.getMessage()
+            ex.getMessage(),
+            "User not found"
         );
+        
+        AuthErrorResponse response = new AuthErrorResponse(
+            HttpStatus.NOT_FOUND.value(),
+            Collections.singletonList(errorDetail),
+            "Errror in authentication"
+        );
+        
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Metodo para manejar errores de usuario no encontrado (SE TOMA COMO BAD CREDENTIALS)
+    @ExceptionHandler(UserNotFoundAuthException.class)
+    public ResponseEntity<AuthErrorResponse> handleUserNotFoundAuthException(UserNotFoundAuthException ex) {
+        AuthErrorDetail errorDetail = new AuthErrorDetail(
+            HttpStatus.BAD_REQUEST.value(),
+            ex.getMessage(),
+            "Credentials not found"
+        );
+        
+        AuthErrorResponse response = new AuthErrorResponse(
+            HttpStatus.BAD_REQUEST.value(),
+            Collections.singletonList(errorDetail),
+            "Login Error"
+        );
+        
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // Metodo para manejar errores de credenciales invalidas
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException ex) {
-        ErrorResponse response = new ErrorResponse(
+    public ResponseEntity<AuthErrorResponse> handleBadCredentialsException(BadCredentialsException ex) {
+        AuthErrorDetail errorDetail = new AuthErrorDetail(
             HttpStatus.UNAUTHORIZED.value(),
-            "Invalid username or password",
+            ex.getMessage(),
             "Bad credentials"
         );
+        
+        AuthErrorResponse response = new AuthErrorResponse(
+            HttpStatus.UNAUTHORIZED.value(),
+            Collections.singletonList(errorDetail),
+            "Invalid username or password"
+        );
+        
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     // Metodo para manejar errores de cuenta deshabilitada
     @ExceptionHandler(DisabledException.class)
-    public ResponseEntity<ErrorResponse> handleDisabledException(DisabledException ex) {
-        ErrorResponse response = new ErrorResponse(
+    public ResponseEntity<AuthErrorResponse> handleDisabledException(DisabledException ex) {
+        AuthErrorDetail errorDetail = new AuthErrorDetail(
             HttpStatus.UNAUTHORIZED.value(),
-            "Account disabled",
-            ex.getMessage()
+            ex.getMessage(),
+            "Account disabled"
         );
+        
+        AuthErrorResponse response = new AuthErrorResponse(
+            HttpStatus.UNAUTHORIZED.value(),
+            Collections.singletonList(errorDetail),
+            "Your account is disabled. Please contact the administrator"
+        );
+        
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     // Metodo para manejar errores de cuenta expirada
     @ExceptionHandler(AccountExpiredException.class)
-    public ResponseEntity<ErrorResponse> handleAccountExpiredException(AccountExpiredException ex) {
-        ErrorResponse response = new ErrorResponse(
+    public ResponseEntity<AuthErrorResponse> handleAccountExpiredException(AccountExpiredException ex) {
+        AuthErrorDetail errorDetail = new AuthErrorDetail(
             HttpStatus.UNAUTHORIZED.value(),
-            "Account expired",
-            ex.getMessage()
-        );    
+            ex.getMessage(),
+            "Account expired"
+        );
+        
+        AuthErrorResponse response = new AuthErrorResponse(
+            HttpStatus.UNAUTHORIZED.value(),
+            Collections.singletonList(errorDetail),
+            "Your account has expired. Please contact the administrator"
+        );
+        
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-    }    
+    }   
 
     // Metodo para manejar errores de cuenta bloqueada
     @ExceptionHandler(LockedException.class)
-    public ResponseEntity<ErrorResponse> handleLockedException(LockedException ex) {
-        ErrorResponse response = new ErrorResponse(
+    public ResponseEntity<AuthErrorResponse> handleLockedException(LockedException ex) {
+        AuthErrorDetail errorDetail = new AuthErrorDetail(
             HttpStatus.UNAUTHORIZED.value(),
-            "Account locked",
-            ex.getMessage()
-        );    
+            ex.getMessage(),
+            "Account locked"
+        );
+        
+        AuthErrorResponse response = new AuthErrorResponse(
+            HttpStatus.UNAUTHORIZED.value(),
+            Collections.singletonList(errorDetail),
+            "Your account is locked. Please contact the administrator"
+        );
+        
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
     
     // Método para manejar errores de credenciales expiradas
     @ExceptionHandler(CredentialsExpiredException.class)
-    public ResponseEntity<ErrorResponse> handleCredentialsExpiredException(CredentialsExpiredException ex) {
-        ErrorResponse response = new ErrorResponse(
+    public ResponseEntity<AuthErrorResponse> handleCredentialsExpiredException(CredentialsExpiredException ex) {
+        AuthErrorDetail errorDetail = new AuthErrorDetail(
             HttpStatus.UNAUTHORIZED.value(),
-            "Credentials expired",
-            ex.getMessage()
+            ex.getMessage(),
+            "Credentials expired"
         );
+        
+        AuthErrorResponse response = new AuthErrorResponse(
+            HttpStatus.UNAUTHORIZED.value(),
+            Collections.singletonList(errorDetail),
+            "Your credentials have expired. Please contact the administrator"
+        );
+        
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     // Metodo para manejar errores de usaurio ya registrados
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
-        ErrorResponse response = new ErrorResponse(
-            HttpStatus.CONFLICT.value(),
-            "User already exists",
-            ex.getMessage()
+    public ResponseEntity<AuthErrorResponse> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
+        AuthErrorDetail errorDetail = new AuthErrorDetail(
+            HttpStatus.BAD_REQUEST.value(),
+            ex.getMessage(),
+            "User already exists"
         );
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        
+        AuthErrorResponse response = new AuthErrorResponse(
+            HttpStatus.BAD_REQUEST.value(),
+            Collections.singletonList(errorDetail),
+            "The user already exists in the system"
+        );
+        
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     //------------------------------------------------------------ EXCEPCIONES DE TOKEN ------------------------------------------------------------

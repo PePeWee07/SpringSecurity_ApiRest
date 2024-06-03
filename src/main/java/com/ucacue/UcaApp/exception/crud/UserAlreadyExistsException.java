@@ -1,4 +1,4 @@
-package com.ucacue.UcaApp.exception.auth;
+package com.ucacue.UcaApp.exception.crud;
 
 public class UserAlreadyExistsException extends RuntimeException {
     private String email;

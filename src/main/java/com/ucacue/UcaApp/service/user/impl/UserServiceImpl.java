@@ -11,8 +11,9 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ucacue.UcaApp.exception.auth.UserAlreadyExistsException;
-import com.ucacue.UcaApp.exception.auth.UserNotFoundException;
+import com.ucacue.UcaApp.exception.auth.UserNotFoundAuthException;
+import com.ucacue.UcaApp.exception.crud.UserAlreadyExistsException;
+import com.ucacue.UcaApp.exception.crud.UserNotFoundException;
 import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
 import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
@@ -56,11 +57,23 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Autowired
     private PasswordEncoderUtil passwordEncoderUtil;
 
+    @Override
+    @Transactional(readOnly = true)
+    public UserResponseDto findByEmailWithAuth(String email) {
+        return userRepository.findByEmail(email)
+                .map(userMapper::toUserResponseDto)
+                .orElseThrow(() -> new UserNotFoundAuthException("Invalid username or password"));
+    }
+
     @Transactional(readOnly = true)
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException(email, UserNotFoundException.SearchType.EMAIL));
+        try {
+            UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundAuthException("Invalid username or password"));
+
+            // UserEntity userEntity = userRepository.findByEmail(email)
+            //     .orElseThrow(() -> new UserNotFoundException(email, UserNotFoundException.SearchType.EMAIL));
 
         return new User(
                 userEntity.getEmail(),
@@ -70,6 +83,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 userEntity.isCredentialNoExpired(),
                 userEntity.isAccountNoLocked(),
                 userEntity.getAuthorities());
+        } catch (UserNotFoundException e) {
+            throw e;
+        }
+        
     }
 
     @Transactional

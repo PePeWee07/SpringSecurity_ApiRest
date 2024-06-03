@@ -27,6 +27,8 @@ public interface UserService {
 
     UserResponseDto findByEmail(String email);
 
+    UserResponseDto findByEmailWithAuth(String email);
+
     UserResponseDto save(UserRequestDto userRequestDto);
 
     UserResponseDto update(Long id, UserRequestDto userRequestDto);
