@@ -10,11 +10,14 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ucacue.UcaApp.auditing.AuditingData;
 
 @Getter
 @Setter
@@ -23,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Builder
 @Entity
 @Table(name = "users")
-public class UserEntity implements UserDetails{
+public class UserEntity extends AuditingData implements UserDetails{
 
     private static final long serialVersionUID = 1L;
     
@@ -128,6 +131,17 @@ public class UserEntity implements UserDetails{
 
     @Override
     public String getUsername() {
-        return this.email;
+        // return this.email;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails) {
+                return ((UserDetails) principal).getUsername();
+            } else {
+                // handle the case when principal is a string (username)
+                return principal.toString();
+            }
+        }
+        return null;
     }
 }

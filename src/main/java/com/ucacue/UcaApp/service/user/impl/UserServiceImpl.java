@@ -72,9 +72,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundAuthException("Invalid username or password"));
 
-            // UserEntity userEntity = userRepository.findByEmail(email)
-            //     .orElseThrow(() -> new UserNotFoundException(email, UserNotFoundException.SearchType.EMAIL));
-
         return new User(
                 userEntity.getEmail(),
                 userEntity.getPassword(),
