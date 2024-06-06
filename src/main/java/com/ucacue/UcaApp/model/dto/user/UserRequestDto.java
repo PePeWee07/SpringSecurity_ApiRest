@@ -3,7 +3,6 @@ package com.ucacue.UcaApp.model.dto.user;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.Set;
 
 import jakarta.validation.constraints.NotEmpty;
@@ -40,8 +39,6 @@ public class UserRequestDto implements Serializable{
     private boolean accountNoLocked;
 
 	private boolean credentialNoExpired;
-
-    private Date  creationDate;
 
     @NotEmpty(message = "rolesIds cannot be empty")
     private Set<Long> rolesIds;

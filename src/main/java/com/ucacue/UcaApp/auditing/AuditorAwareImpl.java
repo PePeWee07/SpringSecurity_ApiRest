@@ -15,5 +15,4 @@ public class AuditorAwareImpl implements AuditorAware<String>{
         
         return Optional.ofNullable(username).or(() -> Optional.of("anonymousUser"));
     }
-
 }

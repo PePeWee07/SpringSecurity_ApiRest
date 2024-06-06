@@ -13,7 +13,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ucacue.UcaApp.auditing.AuditingData;
 
 @Getter
@@ -81,11 +80,6 @@ public class UserEntity extends AuditingData implements UserDetails{
     @NotNull
     @Column(name = "credential_No_Expired")
     private boolean credentialNoExpired;
-
-    @NotNull
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "America/Guayaquil")
-    @Column(name = "creationDate", nullable = false)
-    private Date  creationDate;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"),
