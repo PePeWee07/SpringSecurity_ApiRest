@@ -10,14 +10,10 @@ public class AuditorAwareImpl implements AuditorAware<String>{
 
     @Override
     public Optional<String> getCurrentAuditor() {
-        
         UserEntity currentUser = new UserEntity();
-
-        if(currentUser.getUsername() == null){
-            return Optional.of("anonymousUser");
-        } 
-
-        return Optional.of(currentUser.getUsername());
+        String username = currentUser.getUsername();
+        
+        return Optional.ofNullable(username).or(() -> Optional.of("anonymousUser"));
     }
 
 }

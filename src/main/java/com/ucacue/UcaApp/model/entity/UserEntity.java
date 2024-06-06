@@ -4,10 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
@@ -131,7 +128,6 @@ public class UserEntity extends AuditingData implements UserDetails{
 
     @Override
     public String getUsername() {
-        // return this.email;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
@@ -142,6 +138,6 @@ public class UserEntity extends AuditingData implements UserDetails{
                 return principal.toString();
             }
         }
-        return null;
+        return "anonymousUser";
     }
 }
