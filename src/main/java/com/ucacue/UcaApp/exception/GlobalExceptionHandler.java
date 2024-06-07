@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
 
     Map<String, Object> responseGlobalExcp = new HashMap<>();
 
-    //------------------------------------------------------------ EXCEPCIONES DE CRUD ------------------------------------------------------------
+    //------------------------------------------------------------ EXCEPCION GENERAL ------------------------------------------------------------
 
     // Método genérico para manejar otras excepciones
     @ExceptionHandler(Exception.class)
@@ -52,7 +52,9 @@ public class GlobalExceptionHandler {
         }
         return new ResponseEntity<>(responseGlobalExcp, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    
+
+    //------------------------------------------------------------ EXCEPCIONES DE CRUD ------------------------------------------------------------
+
     //Metodo para manejar mensajes de error de recursos no encontrados
     @ExceptionHandler(ResourceNotFound.class)
     public ResponseEntity<Map<String, Object>> handleResourceNotFoundException(ResourceNotFound ex) {
@@ -352,5 +354,5 @@ public class GlobalExceptionHandler {
     // Se controla desde JwtAuthenticationEntryPoint()
     // Por que: Las excepciones ocurren antes de que el controlador las maneje
 
-     //------------------------------------------------------------ EXCEPCIONES DE ??? ------------------------------------------------------------
+    //------------------------------------------------------------ EXCEPCIONES DE ??? ------------------------------------------------------------
 }
