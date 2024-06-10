@@ -50,23 +50,22 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             return;
         }
 
-        
         try {
             jwtToken = jwtToken.replace("Bearer ", "");
             DecodedJWT decodedJWT = jwtUtils.validateToken(jwtToken);
             String username = jwtUtils.getUsernameFromToken(decodedJWT);
             String authorities = jwtUtils.getClaimFromToken(decodedJWT, "authorities").asString();
-            Collection<? extends GrantedAuthority> authoritiesList = AuthorityUtils.commaSeparatedStringToAuthorityList(authorities);
+            Collection<? extends GrantedAuthority> authoritiesList = AuthorityUtils
+                    .commaSeparatedStringToAuthorityList(authorities);
             SecurityContext context = SecurityContextHolder.getContext();
             Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, authoritiesList);
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);
-        } 
-         catch (JWTVerificationException e) {
+        } catch (JWTVerificationException e) {
             SecurityContextHolder.clearContext();
             logger.error("JWT verification failed: {}", e.getMessage());
             request.setAttribute("exception", e);
-        } 
+        }
 
         filterChain.doFilter(request, response);
     }

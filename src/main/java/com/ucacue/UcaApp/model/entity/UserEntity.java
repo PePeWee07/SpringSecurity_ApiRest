@@ -22,10 +22,10 @@ import com.ucacue.UcaApp.auditing.AuditingData;
 @Builder
 @Entity
 @Table(name = "users")
-public class UserEntity extends AuditingData implements UserDetails{
+public class UserEntity extends AuditingData implements UserDetails {
 
     private static final long serialVersionUID = 1L;
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -82,8 +82,8 @@ public class UserEntity extends AuditingData implements UserDetails{
     private boolean credentialNoExpired;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"),
-    uniqueConstraints= {@UniqueConstraint(columnNames= {"user_id", "role_id"})})
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"), uniqueConstraints = {
+            @UniqueConstraint(columnNames = { "user_id", "role_id" }) })
     private Set<RoleEntity> roles = new HashSet<>();
 
     @Override
@@ -112,9 +112,8 @@ public class UserEntity extends AuditingData implements UserDetails{
                 .flatMap(role -> {
                     Set<GrantedAuthority> authorities = new HashSet<>();
                     authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
-                    role.getPermissionList().forEach(permission -> 
-                        authorities.add(new SimpleGrantedAuthority(permission.getName()))
-                    );
+                    role.getPermissionList()
+                            .forEach(permission -> authorities.add(new SimpleGrantedAuthority(permission.getName())));
                     return authorities.stream();
                 })
                 .collect(Collectors.toSet());

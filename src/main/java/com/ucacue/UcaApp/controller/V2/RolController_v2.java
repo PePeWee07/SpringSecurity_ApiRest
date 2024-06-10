@@ -64,7 +64,8 @@ public class RolController_v2 {
     }
 
     @PutMapping("/rol/{id}")
-    public ResponseEntity<ApiResponse> update(@PathVariable Long id, @Valid @RequestBody RoleRequestDto roleRequestDto) {
+    public ResponseEntity<ApiResponse> update(@PathVariable Long id,
+            @Valid @RequestBody RoleRequestDto roleRequestDto) {
         try {
             RoleResponseDto updatedRol = rolService.update(id, roleRequestDto);
             ApiResponse response = new ApiResponse(HttpStatus.CREATED.value(), updatedRol, "Rol updated successfully");

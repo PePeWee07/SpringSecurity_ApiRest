@@ -25,7 +25,7 @@ public class UserController_v1 {
     UserRepository userRepository;
 
     @GetMapping("/users")
-    public List<UserEntity> findAll(){
+    public List<UserEntity> findAll() {
         try {
             List<UserEntity> users = new ArrayList<UserEntity>();
             users = userRepository.findAll();

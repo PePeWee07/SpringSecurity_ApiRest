@@ -14,7 +14,7 @@ import lombok.*;
 @Builder
 @Entity
 @Table(name = "permissions")
-public class PermissionEntity implements Serializable{
+public class PermissionEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
