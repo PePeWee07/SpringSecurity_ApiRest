@@ -83,7 +83,7 @@ public interface UserMapper {
         if (dto.getPhoneNumber() != null) entity.setPhoneNumber(dto.getPhoneNumber());
         if (dto.getAddress() != null) entity.setAddress(dto.getAddress());
         if (dto.getDNI() != null) entity.setDNI(dto.getDNI());
-        if (dto.getPassword() != null) entity.setPassword(dto.getPassword());
+        if (dto.getPassword() != null) entity.setPassword(passwordEncoderUtil.encodePassword(dto.getPassword()));
         entity.setEnabled(dto.isEnabled());
         entity.setAccountNoExpired(dto.isAccountNoExpired());
         entity.setAccountNoLocked(dto.isAccountNoLocked());
