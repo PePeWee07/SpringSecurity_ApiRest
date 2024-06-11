@@ -21,7 +21,7 @@ import com.ucacue.UcaApp.auditing.AuditingData;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "users")
+@Table(name = "users", schema = "auth")
 public class UserEntity extends AuditingData implements UserDetails {
 
     private static final long serialVersionUID = 1L;
@@ -82,7 +82,7 @@ public class UserEntity extends AuditingData implements UserDetails {
     private boolean credentialNoExpired;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"), uniqueConstraints = {
+    @JoinTable(name = "user_roles", schema = "auth", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"), uniqueConstraints = {
             @UniqueConstraint(columnNames = { "user_id", "role_id" }) })
     private Set<RoleEntity> roles = new HashSet<>();
 

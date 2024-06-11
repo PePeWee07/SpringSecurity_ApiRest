@@ -13,7 +13,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "permissions")
+@Table(name = "permissions", schema = "auth")
 public class PermissionEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
