@@ -337,7 +337,7 @@ public class GlobalExceptionHandler {
 
     // ------------------------------------------------------------ EXCEPCIONES DETOKEN ------------------------------------------------------------
 
-    // Se controla desde JwtAuthenticationEntryPoint()
+    // Se controla desde CustomJwtAuthenticationEntryPoint()
     // Por que: Las excepciones ocurren antes de que el controlador las maneje
     
 }
