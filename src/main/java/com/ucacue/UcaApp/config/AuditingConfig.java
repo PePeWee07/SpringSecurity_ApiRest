@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-import com.ucacue.UcaApp.auditing.AuditorAwareImpl;
+import com.ucacue.UcaApp.service.auditing.core.impl.AuditorAwareImpl;
 
 @Configuration
 @EnableJpaAuditing

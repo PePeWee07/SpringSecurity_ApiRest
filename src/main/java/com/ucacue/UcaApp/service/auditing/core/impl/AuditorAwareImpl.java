@@ -1,4 +1,4 @@
-package com.ucacue.UcaApp.auditing;
+package com.ucacue.UcaApp.service.auditing.core.impl;
 
 import java.util.*;
 import org.springframework.data.domain.AuditorAware;

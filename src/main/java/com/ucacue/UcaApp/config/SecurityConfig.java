@@ -49,6 +49,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(http -> {
                     // Configurar los endpoints públicos
                     http.requestMatchers(HttpMethod.GET, "/api/v1/**").permitAll();
+                    http.requestMatchers(HttpMethod.GET, "/api/v2/audit/**").permitAll();
 
                     http.requestMatchers(HttpMethod.GET, "/auth/get").permitAll();
                     http.requestMatchers(HttpMethod.POST, "/auth/**").permitAll();

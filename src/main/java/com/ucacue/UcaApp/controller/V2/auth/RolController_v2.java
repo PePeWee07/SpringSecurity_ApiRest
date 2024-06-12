@@ -1,4 +1,4 @@
-package com.ucacue.UcaApp.controller.V2;
+package com.ucacue.UcaApp.controller.V2.auth;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

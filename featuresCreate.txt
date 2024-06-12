@@ -7,8 +7,7 @@
 
 
 + FEATURES:
-    - Exceptions: Cmabiar excepciones de AUTENTICACION similar a Token 
-
+    - Controlador de auditoria
     - Añadir endpoint para q el usaurio edite su perfil pero no sus roles
 
     - Definir las rutas seguras
