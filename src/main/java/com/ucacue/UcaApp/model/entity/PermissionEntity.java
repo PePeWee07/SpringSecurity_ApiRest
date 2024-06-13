@@ -2,6 +2,8 @@ package com.ucacue.UcaApp.model.entity;
 
 import java.io.Serializable;
 
+import com.ucacue.UcaApp.service.auditing.core.AuditingData;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -14,7 +16,7 @@ import lombok.*;
 @Builder
 @Entity
 @Table(name = "permissions", schema = "auth")
-public class PermissionEntity implements Serializable {
+public class PermissionEntity extends AuditingData implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

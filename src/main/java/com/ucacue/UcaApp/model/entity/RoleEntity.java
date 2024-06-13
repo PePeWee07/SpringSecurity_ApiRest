@@ -11,6 +11,8 @@ import java.util.Set;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import com.ucacue.UcaApp.service.auditing.core.AuditingData;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,7 +20,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Builder
 @Entity
 @Table(name = "roles", schema = "auth")
-public class RoleEntity implements Serializable {
+public class RoleEntity extends AuditingData implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
