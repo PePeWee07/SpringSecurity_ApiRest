@@ -49,6 +49,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(http -> {
                     // Configurar los endpoints públicos
                     http.requestMatchers(HttpMethod.GET, "/api/v1/**").permitAll();
+                    http.requestMatchers(HttpMethod.GET, "/api/v2/audit/**").permitAll();
 
                     http.requestMatchers(HttpMethod.GET, "/auth/get").permitAll();
                     http.requestMatchers(HttpMethod.POST, "/auth/**").permitAll();
@@ -67,8 +68,8 @@ public class SecurityConfig {
                 })
                 .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class)
                 .exceptionHandling(exceptionHandling -> exceptionHandling
-                    .authenticationEntryPoint(customjwtAuthenticationEntryPoint)
-                ).cors(cors -> cors.configurationSource(corsConfigurationSource()));
+                        .authenticationEntryPoint(customjwtAuthenticationEntryPoint))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         return httpSecurity.build();
     }
@@ -93,24 +94,25 @@ public class SecurityConfig {
     }
 
     @Bean
-	public CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration config = new CorsConfiguration();
-		List<String> access = new ArrayList<>();
-		access.add("*");
-		config.setAllowedOriginPatterns(access);
-		config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "OPTIONS","DELETE"));
-		config.setAllowCredentials(true);
-		config.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization"));
-		
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", config);
-		return source;
-	}
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        List<String> access = new ArrayList<>();
+        access.add("*");
+        config.setAllowedOriginPatterns(access);
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "OPTIONS", "DELETE"));
+        config.setAllowCredentials(true);
+        config.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
 
     @Bean
-	public FilterRegistrationBean<CorsFilter> corsFilter(){
-		FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<CorsFilter>(new CorsFilter(corsConfigurationSource()));
-		bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
-		return bean;
-	}
+    public FilterRegistrationBean<CorsFilter> corsFilter() {
+        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<CorsFilter>(
+                new CorsFilter(corsConfigurationSource()));
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        return bean;
+    }
 }

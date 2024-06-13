@@ -7,11 +7,15 @@
 
 
 + FEATURES:
-    - Exceptions: Cmabiar excepciones de AUTENTICACION similar a Token 
-
     - Añadir endpoint para q el usaurio edite su perfil pero no sus roles
 
     - Definir las rutas seguras
 
+    - Añadir funcionalidades y manjeo de excepciones para Auditoria
+
+    - Documentar con libreria la Api
+
     - CRUD: para rolesEntity (DELETE) (Tener en cuenta q ConstraintViolationException distorciona el error para @Delete)
     - CRUD: para permissionEntity (DELETE)
+
+    - Dockerizar

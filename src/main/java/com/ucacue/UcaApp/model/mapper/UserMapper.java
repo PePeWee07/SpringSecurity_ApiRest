@@ -35,7 +35,6 @@ public interface UserMapper {
         dto.setAccountNoExpired(userEntity.isAccountNoExpired());
         dto.setAccountNoLocked(userEntity.isAccountNoLocked());
         dto.setCredentialNoExpired(userEntity.isCredentialNoExpired());
-        dto.setCreationDate(userEntity.getCreationDate());
 
         List<RoleResponseDto> roleDTOList = userEntity.getRoles().stream()
             .map(RoleMapper.INSTANCE::rolesEntityToRoleResponseDto)
@@ -60,7 +59,6 @@ public interface UserMapper {
         entity.setAccountNoExpired(UserRequestDto.isAccountNoExpired());
         entity.setAccountNoLocked(UserRequestDto.isAccountNoLocked());
         entity.setCredentialNoExpired(UserRequestDto.isCredentialNoExpired());
-        entity.setCreationDate(UserRequestDto.getCreationDate());
 
         // Ahora pasamos el RoleEntityFetcher a rolesIdsToRolesEntities
         Set<RoleEntity> roles = rolesIdsToRolesEntities(UserRequestDto.getRolesIds(), RoleEntityFetcher);
@@ -85,12 +83,11 @@ public interface UserMapper {
         if (dto.getPhoneNumber() != null) entity.setPhoneNumber(dto.getPhoneNumber());
         if (dto.getAddress() != null) entity.setAddress(dto.getAddress());
         if (dto.getDNI() != null) entity.setDNI(dto.getDNI());
-        if (dto.getPassword() != null) entity.setPassword(dto.getPassword());
+        if (dto.getPassword() != null) entity.setPassword(passwordEncoderUtil.encodePassword(dto.getPassword()));
         entity.setEnabled(dto.isEnabled());
         entity.setAccountNoExpired(dto.isAccountNoExpired());
         entity.setAccountNoLocked(dto.isAccountNoLocked());
         entity.setCredentialNoExpired(dto.isCredentialNoExpired());
-        if (dto.getCreationDate() != null) entity.setCreationDate(dto.getCreationDate());
 
         Set<RoleEntity> roles = rolesIdsToRolesEntities(dto.getRolesIds(), RoleEntityFetcher);
         entity.setRoles(roles);

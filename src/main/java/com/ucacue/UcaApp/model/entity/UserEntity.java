@@ -4,17 +4,16 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ucacue.UcaApp.service.auditing.core.AuditingData;
 
 @Getter
 @Setter
@@ -22,11 +21,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "users")
-public class UserEntity implements UserDetails{
+@Table(name = "users", schema = "auth")
+public class UserEntity extends AuditingData implements UserDetails {
 
     private static final long serialVersionUID = 1L;
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -82,14 +81,9 @@ public class UserEntity implements UserDetails{
     @Column(name = "credential_No_Expired")
     private boolean credentialNoExpired;
 
-    @NotNull
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "America/Guayaquil")
-    @Column(name = "creationDate", nullable = false)
-    private Date  creationDate;
-
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"),
-    uniqueConstraints= {@UniqueConstraint(columnNames= {"user_id", "role_id"})})
+    @JoinTable(name = "user_roles", schema = "auth", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"), uniqueConstraints = {
+            @UniqueConstraint(columnNames = { "user_id", "role_id" }) })
     private Set<RoleEntity> roles = new HashSet<>();
 
     @Override
@@ -118,9 +112,8 @@ public class UserEntity implements UserDetails{
                 .flatMap(role -> {
                     Set<GrantedAuthority> authorities = new HashSet<>();
                     authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
-                    role.getPermissionList().forEach(permission -> 
-                        authorities.add(new SimpleGrantedAuthority(permission.getName()))
-                    );
+                    role.getPermissionList()
+                            .forEach(permission -> authorities.add(new SimpleGrantedAuthority(permission.getName())));
                     return authorities.stream();
                 })
                 .collect(Collectors.toSet());
@@ -128,6 +121,16 @@ public class UserEntity implements UserDetails{
 
     @Override
     public String getUsername() {
-        return this.email;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails) {
+                return ((UserDetails) principal).getUsername();
+            } else {
+                // handle the case when principal is a string (username)
+                return principal.toString();
+            }
+        }
+        return "anonymousUser";
     }
 }

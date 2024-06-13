@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 public class TestAuthController {
 
     @GetMapping("/get")
-    public String helloGet(){
+    public String helloGet() {
         return "Hello World - GET";
     }
 
@@ -24,17 +24,17 @@ public class TestAuthController {
     }
 
     @PutMapping("/put")
-    public String helloPut(){
+    public String helloPut() {
         return "Hello World - PUT";
     }
 
     @DeleteMapping("/delete")
-    public String helloDelete(){
+    public String helloDelete() {
         return "Hello World - DELETE";
     }
 
     @PatchMapping("/patch")
-    public String helloPatch(){
+    public String helloPatch() {
         return "Hello World - PATCH";
     }
 }

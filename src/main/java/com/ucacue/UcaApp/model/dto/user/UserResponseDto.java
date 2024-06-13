@@ -3,7 +3,6 @@ package com.ucacue.UcaApp.model.dto.user;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
@@ -40,8 +39,6 @@ public class UserResponseDto implements Serializable{
     private boolean accountNoLocked;
     
 	private boolean credentialNoExpired;
-
-    private Date  creationDate;
 
     private List<RoleResponseDto> roles;
 
