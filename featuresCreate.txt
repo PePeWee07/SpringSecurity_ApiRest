@@ -7,14 +7,15 @@
 
 
 + FEATURES:
-    - Añadir endpoint para q el usaurio edite su perfil pero no sus roles
+    - Intermacionalizacion(Idimoas Español,Ingles)
 
-    - Definir las rutas seguras
+    - Añadir endpoint para q el usaurio edite su perfil pero no sus roles
 
     - Añadir funcionalidades y manjeo de excepciones para Auditoria
 
     - Documentar con libreria la Api
 
+    - Definir las rutas seguras
     - CRUD: para rolesEntity (DELETE) (Tener en cuenta q ConstraintViolationException distorciona el error para @Delete)
     - CRUD: para permissionEntity (DELETE)
 
