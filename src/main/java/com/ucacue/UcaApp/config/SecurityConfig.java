@@ -49,7 +49,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(http -> {
                     // Configurar los endpoints públicos
                     http.requestMatchers(HttpMethod.GET, "/api/v1/**").permitAll();
+
                     http.requestMatchers(HttpMethod.GET, "/api/v2/audit/**").permitAll();
+
+                    http.requestMatchers(HttpMethod.GET, "/v3/**").permitAll();
+                    http.requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll();
 
                     http.requestMatchers(HttpMethod.GET, "/auth/get").permitAll();
                     http.requestMatchers(HttpMethod.POST, "/auth/**").permitAll();
@@ -59,9 +63,9 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.PUT, "/api/v2/**").permitAll();
                     http.requestMatchers(HttpMethod.DELETE, "/api/v2/**").permitAll();
 
-                    // Configurar los endpoints privados
-                    http.requestMatchers(HttpMethod.POST, "/method/post").hasAnyRole("ADMIN", "DEVELOPER");
-                    http.requestMatchers(HttpMethod.PATCH, "/method/patch").hasAnyAuthority("REFACTOR");
+                    // Configurar los endpoints por permisos
+                    //http.requestMatchers(HttpMethod.POST, "/context-path").hasAnyRole("ADMIN", "DEVELOPER");
+                    //http.requestMatchers(HttpMethod.PATCH, "/context-path").hasAnyAuthority("REFACTOR");
 
                     // Configurar el resto de endpoints - NO ESPECIFICADOS
                     http.anyRequest().authenticated();
