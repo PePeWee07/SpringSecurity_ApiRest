@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
 import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
-import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
+import com.ucacue.UcaApp.model.dto.user.AdminUserManagerRequestDto;
 import com.ucacue.UcaApp.service.user.impl.UserServiceImpl;
 
 @RestController
@@ -27,7 +27,7 @@ public class AuthenticationController {
     private UserServiceImpl userServiceImpl;
 
     @PostMapping("/sign-up")
-    public ResponseEntity<?> register(@RequestBody @Valid UserRequestDto userRequest) {
+    public ResponseEntity<?> register(@RequestBody @Valid AdminUserManagerRequestDto userRequest) {
         try {
             return new ResponseEntity<>(userServiceImpl.RegisterUser(userRequest), HttpStatus.CREATED);
         } catch (Exception e) {

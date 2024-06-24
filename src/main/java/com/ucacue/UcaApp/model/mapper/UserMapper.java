@@ -9,6 +9,7 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
+import com.ucacue.UcaApp.model.dto.user.AdminUserManagerRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 import com.ucacue.UcaApp.model.entity.RoleEntity;
@@ -45,7 +46,7 @@ public interface UserMapper {
         return dto;
     }
 
-    default UserEntity toUserEntity(UserRequestDto UserRequestDto, @Context RoleEntityFetcher RoleEntityFetcher, @Context PasswordEncoderUtil passwordEncoderUtil) {
+    default UserEntity toUserEntity(AdminUserManagerRequestDto UserRequestDto, @Context RoleEntityFetcher RoleEntityFetcher, @Context PasswordEncoderUtil passwordEncoderUtil) {
         UserEntity entity = new UserEntity();
         entity.setId(UserRequestDto.getId());
         entity.setName(UserRequestDto.getName());
@@ -60,23 +61,22 @@ public interface UserMapper {
         entity.setAccountNoLocked(UserRequestDto.isAccountNoLocked());
         entity.setCredentialNoExpired(UserRequestDto.isCredentialNoExpired());
 
-        // Ahora pasamos el RoleEntityFetcher a rolesIdsToRolesEntities
+        // Ahora usamos el RoleEntityFetcher
         Set<RoleEntity> roles = rolesIdsToRolesEntities(UserRequestDto.getRolesIds(), RoleEntityFetcher);
 
         entity.setRoles(roles);
         return entity;
     }
     
-    default Set<RoleEntity> rolesIdsToRolesEntities(Set<Long> roleIds, RoleEntityFetcher RoleEntityFetcher) {
-        // Agregar siempre el ID 2 del ROL_USER al conjunto de roles
-        //roleIds.add(2L);
+    default Set<RoleEntity> rolesIdsToRolesEntities(Set<Long> roleIds, RoleEntityFetcher RoleEntityFetcher) {        
+        roleIds.add(2L);
 
         return roleIds.stream()
                       .map(id -> RoleEntityFetcher.mapRoleIdToRolesEntity(id)) // Usando RoleEntityFetcher para convertir ID a RolesEntity
                       .collect(Collectors.toSet());
     }
 
-    default void updateEntityFromDto(UserRequestDto dto, @MappingTarget UserEntity entity, @Context RoleEntityFetcher RoleEntityFetcher, @Context PasswordEncoderUtil passwordEncoderUtil) {
+    default void updateEntityFromDto(AdminUserManagerRequestDto dto, @MappingTarget UserEntity entity, @Context RoleEntityFetcher RoleEntityFetcher, @Context PasswordEncoderUtil passwordEncoderUtil) {
         if (dto.getName() != null) entity.setName(dto.getName());
         if (dto.getLastName() != null) entity.setLastName(dto.getLastName());
         if (dto.getEmail() != null) entity.setEmail(dto.getEmail());
@@ -91,5 +91,30 @@ public interface UserMapper {
 
         Set<RoleEntity> roles = rolesIdsToRolesEntities(dto.getRolesIds(), RoleEntityFetcher);
         entity.setRoles(roles);
+    }
+
+
+    //-----------------PARA USAURIO SIN PRIVILEGIO ADMIN-----------------
+    default UserEntity toUserEntityUserProfile(UserRequestDto UserRequestDto, @Context PasswordEncoderUtil passwordEncoderUtil) {
+        UserEntity entity = new UserEntity();
+        entity.setId(UserRequestDto.getId());
+        entity.setName(UserRequestDto.getName());
+        entity.setLastName(UserRequestDto.getLastName());
+        entity.setEmail(UserRequestDto.getEmail());
+        entity.setPhoneNumber(UserRequestDto.getPhoneNumber());
+        entity.setAddress(UserRequestDto.getAddress());
+        entity.setDNI(UserRequestDto.getDNI());
+        entity.setPassword(passwordEncoderUtil.encodePassword(UserRequestDto.getPassword()));
+        return entity;
+    }
+
+    default void updateEntityFromDtoUserProfile(UserRequestDto dto, @MappingTarget UserEntity entity, @Context PasswordEncoderUtil passwordEncoderUtil) {
+        entity.setName(dto.getName());
+        entity.setLastName(dto.getLastName());
+        entity.setEmail(dto.getEmail());
+        entity.setPhoneNumber(dto.getPhoneNumber());
+        entity.setAddress(dto.getAddress());
+        entity.setDNI(dto.getDNI());
+        entity.setPassword(passwordEncoderUtil.encodePassword(dto.getPassword()));
     }
 }

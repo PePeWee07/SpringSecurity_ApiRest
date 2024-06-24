@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.ucacue.UcaApp.service.user.UserService;
 import com.ucacue.UcaApp.web.response.ApiResponse;
-import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
+import com.ucacue.UcaApp.model.dto.user.AdminUserManagerRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 
 import org.springframework.data.domain.Page;
@@ -23,9 +23,9 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/v2")
-public class UserController_v2 {
+public class AdminUserManagerController_v2 {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserController_v2.class);
+    private static final Logger logger = LoggerFactory.getLogger(AdminUserManagerController_v2.class);
 
     @Autowired
     private UserService userService;
@@ -77,7 +77,7 @@ public class UserController_v2 {
     }
 
     @PostMapping("/user")
-    public ResponseEntity<ApiResponse> create(@Valid @RequestBody UserRequestDto userRequestDto) {
+    public ResponseEntity<ApiResponse> create(@Valid @RequestBody AdminUserManagerRequestDto userRequestDto) {
         try {
             UserResponseDto savedUser = userService.save(userRequestDto);
             ApiResponse response = new ApiResponse(HttpStatus.CREATED.value(), savedUser, "User created successfully");
@@ -90,7 +90,7 @@ public class UserController_v2 {
 
     @PutMapping("/user/{id}")
     public ResponseEntity<ApiResponse> update(@PathVariable Long id,
-            @Valid @RequestBody UserRequestDto userRequestDto) {
+            @Valid @RequestBody AdminUserManagerRequestDto userRequestDto) {
         try {
             UserResponseDto updatedUser = userService.update(id, userRequestDto);
             ApiResponse response = new ApiResponse(HttpStatus.OK.value(), updatedUser, "User updated successfully");
