@@ -7,9 +7,9 @@
 
 
 + FEATURES:
-    - Intermacionalizacion(Idimoas Español,Ingles)
+    - Observacion: editar sin necesidad de enviar todo los campos(Admin y Usuario)
 
-    - Añadir endpoint para q el usaurio edite su perfil pero no sus roles
+    - Intermacionalizacion(Idimoas Español,Ingles)
 
     - Añadir funcionalidades y manjeo de excepciones para Auditoria
 

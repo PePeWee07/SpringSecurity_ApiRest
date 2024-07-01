@@ -6,6 +6,7 @@ import org.springframework.security.core.Authentication;
 
 import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
 import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
+import com.ucacue.UcaApp.model.dto.user.AdminUserManagerRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 
@@ -13,11 +14,13 @@ import java.util.List;
 
 public interface UserService {
 
+    //-----------Funciones para administrador de usuarios-----------
+
     AuthResponse loginUser(AuthLoginRequest authLoginRequest);
 
     Authentication authenticate(String username, String password);
 
-    AuthResponse RegisterUser(UserRequestDto userRequestDto);
+    AuthResponse RegisterUser(AdminUserManagerRequestDto userRequestDto);
 
     AuthResponse refreshUserToken(String refreshToken);
 
@@ -31,11 +34,14 @@ public interface UserService {
 
     UserResponseDto findByEmailWithAuth(String email);
 
-    UserResponseDto save(UserRequestDto userRequestDto);
+    UserResponseDto save(AdminUserManagerRequestDto userRequestDto);
 
-    UserResponseDto update(Long id, UserRequestDto userRequestDto);
-
-    void delete(Long id);
+    UserResponseDto update(Long id, AdminUserManagerRequestDto userRequestDto);
 
     boolean exists(Long id);
+
+    //-----------Funciones para usuarios-----------
+
+    UserResponseDto editProfile(UserRequestDto userRequestDto, Long id);
+
 }

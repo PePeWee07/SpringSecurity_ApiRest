@@ -17,6 +17,7 @@ import com.ucacue.UcaApp.exception.crud.UserAlreadyExistsException;
 import com.ucacue.UcaApp.exception.crud.UserNotFoundException;
 import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
 import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
+import com.ucacue.UcaApp.model.dto.user.AdminUserManagerRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 import com.ucacue.UcaApp.model.entity.UserEntity;
@@ -117,7 +118,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Transactional
     @Override
-    public AuthResponse RegisterUser(UserRequestDto userRequestDto) {
+    public AuthResponse RegisterUser(AdminUserManagerRequestDto userRequestDto) {
         try {
             UserEntity userEntity = userMapper.toUserEntity(userRequestDto, roleEntityFetcher, passwordEncoderUtil);
 
@@ -184,7 +185,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Transactional
     @Override
-    public UserResponseDto save(UserRequestDto userRequestDto) {
+    public UserResponseDto save(AdminUserManagerRequestDto userRequestDto) {
         UserEntity userEntity = userMapper.toUserEntity(userRequestDto, roleEntityFetcher, passwordEncoderUtil);
         userEntity = userRepository.save(userEntity);
         return userMapper.toUserResponseDto(userEntity);
@@ -192,7 +193,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Transactional
     @Override
-    public UserResponseDto update(Long id, UserRequestDto userRequestDto) {
+    public UserResponseDto update(Long id, AdminUserManagerRequestDto userRequestDto) {
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id, UserNotFoundException.SearchType.ID));
         userMapper.updateEntityFromDto(userRequestDto, userEntity, roleEntityFetcher, passwordEncoderUtil);
@@ -214,12 +215,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .orElseThrow(() -> new UserNotFoundException(email, UserNotFoundException.SearchType.EMAIL));
     }
 
+
+    @Transactional
     @Override
-    public void delete(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+    public UserResponseDto editProfile(UserRequestDto userRequestDto,Long id) {
+        UserEntity userEntity = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id, UserNotFoundException.SearchType.ID));
+
+        userMapper.updateEntityFromDtoUserProfile(userRequestDto, userEntity, passwordEncoderUtil);
+        userEntity = userRepository.save(userEntity);
+        return userMapper.toUserResponseDto(userEntity);
     }
 }
+
 
     // PARA ALTA CONCURRENCIA DE USUARIOS REALIZANDO MUCHAS PETICIONES USAR CACHE
     // @Override

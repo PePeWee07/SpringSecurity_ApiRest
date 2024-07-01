@@ -67,7 +67,7 @@ public class SecurityConfig {
                     //http.requestMatchers(HttpMethod.PATCH, "/context-path").hasAnyAuthority("REFACTOR");
 
                     // Configurar el resto de endpoints - NO ESPECIFICADOS
-                    http.anyRequest().authenticated();
+                    http.anyRequest().permitAll();
                 })
                 .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class)
                 .exceptionHandling(exceptionHandling -> exceptionHandling
