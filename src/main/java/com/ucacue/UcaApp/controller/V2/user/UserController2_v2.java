@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ucacue.UcaApp.model.dto.user.AdminUserManagerRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 import com.ucacue.UcaApp.service.user.UserService;
@@ -18,7 +17,6 @@ import com.ucacue.UcaApp.web.response.ApiResponse;
 
 import jakarta.validation.Valid;
 
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 

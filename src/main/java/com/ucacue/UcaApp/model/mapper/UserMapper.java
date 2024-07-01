@@ -95,16 +95,16 @@ public interface UserMapper {
 
 
     //-----------------PARA USAURIO SIN PRIVILEGIO ADMIN-----------------
-    default UserEntity toUserEntityUserProfile(UserRequestDto UserRequestDto, @Context PasswordEncoderUtil passwordEncoderUtil) {
+    default UserEntity toUserEntityUserProfile(UserRequestDto userRequestDto, @Context PasswordEncoderUtil passwordEncoderUtil) {
         UserEntity entity = new UserEntity();
-        entity.setId(UserRequestDto.getId());
-        entity.setName(UserRequestDto.getName());
-        entity.setLastName(UserRequestDto.getLastName());
-        entity.setEmail(UserRequestDto.getEmail());
-        entity.setPhoneNumber(UserRequestDto.getPhoneNumber());
-        entity.setAddress(UserRequestDto.getAddress());
-        entity.setDNI(UserRequestDto.getDNI());
-        entity.setPassword(passwordEncoderUtil.encodePassword(UserRequestDto.getPassword()));
+        entity.setId(userRequestDto.getId());
+        entity.setName(userRequestDto.getName());
+        entity.setLastName(userRequestDto.getLastName());
+        entity.setEmail(userRequestDto.getEmail());
+        entity.setPhoneNumber(userRequestDto.getPhoneNumber());
+        entity.setAddress(userRequestDto.getAddress());
+        entity.setDNI(userRequestDto.getDNI());
+        entity.setPassword(passwordEncoderUtil.encodePassword(userRequestDto.getPassword()));
         return entity;
     }
 
