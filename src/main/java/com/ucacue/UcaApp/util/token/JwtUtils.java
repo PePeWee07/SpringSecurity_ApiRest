@@ -41,7 +41,26 @@ public class JwtUtils {
                     .withSubject(username)
                     .withClaim("authorities", authorities)
                     .withIssuedAt(new Date())
-                    .withExpiresAt(new Date(System.currentTimeMillis() + 1800000))
+                    .withExpiresAt(new Date(System.currentTimeMillis() + 1800000)) // 30 minutes
+                    .withJWTId(UUID.randomUUID().toString())
+                    .withNotBefore(new Date(System.currentTimeMillis()))
+                    .sign(algorithm);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    public String createRefreshToken(Authentication authentication) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(privateKey);
+
+            String username = authentication.getName();
+
+            return JWT.create()
+                    .withIssuer(userGenerator)
+                    .withSubject(username)
+                    .withIssuedAt(new Date())
+                    .withExpiresAt(new Date(System.currentTimeMillis() + 864000000)) // 10 days
                     .withJWTId(UUID.randomUUID().toString())
                     .withNotBefore(new Date(System.currentTimeMillis()))
                     .sign(algorithm);

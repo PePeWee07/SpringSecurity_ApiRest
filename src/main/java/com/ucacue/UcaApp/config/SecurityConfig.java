@@ -48,14 +48,13 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(http -> {
                     // Configurar los endpoints públicos
-                    http.requestMatchers(HttpMethod.GET, "/api/v1/**").permitAll();
+                    http.requestMatchers(HttpMethod.GET, "/api/v1/**").hasAnyRole("ADMIN", "DEVELOPER");
 
                     http.requestMatchers(HttpMethod.GET, "/api/v2/audit/**").permitAll();
 
                     http.requestMatchers(HttpMethod.GET, "/v3/**").permitAll();
                     http.requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll();
 
-                    http.requestMatchers(HttpMethod.GET, "/auth/get").permitAll();
                     http.requestMatchers(HttpMethod.POST, "/auth/**").permitAll();
 
                     http.requestMatchers(HttpMethod.GET, "/api/v2/**").permitAll();
