@@ -1,4 +1,4 @@
-package com.ucacue.UcaApp.service.auditing.presentation.impl;
+package com.ucacue.UcaApp.service.auditing.postgresql.impl;
 
 import java.util.*;
 
@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import com.ucacue.UcaApp.service.auditing.presentation.LoggedActionService;
+import com.ucacue.UcaApp.service.auditing.postgresql.LoggedActionService;
 
 @Service
 public class LoggedActionServiceImpl implements LoggedActionService {

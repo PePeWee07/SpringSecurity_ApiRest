@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ucacue.UcaApp.service.auditing.presentation.impl.LoggedActionServiceImpl;
+import com.ucacue.UcaApp.service.auditing.postgresql.impl.LoggedActionServiceImpl;
 
 @RestController
 @RequestMapping("/api/v2/audit")

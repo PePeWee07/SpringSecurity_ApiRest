@@ -1,4 +1,4 @@
-package com.ucacue.UcaApp.service.auditing.core;
+package com.ucacue.UcaApp.service.auditing.springboot;
 
 import java.util.*;
 

@@ -13,7 +13,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.ucacue.UcaApp.service.auditing.core.AuditingData;
+import com.ucacue.UcaApp.service.auditing.springboot.AuditingData;
 
 @Getter
 @Setter

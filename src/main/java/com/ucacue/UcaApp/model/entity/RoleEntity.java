@@ -11,7 +11,7 @@ import java.util.Set;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import com.ucacue.UcaApp.service.auditing.core.AuditingData;
+import com.ucacue.UcaApp.service.auditing.springboot.AuditingData;
 
 @Getter
 @Setter
