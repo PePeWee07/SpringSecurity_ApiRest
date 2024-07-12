@@ -88,7 +88,7 @@ public class AdminUserManagerController_v2 {
         }
     }
 
-    @PutMapping("/user/{id}")
+    @PatchMapping("/user/{id}")
     public ResponseEntity<ApiResponse> update(@PathVariable Long id,
             @Valid @RequestBody AdminUserManagerRequestDto userRequestDto) {
         try {

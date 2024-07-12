@@ -109,12 +109,12 @@ public interface UserMapper {
     }
 
     default void updateEntityFromDtoUserProfile(UserRequestDto dto, @MappingTarget UserEntity entity, @Context PasswordEncoderUtil passwordEncoderUtil) {
-        entity.setName(dto.getName());
-        entity.setLastName(dto.getLastName());
-        entity.setEmail(dto.getEmail());
-        entity.setPhoneNumber(dto.getPhoneNumber());
-        entity.setAddress(dto.getAddress());
-        entity.setDNI(dto.getDNI());
-        entity.setPassword(passwordEncoderUtil.encodePassword(dto.getPassword()));
+        if (dto.getName() != null) entity.setName(dto.getName());
+        if (dto.getLastName() != null) entity.setLastName(dto.getLastName());
+        if (dto.getEmail() != null) entity.setEmail(dto.getEmail());
+        if (dto.getPhoneNumber() != null) entity.setPhoneNumber(dto.getPhoneNumber());
+        if (dto.getAddress() != null) entity.setAddress(dto.getAddress());
+        if (dto.getDNI() != null) entity.setDNI(dto.getDNI());
+        if (dto.getPassword() != null) entity.setPassword(passwordEncoderUtil.encodePassword(dto.getPassword()));
     }
 }

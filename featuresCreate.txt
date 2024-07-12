@@ -7,8 +7,6 @@
 
 
 + FEATURES:
-    - Observacion: editar sin necesidad de enviar todo los campos(Admin y Usuario)
-
     - Intermacionalizacion(Idimoas Español,Ingles)
 
     - Añadir funcionalidades y manjeo de excepciones para Auditoria
