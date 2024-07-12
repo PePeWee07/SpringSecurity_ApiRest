@@ -2,7 +2,7 @@ package com.ucacue.UcaApp.model.entity;
 
 import java.io.Serializable;
 
-import com.ucacue.UcaApp.service.auditing.core.AuditingData;
+import com.ucacue.UcaApp.service.auditing.springboot.AuditingData;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

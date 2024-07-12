@@ -7,7 +7,6 @@
 
 
 + FEATURES:
-    - Observacion: editar sin necesidad de enviar todo los campos(Admin y Usuario)
     - Observacion: AuthenticationController (como poner por defecto: "enabled": false, etc...) al momento de registrace un usuario
 
     - Intermacionalizacion(Idimoas Español,Ingles)

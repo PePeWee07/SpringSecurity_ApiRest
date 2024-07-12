@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Transactional(readOnly = true)
     public UserResponseDto findByEmailWithAuth(String email) {
         return userRepository.findByEmail(email)
-                .map(userMapper::toUserResponseDto)
+                .map(userMapper::mapToUserResponseDto)
                 .orElseThrow(() -> new UserNotFoundAuthException("Invalid username or password"));
     }
 
@@ -120,7 +120,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public AuthResponse RegisterUser(AdminUserManagerRequestDto userRequestDto) {
         try {
-            UserEntity userEntity = userMapper.toUserEntity(userRequestDto, roleEntityFetcher, passwordEncoderUtil);
+            UserEntity userEntity = userMapper.mapToAdminUserEntity(userRequestDto, roleEntityFetcher, passwordEncoderUtil);
 
             if (userRepository.existsByEmail(userEntity.getEmail())) {
                 throw new UserAlreadyExistsException(userEntity.getEmail());
@@ -164,7 +164,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public List<UserResponseDto> findAll() {
         return userRepository.findAll().stream()
-                .map(userMapper::toUserResponseDto)
+                .map(userMapper::mapToUserResponseDto)
                 .collect(Collectors.toList());
     }
 
@@ -172,23 +172,23 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public Page<UserResponseDto> findAllForPage(Pageable pageable) {
         return userRepository.findAll(pageable)
-                .map(userMapper::toUserResponseDto);
+                .map(userMapper::mapToUserResponseDto);
     }
 
     @Transactional(readOnly = true)
     @Override
     public UserResponseDto getUserById(Long id) {
         return userRepository.findById(id)
-                .map(userMapper::toUserResponseDto)
+                .map(userMapper::mapToUserResponseDto)
                 .orElseThrow(() -> new UserNotFoundException(id, UserNotFoundException.SearchType.ID));
     }
 
     @Transactional
     @Override
     public UserResponseDto save(AdminUserManagerRequestDto userRequestDto) {
-        UserEntity userEntity = userMapper.toUserEntity(userRequestDto, roleEntityFetcher, passwordEncoderUtil);
+        UserEntity userEntity = userMapper.mapToAdminUserEntity(userRequestDto, roleEntityFetcher, passwordEncoderUtil);
         userEntity = userRepository.save(userEntity);
-        return userMapper.toUserResponseDto(userEntity);
+        return userMapper.mapToUserResponseDto(userEntity);
     }
 
     @Transactional
@@ -196,9 +196,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public UserResponseDto update(Long id, AdminUserManagerRequestDto userRequestDto) {
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id, UserNotFoundException.SearchType.ID));
-        userMapper.updateEntityFromDto(userRequestDto, userEntity, roleEntityFetcher, passwordEncoderUtil);
+        userMapper.updateAdminUserEntityFromDto(userRequestDto, userEntity, roleEntityFetcher, passwordEncoderUtil);
         userEntity = userRepository.save(userEntity);
-        return userMapper.toUserResponseDto(userEntity);
+        return userMapper.mapToUserResponseDto(userEntity);
     }
 
     @Transactional(readOnly = true)
@@ -211,10 +211,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Transactional(readOnly = true)
     public UserResponseDto findByEmail(String email) {
         return userRepository.findByEmail(email)
-                .map(userMapper::toUserResponseDto)
+                .map(userMapper::mapToUserResponseDto)
                 .orElseThrow(() -> new UserNotFoundException(email, UserNotFoundException.SearchType.EMAIL));
     }
-
 
     @Transactional
     @Override
@@ -224,7 +223,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         userMapper.updateEntityFromDtoUserProfile(userRequestDto, userEntity, passwordEncoderUtil);
         userEntity = userRepository.save(userEntity);
-        return userMapper.toUserResponseDto(userEntity);
+        return userMapper.mapToUserResponseDto(userEntity);
     }
 }
 

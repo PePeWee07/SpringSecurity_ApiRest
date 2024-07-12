@@ -19,8 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import jakarta.validation.Valid;
 
-import java.util.*;
-
 @RestController
 @RequestMapping("/api/v2")
 public class AdminUserManagerController_v2 {
@@ -30,15 +28,15 @@ public class AdminUserManagerController_v2 {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/users")
-    public ResponseEntity<List<UserResponseDto>> findAll() {
-        try {
-            return ResponseEntity.ok(userService.findAll());
-        } catch (Exception e) {
-            logger.info("Error: {@GET /users}", e.getMessage());
-            throw e;
-        }
-    }
+    // @GetMapping("/users")
+    // public ResponseEntity<List<UserResponseDto>> findAll() {
+    //     try {
+    //         return ResponseEntity.ok(userService.findAll());
+    //     } catch (Exception e) {
+    //         logger.info("Error: {@GET /users}", e.getMessage());
+    //         throw e;
+    //     }
+    // }
 
     @GetMapping("/users/page/{page}")
     public ResponseEntity<Page<UserResponseDto>> findAllWithPage(@PathVariable int page) {
@@ -88,7 +86,7 @@ public class AdminUserManagerController_v2 {
         }
     }
 
-    @PutMapping("/user/{id}")
+    @PatchMapping("/user/{id}")
     public ResponseEntity<ApiResponse> update(@PathVariable Long id,
             @Valid @RequestBody AdminUserManagerRequestDto userRequestDto) {
         try {
@@ -96,7 +94,7 @@ public class AdminUserManagerController_v2 {
             ApiResponse response = new ApiResponse(HttpStatus.OK.value(), updatedUser, "User updated successfully");
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
-            logger.info("Error: {@PUT /user/{id}}", e.getMessage());
+            logger.info("Error: {@PATCH /user/{id}}", e.getMessage());
             throw e;
         }
     }
