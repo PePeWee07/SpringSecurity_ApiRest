@@ -7,9 +7,7 @@
 
 
 + FEATURES:
-    - Observacion: AuthenticationController (como poner por defecto: "enabled": false, etc...) al momento de registrace un usuario
-
-    - Intermacionalizacion(Idimoas Español,Ingles)
+- Intermacionalizacion(Idimoas Español,Ingles)
 
     - Añadir funcionalidades y manjeo de excepciones para Auditoria
 

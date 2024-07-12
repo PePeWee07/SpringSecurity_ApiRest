@@ -122,6 +122,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         try {
             UserEntity userEntity = userMapper.mapToAdminUserEntity(userRequestDto, roleEntityFetcher, passwordEncoderUtil);
 
+            // Set the account states to true
+            userEntity.setEnabled(true);
+            userEntity.setAccountNoExpired(true);
+            userEntity.setAccountNoLocked(true);
+            userEntity.setCredentialNoExpired(true);
+
             if (userRepository.existsByEmail(userEntity.getEmail())) {
                 throw new UserAlreadyExistsException(userEntity.getEmail());
             }
