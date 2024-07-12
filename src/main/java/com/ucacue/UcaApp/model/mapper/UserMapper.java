@@ -22,7 +22,8 @@ public interface UserMapper {
    
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
-    default UserResponseDto toUserResponseDto(UserEntity userEntity) {
+    //-----------------MAPEO PARA PRESNTAR DATOS DEL USUARIO-----------------
+    default UserResponseDto mapToUserResponseDto(UserEntity userEntity) {
         UserResponseDto dto = new UserResponseDto();
         dto.setId(userEntity.getId());
         dto.setName(userEntity.getName());
@@ -46,7 +47,8 @@ public interface UserMapper {
         return dto;
     }
 
-    default UserEntity toUserEntity(AdminUserManagerRequestDto UserRequestDto, @Context RoleEntityFetcher RoleEntityFetcher, @Context PasswordEncoderUtil passwordEncoderUtil) {
+    //-----------------MAPEO PARA USUARIO CON PRIVILEGIOS-----------------
+    default UserEntity mapToAdminUserEntity(AdminUserManagerRequestDto UserRequestDto, @Context RoleEntityFetcher RoleEntityFetcher, @Context PasswordEncoderUtil passwordEncoderUtil) {
         UserEntity entity = new UserEntity();
         entity.setId(UserRequestDto.getId());
         entity.setName(UserRequestDto.getName());
@@ -61,14 +63,13 @@ public interface UserMapper {
         entity.setAccountNoLocked(UserRequestDto.isAccountNoLocked());
         entity.setCredentialNoExpired(UserRequestDto.isCredentialNoExpired());
 
-        // Ahora usamos el RoleEntityFetcher
-        Set<RoleEntity> roles = rolesIdsToRolesEntities(UserRequestDto.getRolesIds(), RoleEntityFetcher);
+        Set<RoleEntity> roles = mapRoleIdsToRoleEntities(UserRequestDto.getRolesIds(), RoleEntityFetcher);
 
         entity.setRoles(roles);
         return entity;
     }
     
-    default Set<RoleEntity> rolesIdsToRolesEntities(Set<Long> roleIds, RoleEntityFetcher RoleEntityFetcher) {        
+    default Set<RoleEntity> mapRoleIdsToRoleEntities(Set<Long> roleIds, RoleEntityFetcher RoleEntityFetcher) {        
         roleIds.add(2L);
 
         return roleIds.stream()
@@ -76,7 +77,7 @@ public interface UserMapper {
                       .collect(Collectors.toSet());
     }
 
-    default void updateEntityFromDto(AdminUserManagerRequestDto dto, @MappingTarget UserEntity entity, @Context RoleEntityFetcher RoleEntityFetcher, @Context PasswordEncoderUtil passwordEncoderUtil) {
+    default void updateAdminUserEntityFromDto(AdminUserManagerRequestDto dto, @MappingTarget UserEntity entity, @Context RoleEntityFetcher RoleEntityFetcher, @Context PasswordEncoderUtil passwordEncoderUtil) {
         if (dto.getName() != null) entity.setName(dto.getName());
         if (dto.getLastName() != null) entity.setLastName(dto.getLastName());
         if (dto.getEmail() != null) entity.setEmail(dto.getEmail());
@@ -89,25 +90,11 @@ public interface UserMapper {
         entity.setAccountNoLocked(dto.isAccountNoLocked());
         entity.setCredentialNoExpired(dto.isCredentialNoExpired());
 
-        Set<RoleEntity> roles = rolesIdsToRolesEntities(dto.getRolesIds(), RoleEntityFetcher);
+        Set<RoleEntity> roles = mapRoleIdsToRoleEntities(dto.getRolesIds(), RoleEntityFetcher);
         entity.setRoles(roles);
     }
 
-
-    //-----------------PARA USAURIO SIN PRIVILEGIO ADMIN-----------------
-    default UserEntity toUserEntityUserProfile(UserRequestDto UserRequestDto, @Context PasswordEncoderUtil passwordEncoderUtil) {
-        UserEntity entity = new UserEntity();
-        entity.setId(UserRequestDto.getId());
-        entity.setName(UserRequestDto.getName());
-        entity.setLastName(UserRequestDto.getLastName());
-        entity.setEmail(UserRequestDto.getEmail());
-        entity.setPhoneNumber(UserRequestDto.getPhoneNumber());
-        entity.setAddress(UserRequestDto.getAddress());
-        entity.setDNI(UserRequestDto.getDNI());
-        entity.setPassword(passwordEncoderUtil.encodePassword(UserRequestDto.getPassword()));
-        return entity;
-    }
-
+    //-----------------MAPEO DE ACTUALIZACION DE PERFIL DEL PROPIO USUARIO-----------------
     default void updateEntityFromDtoUserProfile(UserRequestDto dto, @MappingTarget UserEntity entity, @Context PasswordEncoderUtil passwordEncoderUtil) {
         if (dto.getName() != null) entity.setName(dto.getName());
         if (dto.getLastName() != null) entity.setLastName(dto.getLastName());
