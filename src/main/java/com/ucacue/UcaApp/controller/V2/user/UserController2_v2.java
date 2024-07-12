@@ -21,7 +21,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
-@RequestMapping("/api/user/v2")
+@RequestMapping("/api/v2/user")
 public class UserController2_v2 {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController2_v2.class);

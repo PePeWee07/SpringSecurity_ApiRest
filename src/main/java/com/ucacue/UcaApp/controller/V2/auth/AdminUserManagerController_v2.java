@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v2")
+@RequestMapping("/api/v2/manager")
 public class AdminUserManagerController_v2 {
 
     private static final Logger logger = LoggerFactory.getLogger(AdminUserManagerController_v2.class);
