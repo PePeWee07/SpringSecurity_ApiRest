@@ -7,5 +7,6 @@ public record AuthResponse(
                 String username,
                 String message,
                 String jwt,
+                String refreshToken,
                 Boolean status) {
 }

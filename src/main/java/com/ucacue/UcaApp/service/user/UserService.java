@@ -22,6 +22,8 @@ public interface UserService {
 
     AuthResponse RegisterUser(AdminUserManagerRequestDto userRequestDto);
 
+    AuthResponse refreshUserToken(String refreshToken);
+
     List<UserResponseDto> findAll();
 
     Page<UserResponseDto> findAllForPage(Pageable pageable);

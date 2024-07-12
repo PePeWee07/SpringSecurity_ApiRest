@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.ucacue.UcaApp.exception.auth.UserNotFoundAuthException;
 import com.ucacue.UcaApp.exception.crud.UserAlreadyExistsException;
 import com.ucacue.UcaApp.exception.crud.UserNotFoundException;
@@ -97,7 +98,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String accessToken = jwtUtils.createToken(authentication);
-        return new AuthResponse(username, "User logged in successfully", accessToken, true);
+        String refreshToken = jwtUtils.createRefreshToken(authentication);
+        return new AuthResponse(username, "User logged in successfully", accessToken, refreshToken, true);
     }
 
     @Transactional
@@ -126,15 +128,36 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
             userEntity = userRepository.save(userEntity);
 
-            Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    userEntity.getEmail(), userEntity.getPassword(), userEntity.getAuthorities());
-
+            Authentication authentication = new UsernamePasswordAuthenticationToken(userEntity.getEmail(), userEntity.getPassword(), userEntity.getAuthorities());
+            
             String accessToken = jwtUtils.createToken(authentication);
+            String refreshToken = jwtUtils.createRefreshToken(authentication);
 
-            return new AuthResponse(userEntity.getEmail(), "User created successfully", accessToken, true);
+            return new AuthResponse(userEntity.getEmail(), "User created successfully", accessToken, refreshToken, true);
         } catch (Exception e) {
             throw e;
         }
+    }
+
+    @Transactional
+    @Override
+    public AuthResponse refreshUserToken(String refreshToken) {
+        DecodedJWT decodedJWT = jwtUtils.validateToken(refreshToken);
+        String username = jwtUtils.getUsernameFromToken(decodedJWT);
+
+        UserDetails userDetails = this.loadUserByUsername(username);
+
+        if (userDetails == null) {
+            throw new UsernameNotFoundException("User not found");
+        }
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String newAccessToken = jwtUtils.createToken(authentication);
+        String newRefreshToken = jwtUtils.createRefreshToken(authentication);
+
+        return new AuthResponse(username, "Token refreshed successfully", newAccessToken, newRefreshToken, true);
     }
 
     @Transactional(readOnly = true)
@@ -202,6 +225,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userEntity = userRepository.save(userEntity);
         return userMapper.mapToUserResponseDto(userEntity);
     }
+}
 
 
     // PARA ALTA CONCURRENCIA DE USUARIOS REALIZANDO MUCHAS PETICIONES USAR CACHE
@@ -218,5 +242,3 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     // userEntity.getEmail(), userEntity.getPassword(),
     // getAuthorities(userEntity.getRoles()));
     // }
-
-}
