@@ -40,6 +40,6 @@ public class AdminUserManagerRequestDto implements Serializable{
 
 	private boolean credentialNoExpired;
 
-    @NotEmpty(message = "rolesIds cannot be empty")
+   // @NotEmpty(message = "rolesIds cannot be empty")
     private Set<Long> rolesIds;
 }

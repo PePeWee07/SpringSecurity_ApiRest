@@ -7,7 +7,10 @@
 
 
 + FEATURES:
-- Intermacionalizacion(Idimoas Español,Ingles)
+    - Guardar y Registrarce (no es necesario enviar el rolesIds) 
+      en el cuerpo de la peticion
+
+    - Intermacionalizacion(Idimoas Español,Ingles)
 
     - Añadir funcionalidades y manjeo de excepciones para Auditoria
 
