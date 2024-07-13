@@ -27,17 +27,7 @@ public class AdminUserManagerController_v2 {
 
     @Autowired
     private UserService userService;
-
-    // @GetMapping("/users")
-    // public ResponseEntity<List<UserResponseDto>> findAll() {
-    //     try {
-    //         return ResponseEntity.ok(userService.findAll());
-    //     } catch (Exception e) {
-    //         logger.info("Error: {@GET /users}", e.getMessage());
-    //         throw e;
-    //     }
-    // }
-
+    
     @GetMapping("/users/page/{page}")
     public ResponseEntity<Page<UserResponseDto>> findAllWithPage(@PathVariable int page) {
         int pageSize = 10;

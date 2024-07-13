@@ -190,6 +190,7 @@ public class GlobalExceptionHandler {
     }
 
     // METODO PARA MANEJAR ERRORES DE VALIDACION DE CAMPOS
+    @SuppressWarnings("null")
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<FieldValidationResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
         List<FieldErrorDetail> errors = ex.getBindingResult().getFieldErrors().stream()
