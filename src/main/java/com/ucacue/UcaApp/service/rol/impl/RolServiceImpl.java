@@ -11,8 +11,10 @@ import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
 import com.ucacue.UcaApp.exception.crud.RoleNotFoundException;
 import com.ucacue.UcaApp.model.dto.role.RoleRequestDto;
 import com.ucacue.UcaApp.model.entity.RoleEntity;
+import com.ucacue.UcaApp.model.entity.UserEntity;
 import com.ucacue.UcaApp.model.mapper.RoleMapper;
 import com.ucacue.UcaApp.repository.RoleRepository;
+import com.ucacue.UcaApp.repository.UserRepository;
 import com.ucacue.UcaApp.service.rol.RolService;
 import com.ucacue.UcaApp.util.PermissionEntityFetcher;
 
@@ -24,6 +26,10 @@ public class RolServiceImpl implements RolService{
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
 
     @Autowired
     private PermissionEntityFetcher permissionEntityFetcher; 
@@ -76,9 +82,23 @@ public class RolServiceImpl implements RolService{
         return roleRepository.existsById(id);
     }
 
+    @Transactional
     @Override
     public void deleteRoleById(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteRoleById'");
+        RoleEntity roleEntity = roleRepository.findById(id)
+                .orElseThrow(() -> new RoleNotFoundException(id));
+
+        // Desvincular roles de los usuarios
+        List<UserEntity> usersWithRole = userRepository.findByRolesId(id);
+        for (UserEntity user : usersWithRole) {
+            user.getRoles().remove(roleEntity);
+            userRepository.save(user);
+        }
+
+        // Desvincular las asociaciones ManyToMany en RoleEntity
+        roleEntity.getPermissionList().clear();
+        roleRepository.save(roleEntity);
+
+        roleRepository.delete(roleEntity);
     }
 }

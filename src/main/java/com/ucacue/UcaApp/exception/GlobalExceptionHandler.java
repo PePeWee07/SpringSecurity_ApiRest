@@ -123,8 +123,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    // Metodo para asegura que se manejen las violaciones de restricciones de
-    // validación de manera adecuada
+    // Metodo para asegura que se manejen las violaciones de restricciones de validación de manera adecuada
     @ExceptionHandler(TransactionSystemException.class)
     public ResponseEntity<Map<String, Object>> handleTransactionSystemException(TransactionSystemException ex) {
         Throwable cause = ex.getRootCause();
@@ -141,7 +140,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    // Metodo para manjear key value violates unique
+    //Metodo para manjear key value violates unique
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<?> handleDataAccessException(DataAccessException ex) {
         String errorMessage = ex.getMostSpecificCause().getMessage();

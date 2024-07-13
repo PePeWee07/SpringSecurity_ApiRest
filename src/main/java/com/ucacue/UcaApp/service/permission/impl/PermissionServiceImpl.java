@@ -11,8 +11,10 @@ import com.ucacue.UcaApp.exception.crud.PermissionNotFoundException;
 import com.ucacue.UcaApp.model.dto.permission.PermissionRequestDto;
 import com.ucacue.UcaApp.model.dto.permission.PermissionResponseDto;
 import com.ucacue.UcaApp.model.entity.PermissionEntity;
+import com.ucacue.UcaApp.model.entity.RoleEntity;
 import com.ucacue.UcaApp.model.mapper.PermissionMapper;
 import com.ucacue.UcaApp.repository.PermissionRepository;
+import com.ucacue.UcaApp.repository.RoleRepository;
 import com.ucacue.UcaApp.service.permission.PermissionService;
 
 @Service
@@ -23,6 +25,9 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Autowired
     private PermissionMapper permissionMapper;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Transactional(readOnly = true)
     @Override
@@ -71,9 +76,20 @@ public class PermissionServiceImpl implements PermissionService {
         return permissionRepository.existsById(id);
     }
 
+    @Transactional
     @Override
     public void deletePermissionById(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deletePermissionById'");
+        PermissionEntity permissionEntity = permissionRepository.findById(id)
+                .orElseThrow(() -> new PermissionNotFoundException(id));
+
+        // Desvincular permisos de los roles
+        List<RoleEntity> rolesWithPermission = roleRepository.findByPermissionListId(id);
+        for (RoleEntity role : rolesWithPermission) {
+            role.getPermissionList().remove(permissionEntity);
+            roleRepository.save(role);
+        }
+
+        permissionRepository.delete(permissionEntity);
     }
+    
 }

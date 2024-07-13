@@ -72,4 +72,11 @@ public class PermissionController_v2 {
             throw e;
         }
     }
+
+    @DeleteMapping("/permission/{id}")
+    public ResponseEntity<Void> deletePermission(@PathVariable Long id) {
+        permissionService.deletePermissionById(id);
+        return ResponseEntity.noContent().build();
+    }
 }
+
