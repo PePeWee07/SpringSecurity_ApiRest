@@ -5,8 +5,6 @@ import lombok.*;
 import java.io.Serializable;
 import java.util.Set;
 
-import jakarta.validation.constraints.NotEmpty;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -40,6 +38,5 @@ public class AdminUserManagerRequestDto implements Serializable{
 
 	private boolean credentialNoExpired;
 
-   // @NotEmpty(message = "rolesIds cannot be empty")
     private Set<Long> rolesIds;
 }

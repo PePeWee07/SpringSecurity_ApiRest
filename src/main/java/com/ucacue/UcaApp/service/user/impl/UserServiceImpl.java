@@ -118,9 +118,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Transactional
     @Override
-    public AuthResponse RegisterUser(AdminUserManagerRequestDto userRequestDto) {
+    public AuthResponse RegisterUser(UserRequestDto userRequestDto) {
         try {
-            UserEntity userEntity = userMapper.mapToAdminUserEntity(userRequestDto, roleEntityFetcher, passwordEncoderUtil);
+            UserEntity userEntity = userMapper.mapToUserEntity(userRequestDto, passwordEncoderUtil);
 
             // Set the account states to true
             userEntity.setEnabled(true);
@@ -144,7 +144,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw e;
         }
     }
-
+    
     @Transactional
     @Override
     public AuthResponse refreshUserToken(String refreshToken) {

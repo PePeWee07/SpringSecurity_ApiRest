@@ -20,7 +20,7 @@ public interface UserService {
 
     Authentication authenticate(String username, String password);
 
-    AuthResponse RegisterUser(AdminUserManagerRequestDto userRequestDto);
+    AuthResponse RegisterUser(UserRequestDto userRequestDto);
 
     AuthResponse refreshUserToken(String refreshToken);
 

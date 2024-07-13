@@ -95,6 +95,19 @@ public interface UserMapper {
     }
 
     //-----------------MAPEO DE ACTUALIZACION DE PERFIL DEL PROPIO USUARIO-----------------
+    default UserEntity mapToUserEntity(UserRequestDto UserRequestDto, @Context PasswordEncoderUtil passwordEncoderUtil) {
+        UserEntity entity = new UserEntity();
+        entity.setId(UserRequestDto.getId());
+        entity.setName(UserRequestDto.getName());
+        entity.setLastName(UserRequestDto.getLastName());
+        entity.setEmail(UserRequestDto.getEmail());
+        entity.setPhoneNumber(UserRequestDto.getPhoneNumber());
+        entity.setAddress(UserRequestDto.getAddress());
+        entity.setDNI(UserRequestDto.getDNI());
+        entity.setPassword(passwordEncoderUtil.encodePassword(UserRequestDto.getPassword()));
+        return entity;
+    }
+
     default void updateEntityFromDtoUserProfile(UserRequestDto dto, @MappingTarget UserEntity entity, @Context PasswordEncoderUtil passwordEncoderUtil) {
         if (dto.getName() != null) entity.setName(dto.getName());
         if (dto.getLastName() != null) entity.setLastName(dto.getLastName());
