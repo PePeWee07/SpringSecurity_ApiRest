@@ -3,6 +3,7 @@ package com.ucacue.UcaApp.model.dto.user;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Set;
 
 @Getter
@@ -39,4 +40,6 @@ public class AdminUserManagerRequestDto implements Serializable{
 	private boolean credentialsNonExpired;
 
     private Set<Long> rolesIds;
+
+    private Date accountExpiryDate;
 }

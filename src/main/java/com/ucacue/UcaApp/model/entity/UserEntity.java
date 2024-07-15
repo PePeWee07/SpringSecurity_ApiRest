@@ -86,8 +86,15 @@ public class UserEntity extends AuditingData implements UserDetails {
             @UniqueConstraint(columnNames = { "user_id", "role_id" }) })
     private Set<RoleEntity> roles = new HashSet<>();
 
+    @Column(name = "account_expiry_date")
+    private Date accountExpiryDate;
+
     @Override
     public boolean isAccountNonExpired() {
+        if (this.accountExpiryDate != null) {
+            System.out.println("accountExpiryDate: " + new Date().before(this.accountExpiryDate));
+            return new Date().before(this.accountExpiryDate);
+        }
         return this.accountNonExpired;
     }
 
