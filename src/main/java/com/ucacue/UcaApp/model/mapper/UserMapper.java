@@ -37,6 +37,7 @@ public interface UserMapper {
         dto.setAccountNonExpired(userEntity.isAccountNonExpired());
         dto.setAccountNonLocked(userEntity.isAccountNonLocked());
         dto.setCredentialsNonExpired(userEntity.isCredentialsNonExpired());
+        dto.setAccountExpiryDate(userEntity.getAccountExpiryDate());
 
         List<RoleResponseDto> roleDTOList = userEntity.getRoles().stream()
             .map(RoleMapper.INSTANCE::rolesEntityToRoleResponseDto)
@@ -62,6 +63,7 @@ public interface UserMapper {
         entity.setAccountNonExpired(UserRequestDto.isAccountNonExpired());
         entity.setAccountNonLocked(UserRequestDto.isAccountNonLocked());
         entity.setCredentialsNonExpired(UserRequestDto.isCredentialsNonExpired());
+        entity.setAccountExpiryDate(UserRequestDto.getAccountExpiryDate());
 
         Set<RoleEntity> roles = mapRoleIdsToRoleEntities(UserRequestDto.getRolesIds(), RoleEntityFetcher);
 
@@ -89,6 +91,8 @@ public interface UserMapper {
         entity.setAccountNonExpired(dto.isAccountNonExpired());
         entity.setAccountNonLocked(dto.isAccountNonLocked());
         entity.setCredentialsNonExpired(dto.isCredentialsNonExpired());
+        if (dto.getAccountExpiryDate() != null) entity.setAccountExpiryDate(dto.getAccountExpiryDate());
+        
 
         Set<RoleEntity> roles = mapRoleIdsToRoleEntities(dto.getRolesIds(), RoleEntityFetcher);
         entity.setRoles(roles);
