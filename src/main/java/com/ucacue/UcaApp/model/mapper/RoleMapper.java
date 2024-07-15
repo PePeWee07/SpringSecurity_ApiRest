@@ -41,7 +41,7 @@ public interface RoleMapper {
                 .collect(Collectors.toSet());
     }
 
-    default void upddateEntityFromDto(RoleRequestDto dto, @MappingTarget RoleEntity entity,
+    default void updateEntityFromDto(RoleRequestDto dto, @MappingTarget RoleEntity entity,
             @Context PermissionEntityFetcher permissionEntityFetcher) {
         if (dto.getName() != null)
             entity.setName(dto.getName());
