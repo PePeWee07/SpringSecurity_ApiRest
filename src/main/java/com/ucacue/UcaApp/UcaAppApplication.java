@@ -65,9 +65,9 @@ public class UcaAppApplication {
 					.DNI("V0001")
                     .password("$2a$10$cMY29RPYoIHMJSuwRfoD3eQxU1J5Rww4VnNOUOAEPqCBshkNfrEf6")
                     .enabled(true)
-                    .accountNoExpired(true)
-                    .accountNoLocked(true)
-                    .credentialNoExpired(true)
+                    .accountNonExpired(true)
+                    .accountNonLocked(true)
+                    .credentialsNonExpired(true)
                     .roles(Set.of(roleAdmin))
                     .build();
 
@@ -81,9 +81,9 @@ public class UcaAppApplication {
 					.DNI("V0002")
                     .password("$2a$10$cMY29RPYoIHMJSuwRfoD3eQxU1J5Rww4VnNOUOAEPqCBshkNfrEf6")
                     .enabled(true)
-                    .accountNoExpired(true)
-                    .accountNoLocked(true)
-                    .credentialNoExpired(true)
+                    .accountNonExpired(true)
+                    .accountNonLocked(true)
+                    .credentialsNonExpired(true)
                     .roles(Set.of(roleUser))
                     .build();
             userRepository.saveAll(List.of(userSantiago, userDaniel));

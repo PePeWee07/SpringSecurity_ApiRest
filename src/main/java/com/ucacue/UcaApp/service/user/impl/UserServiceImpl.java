@@ -78,9 +78,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 userEntity.getEmail(),
                 userEntity.getPassword(),
                 userEntity.isEnabled(),
-                userEntity.isAccountNoExpired(),
-                userEntity.isCredentialNoExpired(),
-                userEntity.isAccountNoLocked(),
+                userEntity.isAccountNonExpired(),
+                userEntity.isAccountNonLocked(),
+                userEntity.isCredentialsNonExpired(),
                 userEntity.getAuthorities());
         } catch (UserNotFoundException e) {
             throw e;
@@ -124,9 +124,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
             // Set the account states to true
             userEntity.setEnabled(true);
-            userEntity.setAccountNoExpired(true);
-            userEntity.setAccountNoLocked(true);
-            userEntity.setCredentialNoExpired(true);
+            userEntity.setAccountNonExpired(true);
+            userEntity.setAccountNonLocked(true);
+            userEntity.setCredentialsNonExpired(true);
 
             if (userRepository.existsByEmail(userEntity.getEmail())) {
                 throw new UserAlreadyExistsException(userEntity.getEmail());

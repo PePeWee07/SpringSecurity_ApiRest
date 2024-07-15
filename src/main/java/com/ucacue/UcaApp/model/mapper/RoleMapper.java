@@ -19,7 +19,7 @@ public interface RoleMapper {
 
     RoleMapper INSTANCE = Mappers.getMapper(RoleMapper.class);
 
-    @Mapping(source = "permissionList", target = "permissionList")
+    // @Mapping(source = "permissionList", target = "permissionList")
     RoleResponseDto rolesEntityToRoleResponseDto(RoleEntity entity);
 
     default RoleEntity roleRequestDtoToRolesEntity(RoleRequestDto dto,

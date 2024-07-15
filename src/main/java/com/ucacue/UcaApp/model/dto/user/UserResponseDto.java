@@ -34,11 +34,11 @@ public class UserResponseDto implements Serializable{
 
     private  boolean enabled;
 
-    private boolean accountNoExpired;
+    private boolean accountNonExpired;
 
-    private boolean accountNoLocked;
+    private boolean accountNonLocked;
     
-	private boolean credentialNoExpired;
+	private boolean credentialsNonExpired;
 
     private List<RoleResponseDto> roles;
 

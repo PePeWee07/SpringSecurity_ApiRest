@@ -34,9 +34,9 @@ public interface UserMapper {
         dto.setDNI(userEntity.getDNI());
         // password no se debe devolver
         dto.setEnabled(userEntity.isEnabled());
-        dto.setAccountNoExpired(userEntity.isAccountNoExpired());
-        dto.setAccountNoLocked(userEntity.isAccountNoLocked());
-        dto.setCredentialNoExpired(userEntity.isCredentialNoExpired());
+        dto.setAccountNonExpired(userEntity.isAccountNonExpired());
+        dto.setAccountNonLocked(userEntity.isAccountNonLocked());
+        dto.setCredentialsNonExpired(userEntity.isCredentialsNonExpired());
 
         List<RoleResponseDto> roleDTOList = userEntity.getRoles().stream()
             .map(RoleMapper.INSTANCE::rolesEntityToRoleResponseDto)
@@ -59,9 +59,9 @@ public interface UserMapper {
         entity.setDNI(UserRequestDto.getDNI());
         entity.setPassword(passwordEncoderUtil.encodePassword(UserRequestDto.getPassword()));
         entity.setEnabled(UserRequestDto.isEnabled());
-        entity.setAccountNoExpired(UserRequestDto.isAccountNoExpired());
-        entity.setAccountNoLocked(UserRequestDto.isAccountNoLocked());
-        entity.setCredentialNoExpired(UserRequestDto.isCredentialNoExpired());
+        entity.setAccountNonExpired(UserRequestDto.isAccountNonExpired());
+        entity.setAccountNonLocked(UserRequestDto.isAccountNonLocked());
+        entity.setCredentialsNonExpired(UserRequestDto.isCredentialsNonExpired());
 
         Set<RoleEntity> roles = mapRoleIdsToRoleEntities(UserRequestDto.getRolesIds(), RoleEntityFetcher);
 
@@ -86,9 +86,9 @@ public interface UserMapper {
         if (dto.getDNI() != null) entity.setDNI(dto.getDNI());
         if (dto.getPassword() != null) entity.setPassword(passwordEncoderUtil.encodePassword(dto.getPassword()));
         entity.setEnabled(dto.isEnabled());
-        entity.setAccountNoExpired(dto.isAccountNoExpired());
-        entity.setAccountNoLocked(dto.isAccountNoLocked());
-        entity.setCredentialNoExpired(dto.isCredentialNoExpired());
+        entity.setAccountNonExpired(dto.isAccountNonExpired());
+        entity.setAccountNonLocked(dto.isAccountNonLocked());
+        entity.setCredentialsNonExpired(dto.isCredentialsNonExpired());
 
         Set<RoleEntity> roles = mapRoleIdsToRoleEntities(dto.getRolesIds(), RoleEntityFetcher);
         entity.setRoles(roles);

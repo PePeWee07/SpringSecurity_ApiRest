@@ -70,16 +70,16 @@ public class UserEntity extends AuditingData implements UserDetails {
     private boolean enabled;
 
     @NotNull
-    @Column(name = "account_No_Expired")
-    private boolean accountNoExpired;
+    @Column(name = "account_non_expired")
+    private boolean accountNonExpired;
 
     @NotNull
-    @Column(name = "account_No_Locked")
-    private boolean accountNoLocked;
+    @Column(name = "account_non_locked")
+    private boolean accountNonLocked;
 
     @NotNull
-    @Column(name = "credential_No_Expired")
-    private boolean credentialNoExpired;
+    @Column(name = "credentials_non_expired")
+    private boolean credentialsNonExpired;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "user_roles", schema = "auth", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"), uniqueConstraints = {
@@ -88,17 +88,17 @@ public class UserEntity extends AuditingData implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return this.accountNoExpired;
+        return this.accountNonExpired;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return this.accountNoLocked;
+        return this.accountNonLocked;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return this.credentialNoExpired;
+        return this.credentialsNonExpired;
     }
 
     @Override
