@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
@@ -31,7 +32,8 @@ import com.ucacue.UcaApp.web.response.roleandPermissionNotFound.RoleAndPermissio
 import com.ucacue.UcaApp.web.response.userNotFound.UserNotFoundResponse;
 
 import jakarta.validation.ConstraintViolationException;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -141,8 +143,8 @@ public class GlobalExceptionHandler {
     }
 
     //Metodo para manjear key value violates unique
-    @ExceptionHandler(DataAccessException.class)
-    public ResponseEntity<?> handleDataAccessException(DataAccessException ex) {
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
         String errorMessage = ex.getMostSpecificCause().getMessage();
         String detailMessage = extractDetailMessageCause(errorMessage);
         String field = extractDetailMessageField(detailMessage);
@@ -158,7 +160,6 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 errorDetails,
                 "Key violates unique constraint"
-
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
@@ -168,16 +169,16 @@ public class GlobalExceptionHandler {
         int endIndex = errorMessage.length();
         return errorMessage.substring(startIndex, endIndex);
     }
-
+    
     private String extractDetailMessageField(String detailMessage) {
-        int startIndex = detailMessage.indexOf("Key (") + "Key (".length();
-        int endIndex = detailMessage.indexOf(")=");
-        return detailMessage.substring(startIndex, endIndex);
+        int startIndex = detailMessage.indexOf("(") + 1;
+        int endIndex = detailMessage.indexOf(")=", startIndex);
+        return detailMessage.substring(startIndex, endIndex).trim();
     }
 
     private String extractDetailRejectedValue(String detailMessage) {
         int startIndex = detailMessage.indexOf("=(") + "=(".length();
-        int endIndex = detailMessage.indexOf(") ");
+        int endIndex = detailMessage.indexOf(")", startIndex);
         return detailMessage.substring(startIndex, endIndex);
     }
 
