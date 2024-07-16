@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -20,6 +21,7 @@ import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
 import com.ucacue.UcaApp.model.dto.user.AdminUserManagerRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
+import com.ucacue.UcaApp.model.entity.RoleEntity;
 import com.ucacue.UcaApp.model.entity.UserEntity;
 import com.ucacue.UcaApp.model.mapper.UserMapper;
 import com.ucacue.UcaApp.repository.UserRepository;
@@ -58,6 +60,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Autowired
     private PasswordEncoderUtil passwordEncoderUtil;
+
+    @Autowired
+    private AuditorAware<String> auditorAware;
 
     @Override
     @Transactional(readOnly = true)
@@ -130,6 +135,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
             if (userRepository.existsByEmail(userEntity.getEmail())) {
                 throw new UserAlreadyExistsException(userEntity.getEmail());
+            }
+
+            // Asignar el rol por defecto "USER" (ID 2)
+            RoleEntity defaultRole = roleEntityFetcher.mapRoleIdToRolesEntity(2L);
+            Set<RoleEntity> roles = new HashSet<>(userEntity.getRoles());
+            roles.add(defaultRole);
+            userEntity.setRoles(roles);
+
+            // Establecer el auditor manualmente si no está autenticado
+            Optional<String> currentAuditor = auditorAware.getCurrentAuditor();
+            if (currentAuditor.isEmpty() || currentAuditor.get().equals("anonymousUser")) {
+                userEntity.setCreatedBy(userEntity.getEmail());
             }
 
             userEntity = userRepository.save(userEntity);
