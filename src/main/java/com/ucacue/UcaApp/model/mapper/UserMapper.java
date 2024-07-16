@@ -71,8 +71,11 @@ public interface UserMapper {
         return entity;
     }
     
-    default Set<RoleEntity> mapRoleIdsToRoleEntities(Set<Long> roleIds, RoleEntityFetcher RoleEntityFetcher) {        
-        roleIds.add(2L);
+    default Set<RoleEntity> mapRoleIdsToRoleEntities(Set<Long> roleIds, RoleEntityFetcher RoleEntityFetcher) {   
+        if (roleIds == null || roleIds.isEmpty()) {
+            roleIds = new HashSet<>();
+            roleIds.add(2L);
+        }
 
         return roleIds.stream()
                       .map(id -> RoleEntityFetcher.mapRoleIdToRolesEntity(id)) // Usando RoleEntityFetcher para convertir ID a RolesEntity
