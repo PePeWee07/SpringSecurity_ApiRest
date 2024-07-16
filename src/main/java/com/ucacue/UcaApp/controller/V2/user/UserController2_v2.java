@@ -16,9 +16,11 @@ import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 import com.ucacue.UcaApp.service.user.UserService;
 import com.ucacue.UcaApp.web.response.ApiResponse;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 @RestController
 @RequestMapping("/api/v2/user")
@@ -29,26 +31,29 @@ public class UserController2_v2 {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDto> findById(@PathVariable Long id) {
+   @GetMapping("/profile")
+    public ResponseEntity<UserResponseDto> getUserProfile(@RequestHeader("Authorization") String token) {
         try {
-            UserResponseDto user = userService.getUserById(id);
+            String actualToken = token.substring(7); // Remove "Bearer " prefix
+            UserResponseDto user = userService.getUserProfile(actualToken);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
-            logger.info("Error: {@GET /user/{id}}", e.getMessage());
+            logger.info("Error: {@GET /user/profile}", e.getMessage());
             throw e;
         }
     }
 
-    @PatchMapping("/editProfile/{id}")
-    public ResponseEntity<ApiResponse> update(@PathVariable Long id,@Valid @RequestBody UserRequestDto userRequestDto) {
+    @PatchMapping("/editProfile")
+    public ResponseEntity<ApiResponse> updateProfile(@RequestHeader("Authorization") String token, @Valid @RequestBody UserRequestDto userRequestDto) {
         try {
-            UserResponseDto updatedUser = userService.editProfile(userRequestDto, id);
+            String actualToken = token.substring(7); // Remove "Bearer " prefix
+            UserResponseDto updatedUser = userService.editUserProfile(actualToken, userRequestDto);
             ApiResponse response = new ApiResponse(HttpStatus.OK.value(), updatedUser, "User updated successfully");
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
-            logger.info("Error: {@PUT /user/{id}}", e.getMessage());
+            logger.info("Error: {@PATCH /user/editProfile}", e.getMessage());
             throw e;
         }
     }
+
 }

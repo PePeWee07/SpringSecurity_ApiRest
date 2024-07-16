@@ -238,11 +238,35 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .orElseThrow(() -> new UserNotFoundException(email, UserNotFoundException.SearchType.EMAIL));
     }
 
+    // @Transactional
+    // @Override
+    // public UserResponseDto editProfile(UserRequestDto userRequestDto,Long id) {
+    //     UserEntity userEntity = userRepository.findById(id)
+    //             .orElseThrow(() -> new UserNotFoundException(id, UserNotFoundException.SearchType.ID));
+
+    //     userMapper.updateEntityFromDtoUserProfile(userRequestDto, userEntity, passwordEncoderUtil);
+    //     userEntity = userRepository.save(userEntity);
+    //     return userMapper.mapToUserResponseDto(userEntity);
+    // }
+
+
     @Transactional
     @Override
-    public UserResponseDto editProfile(UserRequestDto userRequestDto,Long id) {
-        UserEntity userEntity = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(id, UserNotFoundException.SearchType.ID));
+    public UserResponseDto getUserProfile(String token) {
+        DecodedJWT decodedJWT = jwtUtils.validateToken(token);
+        String userEmail = jwtUtils.getUsernameFromToken(decodedJWT); // Obtener el correo electrónico del token
+        UserEntity userEntity = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UserNotFoundException(userEmail, UserNotFoundException.SearchType.EMAIL));
+        return userMapper.mapToUserResponseDto(userEntity);
+    }
+
+    @Transactional
+    @Override
+    public UserResponseDto editUserProfile(String token, UserRequestDto userRequestDto) {
+        DecodedJWT decodedJWT = jwtUtils.validateToken(token);
+        String userEmail = jwtUtils.getUsernameFromToken(decodedJWT); // Obtener el correo electrónico del token
+        UserEntity userEntity = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UserNotFoundException(userEmail, UserNotFoundException.SearchType.EMAIL));
 
         userMapper.updateEntityFromDtoUserProfile(userRequestDto, userEntity, passwordEncoderUtil);
         userEntity = userRepository.save(userEntity);

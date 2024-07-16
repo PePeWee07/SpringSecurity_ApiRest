@@ -42,6 +42,7 @@ public interface UserService {
 
     //-----------Funciones para usuarios-----------
 
-    UserResponseDto editProfile(UserRequestDto userRequestDto, Long id);
+    UserResponseDto getUserProfile(String token);
+    UserResponseDto editUserProfile(String token, UserRequestDto userRequestDto);
 
 }
