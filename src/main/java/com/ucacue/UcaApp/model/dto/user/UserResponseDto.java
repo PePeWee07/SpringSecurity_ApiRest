@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import com.ucacue.UcaApp.model.dto.permission.PermissionResponseDto;
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
 
 @Getter
@@ -29,7 +30,7 @@ public class UserResponseDto implements Serializable{
 
     private String address;
 
-    private String DNI;
+    private String dni;
 
     // PASSWORD NO SE DEBE DEVOLVER
 
@@ -44,5 +45,9 @@ public class UserResponseDto implements Serializable{
     private List<RoleResponseDto> roles;
 
     private Date accountExpiryDate;
+
+    private List<PermissionResponseDto> authorities;
+
+    private String username;
 
 }

@@ -27,7 +27,7 @@ public class AdminUserManagerRequestDto implements Serializable{
 
     private String address;
 
-    private String DNI;
+    private String dni;
 
     private String password;
 

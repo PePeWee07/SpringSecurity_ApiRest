@@ -7,10 +7,8 @@ import lombok.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -58,8 +56,8 @@ public class UserEntity extends AuditingData implements UserDetails {
 
     @NotNull(message = "The DNI is mandatory")
     @Size(min = 1, max = 10, message = "The DNI must have a maximum of 10 characters")
-    @Column(name = "DNI", length = 10, nullable = false, unique = true)
-    private String DNI;
+    @Column(name = "dni", length = 10, nullable = false, unique = true)
+    private String dni;
 
     @NotNull
     @Size(min = 1, max = 60, message = "Password must be a maximum of 60 characters")
