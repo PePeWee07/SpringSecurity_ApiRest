@@ -145,7 +145,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
             // Establecer el auditor manualmente si no está autenticado
             Optional<String> currentAuditor = auditorAware.getCurrentAuditor();
-            if (currentAuditor.isEmpty() || currentAuditor.get().equals("anonymousUser")) {
+            if (currentAuditor.isEmpty()) {
                 userEntity.setCreatedBy(userEntity.getEmail());
             }
 

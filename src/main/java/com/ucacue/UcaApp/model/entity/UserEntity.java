@@ -13,6 +13,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ucacue.UcaApp.service.auditing.springboot.AuditingData;
 
 @Getter
@@ -127,17 +128,8 @@ public class UserEntity extends AuditingData implements UserDetails {
     }
 
     @Override
+    @JsonProperty("username")
     public String getUsername() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                return ((UserDetails) principal).getUsername();
-            } else {
-                // handle the case when principal is a string (username)
-                return principal.toString();
-            }
-        }
-        return "anonymousUser";
+        return this.email;
     }
 }
