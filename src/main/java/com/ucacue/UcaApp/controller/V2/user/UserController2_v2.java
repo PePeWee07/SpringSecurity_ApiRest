@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,7 +15,6 @@ import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 import com.ucacue.UcaApp.service.user.UserService;
 import com.ucacue.UcaApp.web.response.ApiResponse;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,7 +32,7 @@ public class UserController2_v2 {
    @GetMapping("/profile")
     public ResponseEntity<UserResponseDto> getUserProfile(@RequestHeader("Authorization") String token) {
         try {
-            String actualToken = token.substring(7); // Remove "Bearer " prefix
+            String actualToken = token.replace("Bearer ", "");
             UserResponseDto user = userService.getUserProfile(actualToken);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
@@ -46,7 +44,7 @@ public class UserController2_v2 {
     @PatchMapping("/editProfile")
     public ResponseEntity<ApiResponse> updateProfile(@RequestHeader("Authorization") String token, @Valid @RequestBody UserRequestDto userRequestDto) {
         try {
-            String actualToken = token.substring(7); // Remove "Bearer " prefix
+            String actualToken = token.replace("Bearer ", "");
             UserResponseDto updatedUser = userService.editUserProfile(actualToken, userRequestDto);
             ApiResponse response = new ApiResponse(HttpStatus.OK.value(), updatedUser, "User updated successfully");
             return ResponseEntity.status(HttpStatus.OK).body(response);

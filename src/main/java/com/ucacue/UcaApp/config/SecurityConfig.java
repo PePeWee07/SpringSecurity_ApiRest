@@ -26,7 +26,7 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.core.Ordered;
 
 import com.ucacue.UcaApp.config.filter.JwtTokenValidator;
-import com.ucacue.UcaApp.service.user.impl.UserServiceImpl;
+import com.ucacue.UcaApp.service.admin.impl.AdminManagerServiceImpl;
 import com.ucacue.UcaApp.util.token.CustomJwtAuthenticationEntryPoint;
 import com.ucacue.UcaApp.util.token.JwtUtils;
 
@@ -84,7 +84,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(UserServiceImpl userDetailService) {
+    public AuthenticationProvider authenticationProvider(AdminManagerServiceImpl userDetailService) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder());
         provider.setUserDetailsService(userDetailService);

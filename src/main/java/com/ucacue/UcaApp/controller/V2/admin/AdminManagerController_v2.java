@@ -1,14 +1,15 @@
-package com.ucacue.UcaApp.controller.V2.auth;
+package com.ucacue.UcaApp.controller.V2.admin;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.ucacue.UcaApp.service.user.UserService;
+
 import com.ucacue.UcaApp.web.response.ApiResponse;
 import com.ucacue.UcaApp.model.dto.user.AdminUserManagerRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
+import com.ucacue.UcaApp.service.admin.AdminMangerService;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,12 +22,12 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v2/manager")
-public class AdminUserManagerController_v2 {
+public class AdminManagerController_v2 {
 
-    private static final Logger logger = LoggerFactory.getLogger(AdminUserManagerController_v2.class);
+    private static final Logger logger = LoggerFactory.getLogger(AdminManagerController_v2.class);
 
     @Autowired
-    private UserService userService;
+    private AdminMangerService userService;
     
     @GetMapping("/users/page/{page}")
     public ResponseEntity<Page<UserResponseDto>> findAllWithPage(@PathVariable int page) {

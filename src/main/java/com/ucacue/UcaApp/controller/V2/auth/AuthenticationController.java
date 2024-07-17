@@ -16,7 +16,7 @@ import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
 import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
 import com.ucacue.UcaApp.model.dto.auth.RefreshTokenRequest;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
-import com.ucacue.UcaApp.service.user.impl.UserServiceImpl;
+import com.ucacue.UcaApp.service.admin.impl.AdminManagerServiceImpl;
 
 @RestController
 @RequestMapping("/auth")
@@ -25,7 +25,7 @@ public class AuthenticationController {
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
     @Autowired
-    private UserServiceImpl userServiceImpl;
+    private AdminManagerServiceImpl userServiceImpl;
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> register(@RequestBody @Valid UserRequestDto userRequest) {
