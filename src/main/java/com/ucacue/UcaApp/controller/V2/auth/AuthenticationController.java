@@ -16,7 +16,7 @@ import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
 import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
 import com.ucacue.UcaApp.model.dto.auth.RefreshTokenRequest;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
-import com.ucacue.UcaApp.service.admin.impl.AdminManagerServiceImpl;
+import com.ucacue.UcaApp.service.admin.AdminMangerService;
 
 @RestController
 @RequestMapping("/auth")
@@ -25,12 +25,12 @@ public class AuthenticationController {
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
     @Autowired
-    private AdminManagerServiceImpl userServiceImpl;
+    private AdminMangerService adminMangerService;
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> register(@RequestBody @Valid UserRequestDto userRequest) {
         try {
-            return new ResponseEntity<>(userServiceImpl.RegisterUser(userRequest), HttpStatus.CREATED);
+            return new ResponseEntity<>(adminMangerService.RegisterUser(userRequest), HttpStatus.CREATED);
         } catch (Exception e) {
             logger.info("Error: {@POST /Sign-up}", e.getMessage());
             throw e;
@@ -40,7 +40,7 @@ public class AuthenticationController {
     @PostMapping("/log-in")
     public ResponseEntity<?> loginUser(@RequestBody @Valid AuthLoginRequest authLoginRequest) {
         try {
-            AuthResponse response = userServiceImpl.loginUser(authLoginRequest);
+            AuthResponse response = adminMangerService.loginUser(authLoginRequest);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             logger.info("Error: {@POST /log-in}", e.getMessage());
@@ -51,7 +51,7 @@ public class AuthenticationController {
     @PostMapping("/token-refresh")
     public ResponseEntity<?> refreshUserToken(@RequestBody @Valid RefreshTokenRequest refreshTokenRequest) {
         try {
-            AuthResponse response = userServiceImpl.refreshUserToken(refreshTokenRequest.refreshToken());
+            AuthResponse response = adminMangerService.refreshUserToken(refreshTokenRequest.refreshToken());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired refresh token");
