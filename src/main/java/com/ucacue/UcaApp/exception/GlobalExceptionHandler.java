@@ -3,7 +3,6 @@ package com.ucacue.UcaApp.exception;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,8 +31,6 @@ import com.ucacue.UcaApp.web.response.roleandPermissionNotFound.RoleAndPermissio
 import com.ucacue.UcaApp.web.response.userNotFound.UserNotFoundResponse;
 
 import jakarta.validation.ConstraintViolationException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 

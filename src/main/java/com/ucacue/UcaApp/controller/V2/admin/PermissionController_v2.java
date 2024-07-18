@@ -1,4 +1,4 @@
-package com.ucacue.UcaApp.controller.V2.auth;
+package com.ucacue.UcaApp.controller.V2.admin;
 
 import java.util.*;
 

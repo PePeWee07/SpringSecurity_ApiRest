@@ -1,14 +1,15 @@
-package com.ucacue.UcaApp.controller.V2.auth;
+package com.ucacue.UcaApp.controller.V2.admin;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.ucacue.UcaApp.service.user.UserService;
+
 import com.ucacue.UcaApp.web.response.ApiResponse;
 import com.ucacue.UcaApp.model.dto.user.AdminUserManagerRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
+import com.ucacue.UcaApp.service.admin.AdminMangerService;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,12 +22,12 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v2/manager")
-public class AdminUserManagerController_v2 {
+public class AdminManagerController_v2 {
 
-    private static final Logger logger = LoggerFactory.getLogger(AdminUserManagerController_v2.class);
+    private static final Logger logger = LoggerFactory.getLogger(AdminManagerController_v2.class);
 
     @Autowired
-    private UserService userService;
+    private AdminMangerService adminMangerService;
     
     @GetMapping("/users/page/{page}")
     public ResponseEntity<Page<UserResponseDto>> findAllWithPage(@PathVariable int page) {
@@ -34,7 +35,7 @@ public class AdminUserManagerController_v2 {
         Pageable pageable = PageRequest.of(page, pageSize, Sort.by("id").ascending());
 
         try {
-            Page<UserResponseDto> userPage = userService.findAllForPage(pageable);
+            Page<UserResponseDto> userPage = adminMangerService.findAllForPage(pageable);
             return ResponseEntity.ok(userPage);
         } catch (Exception e) {
             logger.info("Error: {@GET /users/page/{page}}", e.getMessage());
@@ -45,7 +46,7 @@ public class AdminUserManagerController_v2 {
     @GetMapping("/user/{id}")
     public ResponseEntity<UserResponseDto> findById(@PathVariable Long id) {
         try {
-            UserResponseDto user = userService.getUserById(id);
+            UserResponseDto user = adminMangerService.getUserById(id);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
             logger.info("Error: {@GET /user/{id}}", e.getMessage());
@@ -56,7 +57,7 @@ public class AdminUserManagerController_v2 {
     @GetMapping("/user/email/{email}")
     public ResponseEntity<UserResponseDto> findByEmail(@PathVariable String email) {
         try {
-            UserResponseDto user = userService.findByEmail(email);
+            UserResponseDto user = adminMangerService.findByEmail(email);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
             logger.info("Error: {@GET /user/email/{email}}", e.getMessage());
@@ -67,7 +68,7 @@ public class AdminUserManagerController_v2 {
     @PostMapping("/user")
     public ResponseEntity<ApiResponse> create(@Valid @RequestBody AdminUserManagerRequestDto userRequestDto) {
         try {
-            UserResponseDto savedUser = userService.save(userRequestDto);
+            UserResponseDto savedUser = adminMangerService.save(userRequestDto);
             ApiResponse response = new ApiResponse(HttpStatus.CREATED.value(), savedUser, "User created successfully");
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
@@ -80,7 +81,7 @@ public class AdminUserManagerController_v2 {
     public ResponseEntity<ApiResponse> update(@PathVariable Long id,
             @Valid @RequestBody AdminUserManagerRequestDto userRequestDto) {
         try {
-            UserResponseDto updatedUser = userService.update(id, userRequestDto);
+            UserResponseDto updatedUser = adminMangerService.update(id, userRequestDto);
             ApiResponse response = new ApiResponse(HttpStatus.OK.value(), updatedUser, "User updated successfully");
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
