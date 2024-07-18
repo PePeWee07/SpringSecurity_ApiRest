@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +21,7 @@ public class LoggedActionController {
     private LoggedActionServiceImpl loggedActionService;
 
     @GetMapping("/actions")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Map<String, Object>>> getAllLoggedActions() {
         try {
             return ResponseEntity.ok(loggedActionService.findAll());
@@ -29,6 +31,7 @@ public class LoggedActionController {
     }
 
     @GetMapping("/actions/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> getLoggedActionById(@PathVariable Long id) {
         Map<String, Object> action = loggedActionService.findById(id);
         if (action != null) {

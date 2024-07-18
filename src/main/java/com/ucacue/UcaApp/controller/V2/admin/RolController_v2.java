@@ -6,6 +6,7 @@ import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +33,7 @@ public class RolController_v2 {
     private RolService rolService;
 
     @GetMapping("/roles")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<RoleResponseDto>> findAll() {
         try {
             return ResponseEntity.ok(rolService.findAll());
@@ -42,6 +44,7 @@ public class RolController_v2 {
     }
 
     @GetMapping("/rol/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RoleResponseDto> findById(@PathVariable Long id) {
         try {
             RoleResponseDto response = rolService.getRoleById(id);
@@ -53,6 +56,7 @@ public class RolController_v2 {
     }
 
     @PostMapping("/rol")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> create(@Valid @RequestBody RoleRequestDto roleRequestDto) {
         try {
             RoleResponseDto savedRol = rolService.save(roleRequestDto);
@@ -65,6 +69,7 @@ public class RolController_v2 {
     }
 
     @PutMapping("/rol/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> update(@PathVariable Long id,
             @Valid @RequestBody RoleRequestDto roleRequestDto) {
         try {
@@ -78,6 +83,7 @@ public class RolController_v2 {
     }
 
     @DeleteMapping("/role/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteRole(@PathVariable Long id) {
         rolService.deleteRoleById(id);
         return ResponseEntity.noContent().build();

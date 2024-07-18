@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.ucacue.UcaApp.web.response.ApiResponse;
@@ -30,6 +31,7 @@ public class AdminManagerController_v2 {
     private AdminMangerService adminMangerService;
     
     @GetMapping("/users/page/{page}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserResponseDto>> findAllWithPage(@PathVariable int page) {
         int pageSize = 10;
         Pageable pageable = PageRequest.of(page, pageSize, Sort.by("id").ascending());
@@ -44,6 +46,7 @@ public class AdminManagerController_v2 {
     }
 
     @GetMapping("/user/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponseDto> findById(@PathVariable Long id) {
         try {
             UserResponseDto user = adminMangerService.getUserById(id);
@@ -55,6 +58,7 @@ public class AdminManagerController_v2 {
     }
 
     @GetMapping("/user/email/{email}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponseDto> findByEmail(@PathVariable String email) {
         try {
             UserResponseDto user = adminMangerService.findByEmail(email);
@@ -66,6 +70,7 @@ public class AdminManagerController_v2 {
     }
 
     @PostMapping("/user")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> create(@Valid @RequestBody AdminUserManagerRequestDto userRequestDto) {
         try {
             UserResponseDto savedUser = adminMangerService.save(userRequestDto);
@@ -78,6 +83,7 @@ public class AdminManagerController_v2 {
     }
 
     @PatchMapping("/user/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> update(@PathVariable Long id,
             @Valid @RequestBody AdminUserManagerRequestDto userRequestDto) {
         try {

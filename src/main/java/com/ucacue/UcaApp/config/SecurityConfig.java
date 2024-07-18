@@ -47,27 +47,13 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(http -> {
-                    // Configurar los endpoints públicos
-                    http.requestMatchers(HttpMethod.GET, "/api/v1/**").permitAll();
-
-                    http.requestMatchers(HttpMethod.GET, "/api/v2/audit/**").permitAll();
-
-                    http.requestMatchers(HttpMethod.GET, "/v3/**").permitAll();
-                    http.requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll();
-
+                    //endpoints públicos
                     http.requestMatchers(HttpMethod.POST, "/auth/**").permitAll();
+                    http.requestMatchers(HttpMethod.GET, "/v3/api-docs").permitAll();
+                    http.requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll();//http://localhost:8080/ucacue/swagger-ui/index.html
 
-                    http.requestMatchers(HttpMethod.GET, "/api/v2/**").permitAll();
-                    http.requestMatchers(HttpMethod.POST, "/api/v2/**").permitAll();
-                    http.requestMatchers(HttpMethod.PUT, "/api/v2/**").permitAll();
-                    http.requestMatchers(HttpMethod.DELETE, "/api/v2/**").permitAll();
-
-                    // Configurar los endpoints por permisos
-                    //http.requestMatchers(HttpMethod.POST, "/context-path").hasAnyRole("ADMIN", "DEVELOPER");
-                    //http.requestMatchers(HttpMethod.PATCH, "/context-path").hasAnyAuthority("REFACTOR");
-
-                    // Configurar el resto de endpoints - NO ESPECIFICADOS
-                    http.anyRequest().permitAll();
+                    //endpoints - NO ESPECIFICADOS
+                    http.anyRequest().authenticated();
                 })
                 .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class)
                 .exceptionHandling(exceptionHandling -> exceptionHandling
@@ -102,7 +88,7 @@ public class SecurityConfig {
         List<String> access = new ArrayList<>();
         access.add("*");
         config.setAllowedOriginPatterns(access);
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "OPTIONS", "DELETE"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH"));
         config.setAllowCredentials(true);
         config.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization"));
 

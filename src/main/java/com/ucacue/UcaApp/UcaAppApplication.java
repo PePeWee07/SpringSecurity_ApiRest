@@ -20,73 +20,68 @@ public class UcaAppApplication {
 	}
 
 	@Bean
-    CommandLineRunner init(UserRepository userRepository) {
+        CommandLineRunner init(UserRepository userRepository) {
         return args -> {
-            /* Create PERMISSIONS */
-            PermissionEntity createPermission = PermissionEntity.builder()
-                    .name("CREATE")
-                    .build();
+                /* Create PERMISSIONS */
+                PermissionEntity createPermission = PermissionEntity.builder()
+                        .name("CREATE")
+                        .build();
 
-            PermissionEntity readPermission = PermissionEntity.builder()
-                    .name("READ")
-                    .build();
+                PermissionEntity readPermission = PermissionEntity.builder()
+                        .name("READ")
+                        .build();
 
-            PermissionEntity updatePermission = PermissionEntity.builder()
-                    .name("UPDATE")
-                    .build();
+                PermissionEntity updatePermission = PermissionEntity.builder()
+                        .name("UPDATE")
+                        .build();
 
-            PermissionEntity deletePermission = PermissionEntity.builder()
-                    .name("DELETE")
-                    .build();
+                PermissionEntity deletePermission = PermissionEntity.builder()
+                        .name("DELETE")
+                        .build();
 
-            PermissionEntity refactorPermission = PermissionEntity.builder()
-                    .name("REFACTOR")
-                    .build();
+                /* Create ROLES */
+                RoleEntity roleAdmin = RoleEntity.builder()
+                        .name("ADMIN")
+                        .permissionList(Set.of(createPermission, readPermission, updatePermission, deletePermission))
+                        .build();
 
-            /* Create ROLES */
-            RoleEntity roleAdmin = RoleEntity.builder()
-                    .name("ADMIN")
-                    .permissionList(Set.of(createPermission, readPermission, updatePermission, deletePermission, refactorPermission))
-                    .build();
+                RoleEntity roleUser = RoleEntity.builder()
+                        .name("USER")
+                        .permissionList(Set.of(readPermission))
+                        .build();
 
-            RoleEntity roleUser = RoleEntity.builder()
-                    .name("USER")
-                    .permissionList(Set.of(readPermission))
-                    .build();
+                /* CREATE USER */
+                UserEntity userSantiago = UserEntity.builder()
+                        .email("pepewee07@gmail.com")
+                                                .name("José")
+                                                .lastName("Román")
+                                                .phoneNumber("0983439289")
+                                                .address("Av. Pumapungo y Renaciente")
+                                                .dni("0704713619")
+                        .password("$2a$10$cMY29RPYoIHMJSuwRfoD3eQxU1J5Rww4VnNOUOAEPqCBshkNfrEf6")
+                        .enabled(true)
+                        .accountNonExpired(true)
+                        .accountNonLocked(true)
+                        .credentialsNonExpired(true)
+                        .roles(Set.of(roleAdmin, roleUser))
+                        .build();
 
-            /* CREATE USERS */
-            UserEntity userSantiago = UserEntity.builder()
-                    .email("santiago@gmail.com")
-					// .username("santiago")
-					.name("???")
-					.lastName("???")
-					.phoneNumber("000000")
-					.address("???")
-					.dni("V0001")
-                    .password("$2a$10$cMY29RPYoIHMJSuwRfoD3eQxU1J5Rww4VnNOUOAEPqCBshkNfrEf6")
-                    .enabled(true)
-                    .accountNonExpired(true)
-                    .accountNonLocked(true)
-                    .credentialsNonExpired(true)
-                    .roles(Set.of(roleAdmin))
-                    .build();
-
-            UserEntity userDaniel = UserEntity.builder()
-                    .email("daniel@gmail.com")
-					// .username("daniel")
-					.name("???")
-					.lastName("???")
-					.phoneNumber("000000")
-					.address("???")
-					.dni("V0002")
-                    .password("$2a$10$cMY29RPYoIHMJSuwRfoD3eQxU1J5Rww4VnNOUOAEPqCBshkNfrEf6")
-                    .enabled(true)
-                    .accountNonExpired(true)
-                    .accountNonLocked(true)
-                    .credentialsNonExpired(true)
-                    .roles(Set.of(roleUser))
-                    .build();
-            userRepository.saveAll(List.of(userSantiago, userDaniel));
+                /* CREATE USER */
+                UserEntity userDaniel = UserEntity.builder()
+                        .email("daniel@gmail.com")
+                                                .name("???")
+                                                .lastName("???")
+                                                .phoneNumber("000000")
+                                                .address("???")
+                                                .dni("V0002")
+                        .password("$2a$10$cMY29RPYoIHMJSuwRfoD3eQxU1J5Rww4VnNOUOAEPqCBshkNfrEf6")
+                        .enabled(true)
+                        .accountNonExpired(true)
+                        .accountNonLocked(true)
+                        .credentialsNonExpired(true)
+                        .roles(Set.of(roleUser))
+                        .build();
+                userRepository.saveAll(List.of(userSantiago, userDaniel));
         };
     }
 

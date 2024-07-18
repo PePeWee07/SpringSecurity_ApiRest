@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.ucacue.UcaApp.model.dto.permission.PermissionRequestDto;
@@ -26,6 +27,7 @@ public class PermissionController_v2 {
     private PermissionService permissionService;
 
     @GetMapping("/permissions")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<PermissionResponseDto>> findAll() {
         try {
             return ResponseEntity.ok(permissionService.findAll());
@@ -36,6 +38,7 @@ public class PermissionController_v2 {
     }
 
     @GetMapping("/permission/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PermissionResponseDto> findById(@PathVariable Long id) {
         try {
             PermissionResponseDto response = permissionService.getPermissionById(id);
@@ -47,6 +50,7 @@ public class PermissionController_v2 {
     }
 
     @PostMapping("/permission")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> create(@Valid @RequestBody PermissionRequestDto permissionRequestDto) {
         try {
             PermissionResponseDto savedRol = permissionService.save(permissionRequestDto);
@@ -60,6 +64,7 @@ public class PermissionController_v2 {
     }
 
     @PutMapping("/permission/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse> update(@PathVariable Long id,
             @Valid @RequestBody PermissionRequestDto permissionRequestDto) {
         try {
@@ -74,6 +79,7 @@ public class PermissionController_v2 {
     }
 
     @DeleteMapping("/permission/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletePermission(@PathVariable Long id) {
         permissionService.deletePermissionById(id);
         return ResponseEntity.noContent().build();
