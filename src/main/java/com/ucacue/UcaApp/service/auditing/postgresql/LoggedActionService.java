@@ -5,6 +5,14 @@ import java.util.*;
 public interface LoggedActionService {
 
     List<Map<String, Object>> findAll();
-
     Map<String, Object> findById(Long id);
+
+    List<Map<String, Object>> listTables();
+    String findRelidOfTable(String table);
+    List<Map<String, Object>> findByRelid(Long relid);
+
+    List<Map<String, Object>> findByTable(String table);
+
+    List<Map<String, Object>> findByRowData(String table, String userId, String email, String dni);
+
 }
