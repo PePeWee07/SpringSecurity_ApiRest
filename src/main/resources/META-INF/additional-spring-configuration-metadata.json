@@ -1,17 +1,22 @@
 {
-    "properties": [
-      {
-        "name": "security.private-key",
-        "type": "java.lang.String",
-        "description": "The private key used for security purposes",
-        "sourceType": "com.yourpackage.SecurityConfig"
-      },
-      {
-        "name": "security.user-generator",
-        "type": "java.lang.String",
-        "description": "The user generator for authentication",
-        "sourceType": "com.yourpackage.SecurityConfig"
-      }
-    ]
-  }
-  
+  "properties": [
+    {
+      "name": "security.private-key",
+      "type": "java.lang.String",
+      "description": "The private key used for security purposes",
+      "sourceType": "com.ucacue.UcaApp.config.SecurityConfig"
+    },
+    {
+      "name": "security.user-generator",
+      "type": "java.lang.String",
+      "description": "The user generator for authentication",
+      "sourceType": "com.ucacue.UcaApp.config.SecurityConfig"
+    },
+    {
+      "name": "swagger.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable or disable Swagger",
+      "sourceType": "com.ucacue.UcaApp.config.SwaggerConfig"
+    }
+  ]
+}

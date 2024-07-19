@@ -3,6 +3,7 @@ package com.ucacue.UcaApp.config;
 import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -35,6 +36,9 @@ import com.ucacue.UcaApp.util.token.JwtUtils;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    @Value("${swagger.enabled}")
+    private boolean swaggerEnabled;
+    
     @Autowired
     private JwtUtils jwtUtils;
 
@@ -49,7 +53,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(http -> {
                     //endpoints públicos
                     http.requestMatchers(HttpMethod.POST, "/auth/**").permitAll();
-                    http.requestMatchers(HttpMethod.GET, "/apidoc/**").permitAll();
+
+                    // Condicionalmente permitir acceso a Swagger según la propiedad
+                    if (swaggerEnabled) {
+                        http.requestMatchers(HttpMethod.GET, "/apidoc/**").permitAll();
+                    } else {
+                        http.requestMatchers(HttpMethod.GET, "/apidoc/api-docs").hasRole("ADMIN");
+                        http.requestMatchers(HttpMethod.GET, "/apidoc/swagger-ui/**").denyAll();
+                    }
 
                     //endpoints - NO ESPECIFICADOS
                     http.anyRequest().authenticated();

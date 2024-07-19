@@ -10,13 +10,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class OpenAPIConfig {
+public class SwaggerConfig {
 
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
             .info(new Info().title("API UCACUE")
-                .version("1.0")
+                .version("v0.0.1")
                 .description("Documentación de la API UCACUE")
                 .termsOfService("http://example.com/terms")
                 .license(new License().name("Apache 2.0").url("http://springdoc.org")))
