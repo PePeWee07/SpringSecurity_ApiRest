@@ -21,10 +21,13 @@ import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
 import com.ucacue.UcaApp.service.rol.RolService;
 import com.ucacue.UcaApp.web.response.ApiResponse;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v2")
+@Tag(name = "RolController_v2", description = "Controlador para gestionar Roles")
 public class RolController_v2 {
 
     private static final Logger logger = LoggerFactory.getLogger(RolController_v2.class);
@@ -34,6 +37,7 @@ public class RolController_v2 {
 
     @GetMapping("/roles")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Lista de Roles", description = "Listado de todo los Roles.")
     public ResponseEntity<List<RoleResponseDto>> findAll() {
         try {
             return ResponseEntity.ok(rolService.findAll());
@@ -45,6 +49,7 @@ public class RolController_v2 {
 
     @GetMapping("/rol/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Busqueda de Rol por ID", description = "Obtiene los datos del Rol.")
     public ResponseEntity<RoleResponseDto> findById(@PathVariable Long id) {
         try {
             RoleResponseDto response = rolService.getRoleById(id);
@@ -57,6 +62,7 @@ public class RolController_v2 {
 
     @PostMapping("/rol")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Crear Rol", description = "Crea un nuevo Rol.")
     public ResponseEntity<ApiResponse> create(@Valid @RequestBody RoleRequestDto roleRequestDto) {
         try {
             RoleResponseDto savedRol = rolService.save(roleRequestDto);
@@ -70,6 +76,7 @@ public class RolController_v2 {
 
     @PutMapping("/rol/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Actualizar Rol", description = "Actualiza los datos de un Rol.")
     public ResponseEntity<ApiResponse> update(@PathVariable Long id,
             @Valid @RequestBody RoleRequestDto roleRequestDto) {
         try {
@@ -84,6 +91,7 @@ public class RolController_v2 {
 
     @DeleteMapping("/role/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Eliminar Rol", description = "Elimina un Rol.")
     public ResponseEntity<?> deleteRole(@PathVariable Long id) {
         rolService.deleteRoleById(id);
         return ResponseEntity.noContent().build();

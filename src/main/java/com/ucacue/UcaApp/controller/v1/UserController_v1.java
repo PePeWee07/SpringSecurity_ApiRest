@@ -5,6 +5,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ucacue.UcaApp.model.entity.UserEntity;
 import com.ucacue.UcaApp.repository.UserRepository;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.util.*;
 
 import org.slf4j.Logger;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/v1")
+@Tag(name = "UserController_v1", description = "Controlador para gestionar usuarios V1")
 public class UserController_v1 {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController_v1.class);
@@ -27,6 +31,7 @@ public class UserController_v1 {
 
     @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Listar Usuarios", description = "Devuelve una lista de todos los Usuarios.")
     public List<UserEntity> findAll() {
         try {
             List<UserEntity> users = new ArrayList<UserEntity>();

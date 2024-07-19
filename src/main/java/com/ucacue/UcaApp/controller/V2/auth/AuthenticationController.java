@@ -18,8 +18,12 @@ import com.ucacue.UcaApp.model.dto.auth.RefreshTokenRequest;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
 import com.ucacue.UcaApp.service.admin.AdminMangerService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "AuthenticationController", description = "Controlador para gestionar Auth")
 public class AuthenticationController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
@@ -28,6 +32,7 @@ public class AuthenticationController {
     private AdminMangerService adminMangerService;
 
     @PostMapping("/sign-up")
+    @Operation(summary = "Registrarce", description = "Registro de nuevo Usuario.")
     public ResponseEntity<?> register(@RequestBody @Valid UserRequestDto userRequest) {
         try {
             return new ResponseEntity<>(adminMangerService.RegisterUser(userRequest), HttpStatus.CREATED);
@@ -38,6 +43,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/log-in")
+    @Operation(summary = "Login", description = "Login de Usuario.")
     public ResponseEntity<?> loginUser(@RequestBody @Valid AuthLoginRequest authLoginRequest) {
         try {
             AuthResponse response = adminMangerService.loginUser(authLoginRequest);
@@ -49,6 +55,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/token-refresh")
+    @Operation(summary = "Refrecar Token", description = "Resfresca el Token.")
     public ResponseEntity<?> refreshUserToken(@RequestBody @Valid RefreshTokenRequest refreshTokenRequest) {
         try {
             AuthResponse response = adminMangerService.refreshUserToken(refreshTokenRequest.refreshToken());

@@ -16,6 +16,8 @@ import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 import com.ucacue.UcaApp.service.user.UserService;
 import com.ucacue.UcaApp.web.response.ApiResponse;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 @RestController
 @RequestMapping("/api/v2/user")
+@Tag(name = "UserController2_v2", description = "Controlador de Usuario")
 public class UserController2_v2 {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController2_v2.class);
@@ -32,6 +35,7 @@ public class UserController2_v2 {
 
    @GetMapping("/profile")
    @PreAuthorize("hasRole('ADMIN') || hasRole('USER')")
+   @Operation(summary = "Ver Perfil", description = "Accede al perfil del Usuario con su propio token.")
     public ResponseEntity<UserResponseDto> getUserProfile(@RequestHeader("Authorization") String token) {
         try {
             String actualToken = token.replace("Bearer ", "");
@@ -45,6 +49,7 @@ public class UserController2_v2 {
 
     @PatchMapping("/editProfile")
     @PreAuthorize("hasRole('ADMIN') || hasRole('USER')")
+    @Operation(summary = "Actualizar Perfil", description = "Actualiza al perfil del Usuario con su propio token.")
     public ResponseEntity<ApiResponse> updateProfile(@RequestHeader("Authorization") String token, @Valid @RequestBody UserRequestDto userRequestDto) {
         try {
             String actualToken = token.replace("Bearer ", "");

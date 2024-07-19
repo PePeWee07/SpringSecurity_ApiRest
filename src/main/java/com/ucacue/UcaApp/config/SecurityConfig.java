@@ -49,8 +49,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(http -> {
                     //endpoints públicos
                     http.requestMatchers(HttpMethod.POST, "/auth/**").permitAll();
-                    http.requestMatchers(HttpMethod.GET, "/v3/api-docs").permitAll();
-                    http.requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll();//http://localhost:8080/ucacue/swagger-ui/index.html
+                    http.requestMatchers(HttpMethod.GET, "/apidoc/**").permitAll();
 
                     //endpoints - NO ESPECIFICADOS
                     http.anyRequest().authenticated();
