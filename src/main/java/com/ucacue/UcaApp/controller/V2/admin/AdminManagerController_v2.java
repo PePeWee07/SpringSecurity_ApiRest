@@ -8,6 +8,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.ucacue.UcaApp.web.response.ApiResponse;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import com.ucacue.UcaApp.model.dto.user.AdminUserManagerRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 import com.ucacue.UcaApp.service.admin.AdminMangerService;
@@ -23,6 +27,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v2/manager")
+@Tag(name = "AdminManagerController_v2", description = "Controlador para gestionar Usuarios")
 public class AdminManagerController_v2 {
 
     private static final Logger logger = LoggerFactory.getLogger(AdminManagerController_v2.class);
@@ -32,6 +37,7 @@ public class AdminManagerController_v2 {
     
     @GetMapping("/users/page/{page}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Tabla de Usuarios", description = "Listado de 10 Usuarios por pagina.")
     public ResponseEntity<Page<UserResponseDto>> findAllWithPage(@PathVariable int page) {
         int pageSize = 10;
         Pageable pageable = PageRequest.of(page, pageSize, Sort.by("id").ascending());
@@ -47,6 +53,7 @@ public class AdminManagerController_v2 {
 
     @GetMapping("/user/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Busqueda de Usuario por ID", description = "Obtiene los datos del Usuario.")
     public ResponseEntity<UserResponseDto> findById(@PathVariable Long id) {
         try {
             UserResponseDto user = adminMangerService.getUserById(id);
@@ -59,6 +66,7 @@ public class AdminManagerController_v2 {
 
     @GetMapping("/user/email/{email}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Busqueda de Usuario por EMAIL", description = "Obtiene los datos del Usuario.")
     public ResponseEntity<UserResponseDto> findByEmail(@PathVariable String email) {
         try {
             UserResponseDto user = adminMangerService.findByEmail(email);
@@ -71,6 +79,7 @@ public class AdminManagerController_v2 {
 
     @PostMapping("/user")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Guardar Usuario", description = "Guardar datos de un Usuario.")
     public ResponseEntity<ApiResponse> create(@Valid @RequestBody AdminUserManagerRequestDto userRequestDto) {
         try {
             UserResponseDto savedUser = adminMangerService.save(userRequestDto);
@@ -84,6 +93,7 @@ public class AdminManagerController_v2 {
 
     @PatchMapping("/user/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Actualziar Usuario", description = "Actualiza los datos del Usuario.")
     public ResponseEntity<ApiResponse> update(@PathVariable Long id,
             @Valid @RequestBody AdminUserManagerRequestDto userRequestDto) {
         try {

@@ -13,8 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ucacue.UcaApp.service.auditing.postgresql.impl.LoggedActionServiceImpl;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/v2/audit")
+@Tag(name = "LoggedActionController", description = "Controlador para gestionar Auditoria")
 public class LoggedActionController {
 
     @Autowired
@@ -22,6 +26,7 @@ public class LoggedActionController {
 
     @GetMapping("/actions")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Lista de Acciones", description = "Listado de toda las Acciones.")
     public ResponseEntity<List<Map<String, Object>>> getAllLoggedActions() {
         try {
             return ResponseEntity.ok(loggedActionService.findAll());
@@ -32,6 +37,7 @@ public class LoggedActionController {
 
     @GetMapping("/actions/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Busqueda de Accion por ID", description = "Obtiene los datos de la Accion.")
     public ResponseEntity<Map<String, Object>> getLoggedActionById(@PathVariable Long id) {
         Map<String, Object> action = loggedActionService.findById(id);
         if (action != null) {
