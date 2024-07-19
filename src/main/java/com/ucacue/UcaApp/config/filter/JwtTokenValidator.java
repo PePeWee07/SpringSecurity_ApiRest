@@ -41,18 +41,9 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        /*
-         ! Define los paths que quieres excluir para token validation(TESTING)
-            List<AntPathRequestMatcher> excludedPaths = Arrays.asList(
-            new AntPathRequestMatcher("/api/v2/audit/**"));
-            boolean isExcludedPath = excludedPaths.stream().anyMatch(matcher ->
-            matcher.matches(request));
-         */
-
         String jwtToken = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (jwtToken == null || jwtToken.isEmpty() || !jwtToken.startsWith("Bearer ")) {
-            logger.warn("JWT token is missing or empty");
             request.setAttribute("exception", new MissingTokenException("JWT token is missing or empty"));
             filterChain.doFilter(request, response);
             return;
