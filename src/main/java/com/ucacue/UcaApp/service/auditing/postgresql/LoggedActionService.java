@@ -13,6 +13,6 @@ public interface LoggedActionService {
 
     List<Map<String, Object>> findByTable(String table);
 
-    List<Map<String, Object>> findByRowData(String table, String userId, String email, String dni);
+    List<Map<String, Object>> findByGlobalSearch(String searchParam);
 
 }

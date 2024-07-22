@@ -77,7 +77,7 @@ public class LoggedActionController {
         }
     }
 
-    // !(BUG)Obtener acciones por relid
+    // Obtener acciones por relid
     @GetMapping("/actions/by-relid/{relid}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Listar Acciones por Relid", description = "Obtiene una lista de todas las acciones por Relid.")
@@ -103,17 +103,14 @@ public class LoggedActionController {
         }
     }
 
-    // Filtrar por Id, user_id, email, dni
-    @GetMapping("/actions/row-data/{table}")
+    // Busqueda global
+    @GetMapping("/actions/search")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Listar Acciones por Tabla", description = "Obtiene una lista de todas las acciones por Tabla.")
-    public ResponseEntity<List<Map<String, Object>>> getActionsByTable(
-            @PathVariable String table,
-            @RequestParam(required = false) String userId,
-            @RequestParam(required = false) String email,
-            @RequestParam(required = false) String dni) {
+    @Operation(summary = "Búsqueda global en acciones", description = "Obtiene una lista de todas las acciones que coinciden con el parámetro de búsqueda en cualquier columna.")
+    public ResponseEntity<List<Map<String, Object>>> searchActions(
+            @RequestParam String searchParam) {
 
-        List<Map<String, Object>> actions = loggedActionService.findByRowData(table, userId, email, dni);
+        List<Map<String, Object>> actions = loggedActionService.findByGlobalSearch(searchParam);
         if (actions != null && !actions.isEmpty()) {
             return ResponseEntity.ok(actions);
         } else {

@@ -8,8 +8,6 @@ import org.springframework.stereotype.Service;
 
 import com.ucacue.UcaApp.service.auditing.postgresql.LoggedActionService;
 
-import io.micrometer.common.util.StringUtils;
-
 @Service
 public class LoggedActionServiceImpl implements LoggedActionService {
 
@@ -49,7 +47,7 @@ public class LoggedActionServiceImpl implements LoggedActionService {
         return jdbcTemplate.queryForObject(sql, String.class);
     }
 
-    // !(BUG) Obtener toda las acciones por relid
+    // Obtener toda las acciones por relid
     @Override
     public List<Map<String, Object>> findByRelid(Long relid) {
         String sql = "SELECT * FROM audit.logged_actions WHERE relid = ? ORDER BY action_tstamp_tx";
@@ -63,31 +61,28 @@ public class LoggedActionServiceImpl implements LoggedActionService {
         return jdbcTemplate.queryForList(sql, table);
     }
 
-    // Filtrar por Id, user_id, email, dni
-    private boolean hasText(String str) {
-        return (str != null && !str.trim().isEmpty());
-    }
+    // Busqueda Global
     @Override
-    public List<Map<String, Object>> findByRowData(String table, String userId, String email, String dni) {
-        String sql = "SELECT * FROM audit.logged_actions WHERE table_name = ?";
-        List<Object> params = new ArrayList<>();
-        params.add(table);
+    public List<Map<String, Object>> findByGlobalSearch(String searchParam) {
+        String sql = "SELECT * FROM audit.logged_actions WHERE " +
+                "CAST(event_id AS TEXT) LIKE ? OR " +
+                "schema_name LIKE ? OR " +
+                "table_name LIKE ? OR " +
+                "CAST(relid AS TEXT) LIKE ? OR " +
+                "session_user_name LIKE ? OR " +
+                "CAST(transaction_id AS TEXT) LIKE ? OR " +
+                "application_name LIKE ? OR " +
+                "CAST(client_addr AS TEXT) LIKE ? OR " +
+                "CAST(client_port AS TEXT) LIKE ? OR " +
+                "client_query LIKE ? OR " +
+                "action LIKE ? OR " +
+                "row_data::text LIKE ? OR " +
+                "changed_fields::text LIKE ?";
+        
+        String searchPattern = "%" + searchParam + "%";
 
-        if (hasText(userId)) {
-            sql += " AND row_data->'user_id' = ?";
-            params.add(userId);
-        }
-        if (hasText(email)) {
-            sql += " AND row_data->'email' = ?";
-            params.add(email);
-        }
-        if (hasText(dni)) {
-            sql += " AND row_data->'dni' = ?";
-            params.add(dni);
-        }
-        sql += " ORDER BY action_tstamp_tx";
-
-        return jdbcTemplate.queryForList(sql, params.toArray());
+        return jdbcTemplate.queryForList(sql, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, 
+            searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
     }
 
 }
