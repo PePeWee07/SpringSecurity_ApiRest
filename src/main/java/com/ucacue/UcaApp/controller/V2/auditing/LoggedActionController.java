@@ -3,6 +3,7 @@ package com.ucacue.UcaApp.controller.V2.auditing;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,11 +18,15 @@ import com.ucacue.UcaApp.service.auditing.postgresql.impl.LoggedActionServiceImp
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 @RestController
 @RequestMapping("/api/v2/audit")
 @Tag(name = "LoggedActionController", description = "Controlador para gestionar Auditoria")
 public class LoggedActionController {
+
+    private static final Logger logger = LoggerFactory.getLogger(LoggedActionController.class);
 
     @Autowired
     private LoggedActionServiceImpl loggedActionService;
@@ -34,6 +39,7 @@ public class LoggedActionController {
         try {
             return ResponseEntity.ok(loggedActionService.findAll());
         } catch (Exception e) {
+            logger.info("Error: {@GET /audit/actions}", e.getMessage());
             return ResponseEntity.notFound().build();
         }
     }
@@ -47,6 +53,7 @@ public class LoggedActionController {
         if (action != null) {
             return ResponseEntity.ok(action);
         } else {
+            logger.info("Error: {@GET /audit/actions/{id}}", "No se encontró la acción con ID: " + id);
             return ResponseEntity.notFound().build();
         }
     }
@@ -60,6 +67,7 @@ public class LoggedActionController {
         if (tables != null && !tables.isEmpty()) {
             return ResponseEntity.ok(tables);
         } else {
+            logger.info("Error: {@GET /audit/actions/tables}", "No se encontraron tablas en la base de datos.");
             return ResponseEntity.noContent().build();
         }
     }
@@ -73,6 +81,7 @@ public class LoggedActionController {
         if (relid != null) {
             return ResponseEntity.ok(relid);
         } else {
+            logger.info("Error: {@GET /audit/actions/relid/{table}}", "No se encontró el Relid de la tabla: " + table);
             return ResponseEntity.notFound().build();
         }
     }
@@ -86,6 +95,7 @@ public class LoggedActionController {
         if (actions != null && !actions.isEmpty()) {
             return ResponseEntity.ok(actions);
         } else {
+            logger.info("Error: {@GET /audit/actions/by-relid/{relid}}", "No se encontraron acciones con Relid: " + relid);
             return ResponseEntity.noContent().build();
         }
     }
@@ -99,6 +109,7 @@ public class LoggedActionController {
         if (actions != null && !actions.isEmpty()) {
             return ResponseEntity.ok(actions);
         } else {
+            logger.info("Error: {@GET /audit/actions/by-table/{table}}", "No se encontraron acciones con Tabla: " + table);
             return ResponseEntity.noContent().build();
         }
     }
@@ -114,6 +125,7 @@ public class LoggedActionController {
         if (actions != null && !actions.isEmpty()) {
             return ResponseEntity.ok(actions);
         } else {
+            logger.info("Error: {@GET /audit/actions/search}", "No se encontraron acciones con el parámetro de búsqueda: " + searchParam);
             return ResponseEntity.noContent().build();
         }
     }
