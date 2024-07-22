@@ -19,6 +19,13 @@
 		<jakarta.validation.version>3.0.2</jakarta.validation.version>
 		<lombok-version>1.18.12</lombok-version>
 	</properties>
+	<developers>
+		<developer>
+			<id>PePeWee07</id>
+			<name>Jose Roman</name>
+			<email>pepewee07@gmail.com</email>
+		</developer>
+	</developers>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
