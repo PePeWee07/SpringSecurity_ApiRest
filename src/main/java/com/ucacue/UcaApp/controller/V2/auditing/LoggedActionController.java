@@ -18,8 +18,7 @@ import com.ucacue.UcaApp.service.auditing.postgresql.impl.LoggedActionServiceImp
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
+import org.slf4j.*;
 
 @RestController
 @RequestMapping("/api/v2/audit")
