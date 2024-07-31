@@ -15,12 +15,6 @@ RUN mvn clean package -DskipTests
 # Etapa de ejecución
 FROM openjdk:17-jdk-alpine
 
-# Crear los directorios de logs
-RUN mkdir -p /app/logs
-
-# Otorga permisos de escritura al directorio /app/logs
-RUN chmod -R 777 /app/logs
-
 # Copia el archivo .jar compilado desde la etapa de construcción
 COPY --from=build /app/target/UcaApp-0.0.1-SNAPSHOT.jar /app/ucacue_api.jar
 

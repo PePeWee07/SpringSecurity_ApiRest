@@ -18,7 +18,6 @@ import com.ucacue.UcaApp.service.auditing.springboot.AuditingData;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Entity
 @Table(name = "users", schema = "auth")
 public class UserEntity extends AuditingData implements UserDetails {

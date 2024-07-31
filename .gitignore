@@ -34,4 +34,5 @@ build/
 
 # Excluir directorio de logs
 /logs
+/tmp
 *.log
