@@ -1,0 +1,30 @@
+# Ignorar archivos binarios
+*.class
+*.jar
+*.war
+
+# Ignorar archivos de configuración de desarrollo
+*.log
+*.iml
+*.idea/
+*.vscode/
+
+# Ignorar archivos de control de versiones
+.git
+.gitignore
+
+# Ignorar directorios de construcción
+target/
+build/
+
+# Ignorar archivos de sistema operativo
+.DS_Store
+Thumbs.db
+
+# Ignorar archivos temporales
+*.swp
+*.swo
+*.tmp
+
+# Ignorar archivos de entorno
+.env
