@@ -2,12 +2,15 @@ version: '3.9'
 services:
   app:
     container_name: ucacue_api_dev
-    image: ucacue_api_dev
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     ports:
       - "8080:8080"
     env_file:
       - .env
-    restart: always
+    volumes:
+      - .:/app
     depends_on:
       - db
 
@@ -22,7 +25,6 @@ services:
       POSTGRES_DB: ${DB_DATABASE}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    restart: always
 
 volumes:
   postgres_data:
