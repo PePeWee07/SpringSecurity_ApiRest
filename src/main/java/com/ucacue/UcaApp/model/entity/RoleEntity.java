@@ -17,7 +17,6 @@ import com.ucacue.UcaApp.service.auditing.springboot.AuditingData;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Entity
 @Table(name = "roles", schema = "auth")
 public class RoleEntity extends AuditingData implements Serializable {
