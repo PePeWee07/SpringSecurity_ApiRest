@@ -28,7 +28,7 @@ import org.springframework.core.Ordered;
 
 import com.ucacue.UcaApp.config.filter.JwtTokenValidator;
 import com.ucacue.UcaApp.service.admin.impl.AdminManagerServiceImpl;
-import com.ucacue.UcaApp.service.token.TokenService;
+import com.ucacue.UcaApp.service.token.impl.TokenServiceImpl;
 import com.ucacue.UcaApp.util.token.CustomJwtAuthenticationEntryPoint;
 import com.ucacue.UcaApp.util.token.JwtUtils;
 
@@ -47,7 +47,7 @@ public class SecurityConfig {
     private CustomJwtAuthenticationEntryPoint customjwtAuthenticationEntryPoint;
 
     @Autowired
-    TokenService tokenService;
+    TokenServiceImpl tokenService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {

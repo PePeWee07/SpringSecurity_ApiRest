@@ -1,23 +1,10 @@
 package com.ucacue.UcaApp.service.token;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import jakarta.servlet.http.HttpServletRequest;
 
-import com.ucacue.UcaApp.model.entity.RevokedToken;
-import com.ucacue.UcaApp.repository.RevokedTokenRepository;
+public interface TokenService {
 
-@Service
-public class TokenService {
-
-    @Autowired
-    private RevokedTokenRepository revokedTokenRepository;
-
-    public void revokeToken(String token, String email) {
-        RevokedToken revokedToken = new RevokedToken(token, email);
-        revokedTokenRepository.save(revokedToken);
-    }
-
-    public boolean isTokenRevoked(String token) {
-        return revokedTokenRepository.existsByToken(token);
-    }
+    void revokeToken(String token, String email);
+    boolean isTokenRevoked(String token);
+    String extractTokenFromRequest(HttpServletRequest request);
 }

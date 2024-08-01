@@ -8,7 +8,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -74,41 +73,16 @@ public class AuthenticationController {
         }
     }
 
-    // @PostMapping("/log-out")
-    // public ResponseEntity<?> logoutUser(Authentication authentication) {
-    //     try {
-    //         String username = authentication.getName();
-    //         String email = authentication.getPrincipal().toString();
-    //         // tokenService.revokeToken(username, email);
-    //         return ResponseEntity.ok("Successfully logged out");
-    //     } catch (Exception e) {
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Logout failed");
-    //     }
-    // }
-
     @PostMapping("/log-out")
     public ResponseEntity<?> logoutUser(HttpServletRequest request) {
         try {
-            // Obtiene el token desde el encabezado Authorization
-            String token = extractTokenFromRequest(request);
-
-            // Obtener el correo electrónico del usuario desde el contexto de seguridad
+            String token = tokenService.extractTokenFromRequest(request);
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
-            // Revocar el token en la base de datos
             tokenService.revokeToken(token, username);
 
             return ResponseEntity.ok(Map.of("message", "Successfully logged out"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Logout failed");
         }
-    }
-
-    private String extractTokenFromRequest(HttpServletRequest request) {
-        String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
     }
 }

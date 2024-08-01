@@ -8,13 +8,15 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+import com.ucacue.UcaApp.service.auditing.springboot.AuditingData;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "revoked_tokens")
-public class RevokedToken {
+public class RevokedTokenEntity extends AuditingData {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +32,7 @@ public class RevokedToken {
     private LocalDateTime revokedAt;
 
     // Constructor que acepta token y email
-    public RevokedToken(String token, String email) {
+    public RevokedTokenEntity(String token, String email) {
         this.token = token;
         this.email = email;
         this.revokedAt = LocalDateTime.now();

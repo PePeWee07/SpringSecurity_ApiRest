@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import com.ucacue.UcaApp.exception.token.MissingTokenException;
 import com.ucacue.UcaApp.service.token.TokenService;
+import com.ucacue.UcaApp.service.token.impl.TokenServiceImpl;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.ucacue.UcaApp.util.token.JwtUtils;
@@ -35,7 +36,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
     @Autowired
     TokenService tokenService;
 
-    public JwtTokenValidator(JwtUtils jwtUtils, TokenService tokenService) {
+    public JwtTokenValidator(JwtUtils jwtUtils, TokenServiceImpl tokenService) {
         this.jwtUtils = jwtUtils;
         this.tokenService = tokenService;
     }
