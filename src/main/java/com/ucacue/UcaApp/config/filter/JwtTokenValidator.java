@@ -5,6 +5,7 @@ import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,7 +16,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import com.ucacue.UcaApp.exception.token.MissingTokenException;
-
+import com.ucacue.UcaApp.service.token.TokenService;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.ucacue.UcaApp.util.token.JwtUtils;
@@ -30,9 +31,13 @@ public class JwtTokenValidator extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenValidator.class);
 
     private JwtUtils jwtUtils;
+    
+    @Autowired
+    TokenService tokenService;
 
-    public JwtTokenValidator(JwtUtils jwtUtils) {
+    public JwtTokenValidator(JwtUtils jwtUtils, TokenService tokenService) {
         this.jwtUtils = jwtUtils;
+        this.tokenService = tokenService;
     }
 
     @Override
@@ -49,8 +54,16 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             return;
         }
 
+        jwtToken = jwtToken.replace("Bearer ", "");
+
+        if (tokenService.isTokenRevoked(jwtToken)) {
+            SecurityContextHolder.clearContext();
+            logger.error("Token has been revoked");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token has been revoked");
+            return;
+        }
+
         try {
-            jwtToken = jwtToken.replace("Bearer ", "");
             DecodedJWT decodedJWT = jwtUtils.validateToken(jwtToken);
             String username = jwtUtils.getUsernameFromToken(decodedJWT);
             String authorities = jwtUtils.getClaimFromToken(decodedJWT, "authorities").asString();

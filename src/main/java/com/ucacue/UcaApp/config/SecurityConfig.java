@@ -28,6 +28,7 @@ import org.springframework.core.Ordered;
 
 import com.ucacue.UcaApp.config.filter.JwtTokenValidator;
 import com.ucacue.UcaApp.service.admin.impl.AdminManagerServiceImpl;
+import com.ucacue.UcaApp.service.token.TokenService;
 import com.ucacue.UcaApp.util.token.CustomJwtAuthenticationEntryPoint;
 import com.ucacue.UcaApp.util.token.JwtUtils;
 
@@ -44,6 +45,9 @@ public class SecurityConfig {
 
     @Autowired
     private CustomJwtAuthenticationEntryPoint customjwtAuthenticationEntryPoint;
+
+    @Autowired
+    TokenService tokenService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -65,7 +69,7 @@ public class SecurityConfig {
                     //endpoints - NO ESPECIFICADOS
                     http.anyRequest().authenticated();
                 })
-                .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class)
+                .addFilterBefore(new JwtTokenValidator(jwtUtils, tokenService), BasicAuthenticationFilter.class)
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(customjwtAuthenticationEntryPoint))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));
