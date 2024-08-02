@@ -74,6 +74,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/log-out")
+    @Operation(summary = "Cierre de sesion", description = "Anula el Token.")
     public ResponseEntity<?> logoutUser(HttpServletRequest request) {
         try {
             String token = tokenService.extractTokenFromRequest(request);

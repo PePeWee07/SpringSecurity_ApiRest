@@ -1,5 +1,9 @@
 package com.ucacue.UcaApp.service.token.impl;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -31,5 +35,28 @@ public class TokenServiceImpl implements TokenService {
             return bearerToken.substring(7);
         }
         return null;
+    }
+
+    @Override
+    public List<RevokedTokenEntity> findAllRevokedToken() {
+        return revokedTokenRepository.findAll();
+    }
+
+    @Override
+    public RevokedTokenEntity findRevokedTokenById(Long id) {
+        return revokedTokenRepository.findById(id).orElseThrow(() -> new RuntimeException("Id no encontrado"));
+    }
+
+    @Override
+    public Optional<RevokedTokenEntity> findRevokedTokenByEmail(String email) {
+        RevokedTokenEntity revokedTokenEntity = revokedTokenRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Email no encontrado"));
+        return Optional.of(revokedTokenEntity);
+    }
+
+     public List<RevokedTokenEntity> getTokensRevokedBetween(LocalDateTime startDate, LocalDateTime endDate) {
+        if (startDate == null || endDate == null) {
+            return revokedTokenRepository.findAll();
+        }
+        return revokedTokenRepository.findAllByRevokedAtBetween(startDate, endDate);
     }
 }
