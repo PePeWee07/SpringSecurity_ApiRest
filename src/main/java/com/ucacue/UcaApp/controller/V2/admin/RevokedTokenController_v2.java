@@ -29,8 +29,6 @@ public class RevokedTokenController_v2 {
     @Autowired
     private TokenService tokenService;
 
-    //Revocar Token
-
     //Listar Tokens Revocados
     @GetMapping("/revokedTokens")
     @PreAuthorize("hasRole('ADMIN')")

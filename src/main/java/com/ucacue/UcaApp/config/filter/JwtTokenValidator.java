@@ -5,7 +5,6 @@ import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,6 +15,8 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import com.ucacue.UcaApp.exception.token.MissingTokenException;
+import com.ucacue.UcaApp.model.entity.UserEntity;
+import com.ucacue.UcaApp.repository.UserRepository;
 import com.ucacue.UcaApp.service.token.TokenService;
 import com.ucacue.UcaApp.service.token.impl.TokenServiceImpl;
 import com.auth0.jwt.exceptions.JWTVerificationException;
@@ -31,14 +32,14 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenValidator.class);
 
-    private JwtUtils jwtUtils;
-    
-    @Autowired
-    TokenService tokenService;
+    private final JwtUtils jwtUtils;
+    private final TokenService tokenService;
+    private final UserRepository userRepository;
 
-    public JwtTokenValidator(JwtUtils jwtUtils, TokenServiceImpl tokenService) {
+    public JwtTokenValidator(JwtUtils jwtUtils, TokenServiceImpl tokenService, UserRepository userRepository) {
         this.jwtUtils = jwtUtils;
         this.tokenService = tokenService;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -57,6 +58,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
         jwtToken = jwtToken.replace("Bearer ", "");
 
+        // Token revocation check (Logout)
         if (tokenService.isTokenRevoked(jwtToken)) {
             SecurityContextHolder.clearContext();
             logger.error("Token has been revoked");
@@ -67,6 +69,17 @@ public class JwtTokenValidator extends OncePerRequestFilter {
         try {
             DecodedJWT decodedJWT = jwtUtils.validateToken(jwtToken);
             String username = jwtUtils.getUsernameFromToken(decodedJWT);
+
+            // Verifica el estado del usuario
+            UserEntity user = userRepository.findByEmail(username).orElseThrow(() -> new RuntimeException("User not found"));
+            if (!user.isEnabled() || !user.isAccountNonLocked() || !user.isAccountNonExpired() || !user.isCredentialsNonExpired()) {
+                tokenService.revokeToken(jwtToken, user.getEmail());
+                SecurityContextHolder.clearContext();
+                logger.error("User account is locked or disabled");
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User account is locked or disabled");
+                return;
+            }
+
             String authorities = jwtUtils.getClaimFromToken(decodedJWT, "authorities").asString();
             Collection<? extends GrantedAuthority> authoritiesList = AuthorityUtils
                     .commaSeparatedStringToAuthorityList(authorities);
