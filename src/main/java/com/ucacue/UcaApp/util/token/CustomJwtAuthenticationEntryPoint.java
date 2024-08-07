@@ -10,6 +10,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ucacue.UcaApp.exception.token.InvalidJwtTokenException;
 import com.ucacue.UcaApp.exception.token.MissingTokenException;
 import com.ucacue.UcaApp.web.response.TokenError.ApiTokenErrorResponse;
 import com.ucacue.UcaApp.web.response.TokenError.TokenErrorDetail;
@@ -68,7 +69,15 @@ public class CustomJwtAuthenticationEntryPoint implements AuthenticationEntryPoi
             errorResponse = new ApiTokenErrorResponse(
                     HttpServletResponse.SC_BAD_REQUEST,
                     errors,
-                    "Missing or empty token"
+                    exception.getMessage()
+            );
+        } else if (exception instanceof InvalidJwtTokenException) {
+            logger.error("Invalid token due to user state: {}", exception.getMessage());
+            errors.add(new TokenErrorDetail(exception.getMessage()));
+            errorResponse = new ApiTokenErrorResponse(
+                    HttpServletResponse.SC_UNAUTHORIZED,
+                    errors,
+                    exception.getMessage()
             );
         }else {
             logger.error("Token Error: {}", exception.getMessage());

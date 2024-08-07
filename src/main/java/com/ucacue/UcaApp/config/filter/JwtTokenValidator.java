@@ -14,6 +14,8 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.ucacue.UcaApp.exception.token.InvalidJwtTokenException;
 import com.ucacue.UcaApp.exception.token.MissingTokenException;
 import com.ucacue.UcaApp.model.entity.UserEntity;
 import com.ucacue.UcaApp.repository.UserRepository;
@@ -51,7 +53,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
         String jwtToken = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (jwtToken == null || jwtToken.isEmpty() || !jwtToken.startsWith("Bearer ")) {
-            request.setAttribute("exception", new MissingTokenException("JWT token is missing or empty"));
+            request.setAttribute("exception", new MissingTokenException("-Missing or empty token"));
             filterChain.doFilter(request, response);
             return;
         }
@@ -62,7 +64,8 @@ public class JwtTokenValidator extends OncePerRequestFilter {
         if (tokenService.isTokenRevoked(jwtToken)) {
             SecurityContextHolder.clearContext();
             logger.error("Token has been revoked");
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token has been revoked");
+            response.getWriter().write("{\"error\": \"Token has been revoked\"}");
+            response.getWriter().flush();
             return;
         }
 
@@ -75,9 +78,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             if (!user.isEnabled() || !user.isAccountNonLocked() || !user.isAccountNonExpired() || !user.isCredentialsNonExpired()) {
                 tokenService.revokeToken(jwtToken, user.getEmail());
                 SecurityContextHolder.clearContext();
-                logger.error("User account is locked or disabled");
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User account is locked or disabled");
-                return;
+                throw new InvalidJwtTokenException("Token has been revoked due to user state");
             }
 
             String authorities = jwtUtils.getClaimFromToken(decodedJWT, "authorities").asString();
@@ -91,6 +92,12 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             SecurityContextHolder.clearContext();
             logger.error("JWT verification failed: {}", e.getMessage());
             request.setAttribute("exception", e);
+        } catch (InvalidJwtTokenException e) {
+            request.setAttribute("exception", e);
+            SecurityContextHolder.clearContext();
+            logger.error("Token has been revoked due to user state: {}", e.getMessage());
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
+            return;
         }
 
         filterChain.doFilter(request, response);
