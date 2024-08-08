@@ -74,7 +74,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             String username = jwtUtils.getUsernameFromToken(decodedJWT);
 
             // Verifica el estado del usuario
-            UserEntity user = userRepository.findByEmail(username).orElseThrow(() -> new RuntimeException("User not found"));
+            UserEntity user = userRepository.findByEmail(username).orElseThrow(() -> new RuntimeException("User not found in Database"));
             if (!user.isEnabled() || !user.isAccountNonLocked() || !user.isAccountNonExpired() || !user.isCredentialsNonExpired()) {
                 tokenService.revokeToken(jwtToken, user.getEmail());
                 SecurityContextHolder.clearContext();
@@ -98,6 +98,10 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             logger.error("Token has been revoked due to user state: {}", e.getMessage());
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
             return;
+        } catch (Exception e) {
+            SecurityContextHolder.clearContext();
+            logger.error("Error on TokenValidator: {}", e.getMessage());
+            request.setAttribute("exception", e);
         }
 
         filterChain.doFilter(request, response);
