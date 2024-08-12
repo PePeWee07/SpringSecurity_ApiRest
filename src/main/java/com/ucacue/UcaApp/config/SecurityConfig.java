@@ -27,7 +27,9 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.core.Ordered;
 
 import com.ucacue.UcaApp.config.filter.JwtTokenValidator;
+import com.ucacue.UcaApp.repository.UserRepository;
 import com.ucacue.UcaApp.service.admin.impl.AdminManagerServiceImpl;
+import com.ucacue.UcaApp.service.token.impl.TokenServiceImpl;
 import com.ucacue.UcaApp.util.token.CustomJwtAuthenticationEntryPoint;
 import com.ucacue.UcaApp.util.token.JwtUtils;
 
@@ -45,6 +47,13 @@ public class SecurityConfig {
     @Autowired
     private CustomJwtAuthenticationEntryPoint customjwtAuthenticationEntryPoint;
 
+    @Autowired
+    TokenServiceImpl tokenService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
@@ -52,7 +61,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(http -> {
                     //endpoints públicos
-                    http.requestMatchers(HttpMethod.POST, "/auth/**").permitAll();
+                    http.requestMatchers(HttpMethod.POST, "/auth/log-in").permitAll();
+                    http.requestMatchers(HttpMethod.POST, "/auth/log-out").permitAll();
 
                     // Condicionalmente permitir acceso a Swagger según la propiedad
                     if (swaggerEnabled) {
@@ -65,7 +75,7 @@ public class SecurityConfig {
                     //endpoints - NO ESPECIFICADOS
                     http.anyRequest().authenticated();
                 })
-                .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class)
+                .addFilterBefore(new JwtTokenValidator(jwtUtils, tokenService, userRepository), BasicAuthenticationFilter.class)
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(customjwtAuthenticationEntryPoint))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));

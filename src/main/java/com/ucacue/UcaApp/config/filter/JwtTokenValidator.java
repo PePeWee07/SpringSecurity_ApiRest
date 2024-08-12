@@ -14,8 +14,13 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
-import com.ucacue.UcaApp.exception.token.MissingTokenException;
 
+import com.ucacue.UcaApp.exception.token.InvalidJwtTokenException;
+import com.ucacue.UcaApp.exception.token.MissingTokenException;
+import com.ucacue.UcaApp.model.entity.UserEntity;
+import com.ucacue.UcaApp.repository.UserRepository;
+import com.ucacue.UcaApp.service.token.TokenService;
+import com.ucacue.UcaApp.service.token.impl.TokenServiceImpl;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.ucacue.UcaApp.util.token.JwtUtils;
@@ -29,10 +34,14 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenValidator.class);
 
-    private JwtUtils jwtUtils;
+    private final JwtUtils jwtUtils;
+    private final TokenService tokenService;
+    private final UserRepository userRepository;
 
-    public JwtTokenValidator(JwtUtils jwtUtils) {
+    public JwtTokenValidator(JwtUtils jwtUtils, TokenServiceImpl tokenService, UserRepository userRepository) {
         this.jwtUtils = jwtUtils;
+        this.tokenService = tokenService;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -44,15 +53,34 @@ public class JwtTokenValidator extends OncePerRequestFilter {
         String jwtToken = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (jwtToken == null || jwtToken.isEmpty() || !jwtToken.startsWith("Bearer ")) {
-            request.setAttribute("exception", new MissingTokenException("JWT token is missing or empty"));
+            request.setAttribute("exception", new MissingTokenException("-Missing or empty token"));
             filterChain.doFilter(request, response);
             return;
         }
 
+        jwtToken = jwtToken.replace("Bearer ", "");
+
+        // Token revocation check (Logout)
+        if (tokenService.isTokenRevoked(jwtToken)) {
+            SecurityContextHolder.clearContext();
+            logger.error("Token has been revoked");
+            response.getWriter().write("{\"error\": \"Token has been revoked\"}");
+            response.getWriter().flush();
+            return;
+        }
+
         try {
-            jwtToken = jwtToken.replace("Bearer ", "");
             DecodedJWT decodedJWT = jwtUtils.validateToken(jwtToken);
             String username = jwtUtils.getUsernameFromToken(decodedJWT);
+
+            // Verifica el estado del usuario
+            UserEntity user = userRepository.findByEmail(username).orElseThrow(() -> new RuntimeException("User not found in Database"));
+            if (!user.isEnabled() || !user.isAccountNonLocked() || !user.isAccountNonExpired() || !user.isCredentialsNonExpired()) {
+                tokenService.revokeToken(jwtToken, user.getEmail());
+                SecurityContextHolder.clearContext();
+                throw new InvalidJwtTokenException("Token has been revoked due to user state");
+            }
+
             String authorities = jwtUtils.getClaimFromToken(decodedJWT, "authorities").asString();
             Collection<? extends GrantedAuthority> authoritiesList = AuthorityUtils
                     .commaSeparatedStringToAuthorityList(authorities);
@@ -63,6 +91,16 @@ public class JwtTokenValidator extends OncePerRequestFilter {
         } catch (JWTVerificationException e) {
             SecurityContextHolder.clearContext();
             logger.error("JWT verification failed: {}", e.getMessage());
+            request.setAttribute("exception", e);
+        } catch (InvalidJwtTokenException e) {
+            request.setAttribute("exception", e);
+            SecurityContextHolder.clearContext();
+            logger.error("Token has been revoked due to user state: {}", e.getMessage());
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
+            return;
+        } catch (Exception e) {
+            SecurityContextHolder.clearContext();
+            logger.error("Error on TokenValidator: {}", e.getMessage());
             request.setAttribute("exception", e);
         }
 

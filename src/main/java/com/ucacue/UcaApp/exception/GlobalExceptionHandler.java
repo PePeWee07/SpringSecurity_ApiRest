@@ -337,5 +337,6 @@ public class GlobalExceptionHandler {
 
     // Se controla desde CustomJwtAuthenticationEntryPoint()
     // Por que: Las excepciones ocurren antes de que el controlador las maneje
+    // Por lo tanto, se manejan en el punto de entrada de autenticación personalizado
     
 }

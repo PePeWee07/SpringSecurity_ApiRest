@@ -258,6 +258,7 @@ SELECT audit.audit_table('auth.roles');
 SELECT audit.audit_table('auth.users');
 SELECT audit.audit_table('auth.roles_permissions');
 SELECT audit.audit_table('auth.user_roles');
+SELECT audit.audit_table('auth.revoked_tokens');
 
 -------------------------------------------- INSERTAR DATOS --------------------------------------------
 -- Insertar permisos
