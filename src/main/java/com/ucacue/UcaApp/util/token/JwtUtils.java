@@ -1,5 +1,7 @@
 package com.ucacue.UcaApp.util.token;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
@@ -43,6 +45,7 @@ public class JwtUtils {
                     .withIssuedAt(new Date())
                     // .withExpiresAt(new Date(System.currentTimeMillis() + 1800000)) // 30 minutes
                     .withExpiresAt(new Date(System.currentTimeMillis() + 28800000)) // 8 hours
+                    // .withExpiresAt(new Date(System.currentTimeMillis() + 60000)) // 1 min
                     .withJWTId(UUID.randomUUID().toString())
                     .withNotBefore(new Date(System.currentTimeMillis()))
                     .sign(algorithm);
@@ -78,6 +81,15 @@ public class JwtUtils {
         } catch (Exception e) {
             throw e;
         }
+    }
+
+    public LocalDateTime getExpiryDateFromToken(DecodedJWT token) {
+        Claim expClaim = token.getClaim("exp");
+        if (expClaim.isNull()) {
+            throw new RuntimeException("Token does not have an expiration claim");
+        }
+        Date expiryDate = expClaim.asDate();
+        return LocalDateTime.ofInstant(expiryDate.toInstant(), ZoneId.systemDefault());
     }
 
     public String getUsernameFromToken(DecodedJWT token) {
