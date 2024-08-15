@@ -18,4 +18,5 @@ public interface TokenService {
     RevokedTokenEntity findRevokedTokenById(Long id);
     Optional<RevokedTokenEntity> findRevokedTokenByEmail(String email);
     List<RevokedTokenEntity> getTokensRevokedBetween(LocalDateTime startDate, LocalDateTime endDate);
+    public void checkAndCleanExpiredRevokedTokens();
 }

@@ -8,17 +8,43 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.ucacue.UcaApp.model.entity.RevokedTokenEntity;
 import com.ucacue.UcaApp.repository.RevokedTokenRepository;
 import com.ucacue.UcaApp.service.token.TokenService;
+import com.ucacue.UcaApp.util.token.JwtUtils;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class TokenServiceImpl implements TokenService {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TokenService.class);
+
     @Autowired
     private RevokedTokenRepository revokedTokenRepository;
+
+    @Autowired
+    private JwtUtils jwtUtils;
+
+    public void checkAndCleanExpiredRevokedTokens() {
+        LocalDateTime Datenow = LocalDateTime.now();
+        for (RevokedTokenEntity revokedToken : revokedTokenRepository.findAll()) {
+            // Decodifica el token
+            DecodedJWT decodedJWT = JWT.decode(revokedToken.getToken());
+            
+            // Obtén la fecha de expiración del token
+            LocalDateTime expiryDate = jwtUtils.getExpiryDateFromToken(decodedJWT);
+
+             // Si la fecha actual es posterior a la fecha de expiración, elimina el token
+            if (Datenow.isAfter(expiryDate)) {
+                revokedTokenRepository.delete(revokedToken);
+                revokedTokenRepository.flush();
+                logger.info("Token succefully deleted: ");
+            }
+        }
+    }
 
     public void revokeToken(String token, String email) {
         RevokedTokenEntity revokedToken = new RevokedTokenEntity(token, email);

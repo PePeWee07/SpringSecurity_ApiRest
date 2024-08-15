@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ucacue.UcaApp.model.entity.RevokedTokenEntity;
 import com.ucacue.UcaApp.service.token.TokenService;
+import com.ucacue.UcaApp.service.token.impl.TokenCleanupService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,6 +29,23 @@ public class RevokedTokenController_v2 {
 
     @Autowired
     private TokenService tokenService;
+
+    @Autowired
+    private TokenCleanupService tokenCleanupService;
+
+    //Ejecutar limpieza manual
+    @GetMapping("/revokedTokens/cleanup")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Limpiar tokens revocados", description = "Limpia los tokens expirados manualmente.")
+    public ResponseEntity<String> runCleanup() {
+        try {
+            tokenCleanupService.runCleanupManually();
+            return ResponseEntity.ok("Manual cleanup executed successfully.");
+        } catch (Exception e) {
+            logger.info("Error: {@GET /revokedTokens/cleanup}", e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
     //Listar Tokens Revocados
     @GetMapping("/revokedTokens")
