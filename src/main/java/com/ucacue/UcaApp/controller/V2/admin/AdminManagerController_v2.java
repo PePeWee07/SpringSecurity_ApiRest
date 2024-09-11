@@ -34,20 +34,44 @@ public class AdminManagerController_v2 {
 
     @Autowired
     private AdminMangerService adminMangerService;
-    
+
+    /* 
+        ? Paginacion Basica
+        * GET /users/page/1?pageSize=5
+        ? Paginación con tamaño de página personalizado
+        * GET /users/page/1?pageSize=5
+        ? Paginación con orden por un campo personalizado
+        * GET /users/page/0?pageSize=10&sortBy=username
+        ? Paginación con orden descendente
+        * GET /users/page/0?pageSize=10&sortBy=username&direction=desc 
+    */
+
     @GetMapping("/users/page/{page}")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Tabla de Usuarios", description = "Listado de 10 Usuarios por pagina.")
-    public ResponseEntity<Page<UserResponseDto>> findAllWithPage(@PathVariable int page) {
-        int pageSize = 10;
-        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("id").ascending());
+    @Operation(summary = "Tabla de Usuarios", description = "Listado paginado de Usuarios.")
+    public ResponseEntity<Page<UserResponseDto>> findAllWithPage(
+        @PathVariable int page,
+        @RequestParam(defaultValue = "10") int pageSize,
+        @RequestParam(required = false) String sortBy,
+        @RequestParam(defaultValue = "asc") String direction) {
+
+        // Si no se especifica 'sortBy', se ordenará por defecto por 'id'
+        Sort sort = Sort.by("id");
+        if (sortBy != null && !sortBy.isEmpty()) {
+            sort = Sort.by(sortBy);
+        }
+        
+        // Ajuste de la dirección de orden (ascendente o descendente)
+        sort = "desc".equalsIgnoreCase(direction) ? sort.descending() : sort.ascending();
+        
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
 
         try {
             Page<UserResponseDto> userPage = adminMangerService.findAllForPage(pageable);
             return ResponseEntity.ok(userPage);
         } catch (Exception e) {
-            logger.info("Error: {@GET /users/page/{page}}", e.getMessage());
-            throw e;
+            logger.error("Error al obtener la página de usuarios: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
