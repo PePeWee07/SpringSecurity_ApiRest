@@ -37,9 +37,9 @@ public class AdminManagerController_v2 {
 
     /* 
         ? Paginacion Basica
-        * GET /users/page/1?pageSize=5
+        * GET /users/page/0
         ? Paginación con tamaño de página personalizado
-        * GET /users/page/1?pageSize=5
+        * GET /users/page/0?pageSize=5
         ? Paginación con orden por un campo personalizado
         * GET /users/page/0?pageSize=10&sortBy=username
         ? Paginación con orden descendente
@@ -52,14 +52,10 @@ public class AdminManagerController_v2 {
     public ResponseEntity<Page<UserResponseDto>> findAllWithPage(
         @PathVariable int page,
         @RequestParam(defaultValue = "10") int pageSize,
-        @RequestParam(required = false) String sortBy,
+        @RequestParam(defaultValue = "id") String sortBy,
         @RequestParam(defaultValue = "asc") String direction) {
 
-        // Si no se especifica 'sortBy', se ordenará por defecto por 'id'
-        Sort sort = Sort.by("id");
-        if (sortBy != null && !sortBy.isEmpty()) {
-            sort = Sort.by(sortBy);
-        }
+        Sort sort = Sort.by(sortBy);
         
         // Ajuste de la dirección de orden (ascendente o descendente)
         sort = "desc".equalsIgnoreCase(direction) ? sort.descending() : sort.ascending();
