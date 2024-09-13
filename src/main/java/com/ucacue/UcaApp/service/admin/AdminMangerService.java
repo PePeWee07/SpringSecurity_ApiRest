@@ -26,8 +26,6 @@ public interface AdminMangerService {
 
     List<UserResponseDto> findAll();
 
-    Page<UserResponseDto> findAllForPage(Pageable pageable);
-
     UserResponseDto getUserById(Long id);
 
     UserResponseDto findByEmail(String email);
@@ -39,4 +37,12 @@ public interface AdminMangerService {
     UserResponseDto update(Long id, AdminUserManagerRequestDto userRequestDto);
 
     boolean exists(Long id);
+
+    Page<UserResponseDto> findAllWithFilters(
+        String name,
+        String lastName,
+        String email,
+        String dni,
+        Pageable pageable
+    );
 }

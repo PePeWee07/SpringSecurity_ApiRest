@@ -43,9 +43,10 @@ public class AdminManagerController_v2 {
         ? Paginación con orden por un campo personalizado
         * GET /users/page/0?pageSize=10&sortBy=username
         ? Paginación con orden descendente
-        * GET /users/page/0?pageSize=10&sortBy=username&direction=desc 
+        * GET /users/page/0?pageSize=10&sortBy=username&direction=desc
+        ? Filtrar por nombre
+        * GET /users/page/0?name=John
     */
-
     @GetMapping("/users/page/{page}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Tabla de Usuarios", description = "Listado paginado de Usuarios.")
@@ -53,7 +54,11 @@ public class AdminManagerController_v2 {
         @PathVariable int page,
         @RequestParam(defaultValue = "10") int pageSize,
         @RequestParam(defaultValue = "id") String sortBy,
-        @RequestParam(defaultValue = "asc") String direction) {
+        @RequestParam(defaultValue = "asc") String direction,
+        @RequestParam(required = false) String dni,
+        @RequestParam(required = false) String email,
+        @RequestParam(required = false) String name,
+        @RequestParam(required = false) String lastName) {
 
         Sort sort = Sort.by(sortBy);
         
@@ -63,11 +68,11 @@ public class AdminManagerController_v2 {
         Pageable pageable = PageRequest.of(page, pageSize, sort);
 
         try {
-            Page<UserResponseDto> userPage = adminMangerService.findAllForPage(pageable);
+            Page<UserResponseDto> userPage = adminMangerService.findAllWithFilters(name, lastName, email, dni, pageable);
             return ResponseEntity.ok(userPage);
         } catch (Exception e) {
             logger.error("Error al obtener la página de usuarios: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            throw e;
         }
     }
 

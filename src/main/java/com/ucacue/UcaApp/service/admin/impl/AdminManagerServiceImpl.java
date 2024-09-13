@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +27,7 @@ import com.ucacue.UcaApp.model.mapper.UserMapper;
 import com.ucacue.UcaApp.repository.UserRepository;
 import com.ucacue.UcaApp.service.admin.AdminMangerService;
 import com.ucacue.UcaApp.util.RoleEntityFetcher;
+import com.ucacue.UcaApp.util.UserSpecificationFilter;
 import com.ucacue.UcaApp.util.UserStatusValidator;
 import com.ucacue.UcaApp.util.token.JwtUtils;
 import com.ucacue.UcaApp.util.token.PasswordEncoderUtil;
@@ -193,13 +194,6 @@ public class AdminManagerServiceImpl implements AdminMangerService, UserDetailsS
 
     @Transactional(readOnly = true)
     @Override
-    public Page<UserResponseDto> findAllForPage(Pageable pageable) {
-        return userRepository.findAll(pageable)
-                .map(userMapper::mapToUserResponseDto);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
     public UserResponseDto getUserById(Long id) {
         return userRepository.findById(id)
                 .map(userMapper::mapToUserResponseDto)
@@ -238,20 +232,14 @@ public class AdminManagerServiceImpl implements AdminMangerService, UserDetailsS
                 .orElseThrow(() -> new UserNotFoundException(email, UserNotFoundException.SearchType.EMAIL));
     }
 
+    @Override
+    @Transactional
+    public Page<UserResponseDto> findAllWithFilters(String name, String lastName, String email, String dni, Pageable pageable) {
+        Specification<UserEntity> spec = UserSpecificationFilter.filterUsers(name, lastName, email, dni);
+
+        Page<UserEntity> userPage = userRepository.findAll(spec, pageable);
+
+        return userPage.map(userMapper::mapToUserResponseDto);
+    }
+
 }
-
-
-    // PARA ALTA CONCURRENCIA DE USUARIOS REALIZANDO MUCHAS PETICIONES USAR CACHE
-    // @Override
-    // public UserDetails loadUserByUsername(String email) throws
-    // UsernameNotFoundException {
-    // return cache.computeIfAbsent(email, this::findUserByEmail);
-    // }
-    // private UserDetails findUserByEmail(String email) {
-    // UserEntity userEntity = userRepository.findByEmail(email)
-    // .orElseThrow(() -> new UsernameNotFoundException("User not found with email:
-    // " + email));
-    // return new org.springframework.security.core.userdetails.User(
-    // userEntity.getEmail(), userEntity.getPassword(),
-    // getAuthorities(userEntity.getRoles()));
-    // }
