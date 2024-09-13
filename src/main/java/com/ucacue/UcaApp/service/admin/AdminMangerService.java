@@ -38,11 +38,5 @@ public interface AdminMangerService {
 
     boolean exists(Long id);
 
-    Page<UserResponseDto> findAllWithFilters(
-        String name,
-        String lastName,
-        String email,
-        String dni,
-        Pageable pageable
-    );
+    Page<UserResponseDto> findAllWithFilters(UserResponseDto userResponseDto, Pageable pageable);
 }

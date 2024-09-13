@@ -7,35 +7,38 @@ import com.ucacue.UcaApp.model.entity.UserEntity;
 import jakarta.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class UserSpecificationFilter {
 
-    public static Specification<UserEntity> filterUsers(String name, String lastName, String email, String dni) {
+    public static Specification<UserEntity> filterUsers(Map<String, Object> filters) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if (name != null && !name.isEmpty()) {
-                // Convertir ambos valores a minúsculas para una búsqueda insensible a mayúsculas
-                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + name.toLowerCase() + "%"));
-            }
-
-            if (lastName != null && !lastName.isEmpty()) {
-                // Búsqueda insensible a mayúsculas para lastName
-                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("lastName")), "%" + lastName.toLowerCase() + "%"));
-            }
-
-            if (email != null && !email.isEmpty()) {
-                // Búsqueda insensible a mayúsculas para email
-                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("email")), "%" + email.toLowerCase() + "%"));
-            }
-
-            if (dni != null && !dni.isEmpty()) {
-                // En este caso, si quieres permitir coincidencias parciales de DNI
-                predicates.add(criteriaBuilder.like(root.get("dni"), "%" + dni + "%"));
-            }
+            filters.forEach((field, value) -> {
+                if (value != null && !value.toString().isEmpty()) {
+                    switch (field) {
+                        case "name":
+                            predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + value.toString().toLowerCase() + "%"));
+                            break;
+                        case "lastName":
+                            predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("lastName")), "%" + value.toString().toLowerCase() + "%"));
+                            break;
+                        case "email":
+                            predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get(field)), "%" + value.toString().toLowerCase() + "%"));
+                            break;
+                        case "dni":
+                            predicates.add(criteriaBuilder.like(root.get(field), "%" + value.toString() + "%"));
+                            break;
+                        // agregar más campos
+                        default:
+                            // Ignorar otros campos o hacer algo por defecto
+                            break;
+                    }
+                }
+            });
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
-
     }
 }

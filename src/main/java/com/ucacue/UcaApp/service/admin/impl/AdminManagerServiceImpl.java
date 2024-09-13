@@ -234,9 +234,15 @@ public class AdminManagerServiceImpl implements AdminMangerService, UserDetailsS
 
     @Override
     @Transactional
-    public Page<UserResponseDto> findAllWithFilters(String name, String lastName, String email, String dni, Pageable pageable) {
-        Specification<UserEntity> spec = UserSpecificationFilter.filterUsers(name, lastName, email, dni);
+    public Page<UserResponseDto> findAllWithFilters(UserResponseDto userResponseDto, Pageable pageable) {
+        
+        Map<String, Object> filters = new HashMap<>();
+        filters.put("name", userResponseDto.getName());
+        filters.put("lastName", userResponseDto.getLastName());
+        filters.put("email", userResponseDto.getEmail());
+        filters.put("dni", userResponseDto.getDni());
 
+        Specification<UserEntity> spec = UserSpecificationFilter.filterUsers(filters);
         Page<UserEntity> userPage = userRepository.findAll(spec, pageable);
 
         return userPage.map(userMapper::mapToUserResponseDto);

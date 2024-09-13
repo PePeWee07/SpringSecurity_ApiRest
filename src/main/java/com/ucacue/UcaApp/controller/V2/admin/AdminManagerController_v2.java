@@ -55,10 +55,7 @@ public class AdminManagerController_v2 {
         @RequestParam(defaultValue = "10") int pageSize,
         @RequestParam(defaultValue = "id") String sortBy,
         @RequestParam(defaultValue = "asc") String direction,
-        @RequestParam(required = false) String dni,
-        @RequestParam(required = false) String email,
-        @RequestParam(required = false) String name,
-        @RequestParam(required = false) String lastName) {
+        @ModelAttribute UserResponseDto filterDto) {
 
         Sort sort = Sort.by(sortBy);
         
@@ -68,7 +65,7 @@ public class AdminManagerController_v2 {
         Pageable pageable = PageRequest.of(page, pageSize, sort);
 
         try {
-            Page<UserResponseDto> userPage = adminMangerService.findAllWithFilters(name, lastName, email, dni, pageable);
+            Page<UserResponseDto> userPage = adminMangerService.findAllWithFilters(filterDto, pageable);
             return ResponseEntity.ok(userPage);
         } catch (Exception e) {
             logger.error("Error al obtener la página de usuarios: {}", e.getMessage(), e);
