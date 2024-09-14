@@ -1,5 +1,6 @@
 package com.ucacue.UcaApp.service.admin.impl;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -235,12 +236,21 @@ public class AdminManagerServiceImpl implements AdminMangerService, UserDetailsS
     @Override
     @Transactional
     public Page<UserResponseDto> findAllWithFilters(UserResponseDto userResponseDto, Pageable pageable) {
-        
+       
+        // Obtener los campos no nulos del objeto UserResponseDto
         Map<String, Object> filters = new HashMap<>();
-        filters.put("name", userResponseDto.getName());
-        filters.put("lastName", userResponseDto.getLastName());
-        filters.put("email", userResponseDto.getEmail());
-        filters.put("dni", userResponseDto.getDni());
+        for (Field field : UserResponseDto.class.getDeclaredFields()) {
+            field.setAccessible(true); //* Hacer accesibles los campos privados
+            try {
+                Object value = field.get(userResponseDto); 
+
+                if (value != null && !value.toString().isEmpty()) {
+                    filters.put(field.getName(), value);
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
 
         Specification<UserEntity> spec = UserSpecificationFilter.filterUsers(filters);
         Page<UserEntity> userPage = userRepository.findAll(spec, pageable);

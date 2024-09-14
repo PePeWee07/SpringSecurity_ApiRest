@@ -47,6 +47,7 @@ public class AdminManagerController_v2 {
         ? Filtrar por nombre
         * GET /users/page/0?name=John
     */
+    
     @GetMapping("/users/page/{page}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Tabla de Usuarios", description = "Listado paginado de Usuarios.")

@@ -19,17 +19,41 @@ public class UserSpecificationFilter {
                 if (value != null && !value.toString().isEmpty()) {
                     switch (field) {
                         case "name":
-                            predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + value.toString().toLowerCase() + "%"));
+                            predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get(field)), "%" + value.toString().toLowerCase() + "%"));
                             break;
                         case "lastName":
-                            predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("lastName")), "%" + value.toString().toLowerCase() + "%"));
+                            predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get(field)), "%" + value.toString().toLowerCase() + "%"));
                             break;
                         case "email":
+                            predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get(field)), "%" + value.toString().toLowerCase() + "%"));
+                            break;
+                        case "phoneNumber":
+                            predicates.add(criteriaBuilder.like(root.get(field), "%" + value.toString() + "%"));
+                            break;
+                        case "address":
                             predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get(field)), "%" + value.toString().toLowerCase() + "%"));
                             break;
                         case "dni":
                             predicates.add(criteriaBuilder.like(root.get(field), "%" + value.toString() + "%"));
                             break;
+                        // case "enabled":
+                        //     predicates.add(criteriaBuilder.equal(root.get(field), value));
+                        //     break;
+                        // case "account_non_expired":
+                        //     predicates.add(criteriaBuilder.equal(root.get(field), value));
+                        //     break;
+                        // case "account_non_locked":
+                        //     predicates.add(criteriaBuilder.equal(root.get(field), value));
+                        //     break;
+                        // case "credentials_non_expired":
+                        //     predicates.add(criteriaBuilder.equal(root.get(field), value));
+                        //     break;
+                        // case "roles":
+                        //     predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get(field)), "%" + value.toString().toLowerCase() + "%"));
+                        //     break;
+                        // case "accountExpiryDate":
+                        //     predicates.add(createDateEqualPredicate(root, criteriaBuilder, field, value));
+                        //     break;
                         // agregar más campos
                         default:
                             // Ignorar otros campos o hacer algo por defecto
@@ -41,4 +65,4 @@ public class UserSpecificationFilter {
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }
-}
+}    

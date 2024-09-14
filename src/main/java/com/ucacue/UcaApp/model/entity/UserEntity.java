@@ -90,7 +90,6 @@ public class UserEntity extends AuditingData implements UserDetails {
     @Override
     public boolean isAccountNonExpired() {
         if (this.accountExpiryDate != null) {
-            System.out.println("accountExpiryDate: " + new Date().before(this.accountExpiryDate));
             return new Date().before(this.accountExpiryDate);
         }
         return this.accountNonExpired;
