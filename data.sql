@@ -260,6 +260,8 @@ SELECT audit.audit_table('auth.roles_permissions');
 SELECT audit.audit_table('auth.user_roles');
 SELECT audit.audit_table('auth.revoked_tokens');
 
+-------------------------------------------- Instalar la extensión --------------------------------------------
+CREATE EXTENSION IF NOT EXISTS unaccent;
 -------------------------------------------- INSERTAR DATOS --------------------------------------------
 -- Insertar permisos
 INSERT INTO auth.permissions (name) VALUES ('CREATE');

@@ -8,6 +8,8 @@ import jakarta.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.text.Normalizer;
+
 
 public class UserSpecificationFilter {
 
@@ -17,12 +19,16 @@ public class UserSpecificationFilter {
 
             filters.forEach((field, value) -> {
                 if (value != null && !value.toString().isEmpty()) {
+                    String normalizedValue = removeDiacritics(value.toString().toLowerCase());
                     switch (field) {
+                        case "id":
+                            predicates.add(criteriaBuilder.like(root.get(field), "%" + value.toString() + "%"));
+                            break;
                         case "name":
-                            predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get(field)), "%" + value.toString().toLowerCase() + "%"));
+                            predicates.add(criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower(root.get(field))),"%" + normalizedValue + "%"));
                             break;
                         case "lastName":
-                            predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get(field)), "%" + value.toString().toLowerCase() + "%"));
+                            predicates.add(criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower(root.get(field))),"%" + normalizedValue + "%"));
                             break;
                         case "email":
                             predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get(field)), "%" + value.toString().toLowerCase() + "%"));
@@ -31,7 +37,7 @@ public class UserSpecificationFilter {
                             predicates.add(criteriaBuilder.like(root.get(field), "%" + value.toString() + "%"));
                             break;
                         case "address":
-                            predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get(field)), "%" + value.toString().toLowerCase() + "%"));
+                            predicates.add(criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower(root.get(field))),"%" + normalizedValue + "%"));
                             break;
                         case "dni":
                             predicates.add(criteriaBuilder.like(root.get(field), "%" + value.toString() + "%"));
@@ -56,7 +62,7 @@ public class UserSpecificationFilter {
                         //     break;
                         // agregar más campos
                         default:
-                            // Ignorar otros campos o hacer algo por defecto
+                            // Ignorar otros campos o hacer algo por defecto é
                             break;
                     }
                 }
@@ -64,5 +70,11 @@ public class UserSpecificationFilter {
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
+    }
+
+    public static String removeDiacritics(String input) {
+        input = Normalizer.normalize(input, Normalizer.Form.NFD);
+        input = input.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+        return input;
     }
 }    
