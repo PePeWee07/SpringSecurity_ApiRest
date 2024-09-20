@@ -8,7 +8,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
-import com.ucacue.UcaApp.model.dto.permission.PermissionResponseDto;
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
 import com.ucacue.UcaApp.model.dto.user.AdminUserManagerRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
@@ -42,10 +41,15 @@ public interface UserMapper {
         dto.setUsername(userEntity.getUsername());
 
         // Mapear authorities
-        List<PermissionResponseDto> authorities = userEntity.getAuthorities().stream()
-            .map(authority -> new PermissionResponseDto(null, authority.getAuthority()))
+        List<Map<String, String>> authorities = userEntity.getAuthorities().stream()
+            .map(authority -> {
+                Map<String, String> map = new HashMap<>();
+                map.put("name", authority.getAuthority());
+                return map;
+            })
             .collect(Collectors.toList());
         dto.setAuthorities(authorities);
+
 
         List<RoleResponseDto> roleDTOList = userEntity.getRoles().stream()
             .map(RoleMapper.INSTANCE::rolesEntityToRoleResponseDto)
@@ -56,7 +60,10 @@ public interface UserMapper {
         return dto;
     }
 
-    //-----------------MAPEO PARA USUARIO CON PRIVILEGIOS-----------------
+    // ? Se separan los mapeadores ya que unos tienen la posibilidad de cambair el 
+    // ? estado de la cuentas la cual el propio usuario no debe poder hacerlo el mismo
+
+    //-----------------MAPEO PARA USUARIO SOLO CON PRIVILEGIOS-----------------
     default UserEntity mapToAdminUserEntity(AdminUserManagerRequestDto UserRequestDto, @Context RoleEntityFetcher RoleEntityFetcher, @Context PasswordEncoderUtil passwordEncoderUtil) {
         UserEntity entity = new UserEntity();
         entity.setId(UserRequestDto.getId());
@@ -109,7 +116,7 @@ public interface UserMapper {
         entity.setRoles(roles);
     }
 
-    //-----------------MAPEO DE ACTUALIZACION DE PERFIL DEL PROPIO USUARIO-----------------
+    //-----------------MAPEO DE ACTUALIZACION DE PERFIL POR EL MISMO USUARIO-----------------
     default UserEntity mapToUserEntity(UserRequestDto UserRequestDto, @Context PasswordEncoderUtil passwordEncoderUtil) {
         UserEntity entity = new UserEntity();
         entity.setId(UserRequestDto.getId());

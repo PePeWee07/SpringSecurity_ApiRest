@@ -6,7 +6,6 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import com.ucacue.UcaApp.model.dto.permission.PermissionResponseDto;
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
 
 @Getter
@@ -46,7 +45,7 @@ public class UserResponseDto implements Serializable{
 
     private Date accountExpiryDate;
 
-    private List<PermissionResponseDto> authorities;
+    private List<?> authorities;
 
     private String username;
 
