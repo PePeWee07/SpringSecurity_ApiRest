@@ -1,7 +1,7 @@
 version: '3.9'
 services:
   app:
-    container_name: ucacue-oauth-api
+    container_name: ucacue_api_dev
     build:
       context: .
       dockerfile: Dockerfile.dev
@@ -17,7 +17,7 @@ services:
         condition: service_healthy
 
   db:
-    container_name: db-oauth
+    container_name: db
     image: postgres:13.3
     ports:
       - "5434:5432"
