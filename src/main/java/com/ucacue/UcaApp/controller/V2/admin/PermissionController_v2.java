@@ -55,7 +55,7 @@ public class PermissionController_v2 {
     }
 
     @PostMapping("/permission")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') && hasAuthority('CREATE')")
     @Operation(summary = "Crear Permiso", description = "Crea un nuevo Permiso.")
     public ResponseEntity<ApiResponse> create(@Valid @RequestBody PermissionRequestDto permissionRequestDto) {
         try {
@@ -70,7 +70,7 @@ public class PermissionController_v2 {
     }
 
     @PutMapping("/permission/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') && hasAuthority('UPDATE')")
     @Operation(summary = "Actualizar Permiso", description = "Actualiza los datos de un Permiso.")
     public ResponseEntity<ApiResponse> update(@PathVariable Long id,
             @Valid @RequestBody PermissionRequestDto permissionRequestDto) {
@@ -86,7 +86,7 @@ public class PermissionController_v2 {
     }
 
     @DeleteMapping("/permission/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') && hasAuthority('DELETE')")
     @Operation(summary = "Eliminar Permiso", description = "Elimina un Permiso.")
     public ResponseEntity<Void> deletePermission(@PathVariable Long id) {
         permissionService.deletePermissionById(id);

@@ -3,7 +3,6 @@ package com.ucacue.UcaApp.controller.V2.auditing;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.data.domain.Page;
 import com.ucacue.UcaApp.service.auditing.postgresql.impl.LoggedActionServiceImpl;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,10 +32,13 @@ public class LoggedActionController {
     // Obtener todas las acciones
     @GetMapping("/actions")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Lista de Acciones", description = "Listado de toda las Acciones.")
-    public ResponseEntity<List<Map<String, Object>>> getAllLoggedActions() {
+    @Operation(summary = "Lista de Acciones", description = "Listado de toda las Acciones con page size.")
+    public ResponseEntity<Page<Map<String, Object>>> getAllLoggedActions(
+        @RequestParam(value = "page", defaultValue = "0") int page,
+        @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
+    ) {
         try {
-            return ResponseEntity.ok(loggedActionService.findAll());
+            return ResponseEntity.ok(loggedActionService.findAll(page, pageSize));
         } catch (Exception e) {
             logger.info("Error: {@GET /audit/actions}", e.getMessage());
             return ResponseEntity.notFound().build();
@@ -89,8 +91,12 @@ public class LoggedActionController {
     @GetMapping("/actions/by-relid/{relid}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Listar Acciones por Relid", description = "Obtiene una lista de todas las acciones por Relid.")
-    public ResponseEntity<List<Map<String, Object>>> getActionsByRelid(@PathVariable Long relid) {
-        List<Map<String, Object>> actions = loggedActionService.findByRelid(relid);
+    public ResponseEntity<Page<Map<String, Object>>> getActionsByRelid(
+        @PathVariable Long relid,
+        @RequestParam(value = "page", defaultValue = "0") int page,
+        @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
+        ) {
+        Page<Map<String, Object>> actions = loggedActionService.findByRelid(relid, page, pageSize);
         if (actions != null && !actions.isEmpty()) {
             return ResponseEntity.ok(actions);
         } else {
@@ -103,8 +109,12 @@ public class LoggedActionController {
     @GetMapping("/actions/by-table/{table}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Listar Acciones por Tabla", description = "Obtiene una lista de todas las acciones por Tabla.")
-    public ResponseEntity<List<Map<String, Object>>> getActionsByTable(@PathVariable String table) {
-        List<Map<String, Object>> actions = loggedActionService.findByTable(table);
+    public ResponseEntity<Page<Map<String, Object>>> getActionsByTable(
+        @PathVariable String table,
+        @RequestParam(value = "page", defaultValue = "0") int page,
+        @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
+        ) {
+        Page<Map<String, Object>> actions = loggedActionService.findByTable(table, page, pageSize);
         if (actions != null && !actions.isEmpty()) {
             return ResponseEntity.ok(actions);
         } else {
@@ -117,10 +127,13 @@ public class LoggedActionController {
     @GetMapping("/actions/search")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Búsqueda global en acciones", description = "Obtiene una lista de todas las acciones que coinciden con el parámetro de búsqueda en cualquier columna.")
-    public ResponseEntity<List<Map<String, Object>>> searchActions(
-            @RequestParam String searchParam) {
+    public ResponseEntity<Page<Map<String, Object>>> searchActions(
+        @RequestParam String searchParam,
+        @RequestParam(value = "page", defaultValue = "0") int page,
+        @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
+        ) {
 
-        List<Map<String, Object>> actions = loggedActionService.findByGlobalSearch(searchParam);
+        Page<Map<String, Object>> actions = loggedActionService.findByGlobalSearch(searchParam, page, pageSize);
         if (actions != null && !actions.isEmpty()) {
             return ResponseEntity.ok(actions);
         } else {
@@ -128,5 +141,41 @@ public class LoggedActionController {
             return ResponseEntity.noContent().build();
         }
     }
+
+    // paginar acciones por fecha
+    @GetMapping("/actions/by-date")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Listar Acciones por Fecha", description = "Obtiene una lista de todas las acciones por Fecha.")
+    public ResponseEntity<Page<Map<String, Object>>> getActionsByDate(
+        @RequestParam(value = "startDate", required = false) String startDate,
+        @RequestParam(value = "endDate", required = false) String endDate,
+        @RequestParam(value = "page", defaultValue = "0") int page,
+        @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
+    ) {
+        try {
+            Page<Map<String, Object>> actions = loggedActionService.findByDate(startDate, endDate, page, pageSize);
+            if (actions != null && !actions.isEmpty()) {
+                return ResponseEntity.ok(actions);
+            } else {
+                logger.info("Error: {@GET /audit/actions/by-date}", "No se encontraron acciones en el rango de fechas proporcionado.");
+                return ResponseEntity.noContent().build();  
+            }
+        } catch (Exception e) {
+            logger.error("Error: {@GET /audit/actions/by-date}", e.getMessage());
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    // obtener el numero de logs por cada tabla
+    @GetMapping("/actions/count")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Map<String, Object>>> getTableCounts() {
+        try {
+            return ResponseEntity.ok(loggedActionService.countActionsByTable());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     
 }

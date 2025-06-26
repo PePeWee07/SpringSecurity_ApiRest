@@ -61,7 +61,7 @@ public class RolController_v2 {
     }
 
     @PostMapping("/rol")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') && hasAuthority('CREATE')")
     @Operation(summary = "Crear Rol", description = "Crea un nuevo Rol.")
     public ResponseEntity<ApiResponse> create(@Valid @RequestBody RoleRequestDto roleRequestDto) {
         try {
@@ -75,7 +75,7 @@ public class RolController_v2 {
     }
 
     @PutMapping("/rol/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') && hasAuthority('UPDATE')")
     @Operation(summary = "Actualizar Rol", description = "Actualiza los datos de un Rol.")
     public ResponseEntity<ApiResponse> update(@PathVariable Long id,
             @Valid @RequestBody RoleRequestDto roleRequestDto) {
@@ -90,7 +90,7 @@ public class RolController_v2 {
     }
 
     @DeleteMapping("/role/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') && hasAuthority('DELETE')")
     @Operation(summary = "Eliminar Rol", description = "Elimina un Rol.")
     public ResponseEntity<?> deleteRole(@PathVariable Long id) {
         rolService.deleteRoleById(id);

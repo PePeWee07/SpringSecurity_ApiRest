@@ -101,7 +101,7 @@ public class AdminManagerController_v2 {
     }
 
     @PostMapping("/user")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("(hasRole('ADMIN') && hasAuthority('CREATE'))")
     @Operation(summary = "Guardar Usuario", description = "Guardar datos de un Usuario.")
     public ResponseEntity<ApiResponse> create(@Valid @RequestBody AdminUserManagerRequestDto userRequestDto) {
         try {
@@ -115,7 +115,7 @@ public class AdminManagerController_v2 {
     }
 
     @PatchMapping("/user/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("(hasRole('ADMIN') && hasAuthority('UPDATE')) || hasAuthority('UPDATE')")
     @Operation(summary = "Actualziar Usuario", description = "Actualiza los datos del Usuario.")
     public ResponseEntity<ApiResponse> update(@PathVariable Long id,
             @Valid @RequestBody AdminUserManagerRequestDto userRequestDto) {

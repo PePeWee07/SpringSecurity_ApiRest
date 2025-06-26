@@ -48,7 +48,7 @@ public class UserController2_v2 {
     }
 
     @PatchMapping("/editProfile")
-    @PreAuthorize("hasRole('ADMIN') || hasRole('USER')")
+    @PreAuthorize("(hasRole('ADMIN') || hasRole('USER')) || hasAuthority('READ')")
     @Operation(summary = "Actualizar Perfil", description = "Actualiza al perfil del Usuario con su propio token.")
     public ResponseEntity<ApiResponse> updateProfile(@RequestHeader("Authorization") String token, @Valid @RequestBody UserRequestDto userRequestDto) {
         try {
@@ -61,5 +61,14 @@ public class UserController2_v2 {
             throw e;
         }
     }
+
+    // prueba de testing - works
+    @GetMapping("/profile/test")
+    @PreAuthorize("(hasRole('ADMIN') || hasRole('USER')) && hasAuthority('UPDATE')")
+    @Operation(summary = "Ver Perfil", description = "test hola mundo con authority")
+        public String testUserProfile(@RequestHeader("Authorization") String token) {
+            return "Hello World";
+
+        }
 
 }
