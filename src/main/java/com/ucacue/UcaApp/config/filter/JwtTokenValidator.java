@@ -106,4 +106,14 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+
+    // EXCLUIR endpoints públicos
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return path.startsWith("/auth/log-in") ||
+            path.startsWith("/auth/token-refresh") ||
+            path.startsWith("/auth/sign-up") ||
+            path.startsWith("/auth/logout");
+    }
 }

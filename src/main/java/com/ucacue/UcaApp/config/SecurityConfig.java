@@ -63,8 +63,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(http -> {
                     //endpoints públicos
-                    http.requestMatchers(HttpMethod.POST, "/auth/log-in").permitAll();
-                    http.requestMatchers(HttpMethod.POST, "/auth/log-out").permitAll();
+                    http.requestMatchers(HttpMethod.POST, "/auth/**").permitAll();
 
                     // Condicionalmente permitir acceso a Swagger según la propiedad
                     if (swaggerEnabled) {

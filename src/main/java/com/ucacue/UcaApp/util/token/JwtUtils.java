@@ -44,8 +44,8 @@ public class JwtUtils {
                     .withClaim("authorities", authorities)
                     .withIssuedAt(new Date())
                     // .withExpiresAt(new Date(System.currentTimeMillis() + 1800000)) // 30 minutes
-                    .withExpiresAt(new Date(System.currentTimeMillis() + 28800000)) // 8 hours
-                    // .withExpiresAt(new Date(System.currentTimeMillis() + 60000)) // 1 min
+                    // .withExpiresAt(new Date(System.currentTimeMillis() + 28800000)) // 8 hours
+                    .withExpiresAt(new Date(System.currentTimeMillis() + 60000)) // 1 min
                     .withJWTId(UUID.randomUUID().toString())
                     .withNotBefore(new Date(System.currentTimeMillis()))
                     .sign(algorithm);
