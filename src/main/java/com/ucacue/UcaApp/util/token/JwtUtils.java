@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -19,6 +20,9 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 
 import org.springframework.beans.factory.annotation.Value;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 @Component
 public class JwtUtils {
 
@@ -27,6 +31,11 @@ public class JwtUtils {
 
     @Value("${security.user-generator}")
     private String userGenerator;
+
+    private long ACCESS_EXPIRATION = 900000; // 30000(30 seg) 300000(5 min) 28800000(8 hours)
+    private long REFRESH_EXPIRATION = 604800000; // 604800000 7 days
+
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public String createToken(Authentication authentication) {
         try {
@@ -39,16 +48,15 @@ public class JwtUtils {
                     .collect(Collectors.joining(","));
 
             return JWT.create()
-                    .withIssuer(userGenerator)
-                    .withSubject(username)
-                    .withClaim("authorities", authorities)
-                    .withIssuedAt(new Date())
-                    // .withExpiresAt(new Date(System.currentTimeMillis() + 1800000)) // 30 minutes
-                    // .withExpiresAt(new Date(System.currentTimeMillis() + 28800000)) // 8 hours
-                    .withExpiresAt(new Date(System.currentTimeMillis() + 60000)) // 1 min
-                    .withJWTId(UUID.randomUUID().toString())
-                    .withNotBefore(new Date(System.currentTimeMillis()))
-                    .sign(algorithm);
+                .withClaim("type", "access")
+                .withIssuer(userGenerator)
+                .withSubject(username)
+                .withClaim("authorities", authorities)
+                .withIssuedAt(new Date())
+                .withExpiresAt(new Date(System.currentTimeMillis() + ACCESS_EXPIRATION))
+                .withJWTId(UUID.randomUUID().toString())
+                .withNotBefore(new Date(System.currentTimeMillis()))
+                .sign(algorithm);
         } catch (Exception e) {
             throw e;
         }
@@ -61,10 +69,11 @@ public class JwtUtils {
             String username = authentication.getName();
 
             return JWT.create()
+                    .withClaim("type", "refresh")
                     .withIssuer(userGenerator)
                     .withSubject(username)
                     .withIssuedAt(new Date())
-                    .withExpiresAt(new Date(System.currentTimeMillis() + 864000000)) // 10 days
+                    .withExpiresAt(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION))
                     .withJWTId(UUID.randomUUID().toString())
                     .withNotBefore(new Date(System.currentTimeMillis()))
                     .sign(algorithm);
@@ -92,16 +101,35 @@ public class JwtUtils {
         return LocalDateTime.ofInstant(expiryDate.toInstant(), ZoneId.systemDefault());
     }
 
+    public boolean isRefreshToken(DecodedJWT decodedJWT) {
+        return Optional.ofNullable(decodedJWT.getClaim("type").asString())
+                .map(type -> type.equals("refresh"))
+                .orElse(false);
+    }
+
     public String getUsernameFromToken(DecodedJWT token) {
-            return token.getSubject().toString();
+        return token.getSubject().toString();
     }
 
     public Claim getClaimFromToken(DecodedJWT token, String claim) {
-            return token.getClaim(claim);
+        return token.getClaim(claim);
     }
 
     public Map<String, Claim> getClaimsFromToken(DecodedJWT token) {
-            return token.getClaims();
+        return token.getClaims();
+    }
+
+    public LocalDateTime getExpirationDate(String refreshToken) {
+        try {
+            DecodedJWT decodedJWT = validateToken(refreshToken);
+            return LocalDateTime.ofInstant(decodedJWT.getExpiresAt().toInstant(), ZoneId.systemDefault());
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    public String hashToken(String token) {
+        return passwordEncoder.encode(token);
     }
 
 }

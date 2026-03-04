@@ -1,22 +1,15 @@
 package com.ucacue.UcaApp.service.token;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import com.ucacue.UcaApp.model.entity.RevokedTokenEntity;
-
-import jakarta.servlet.http.HttpServletRequest;
+import com.ucacue.UcaApp.model.dto.Api.ApiResponse;
+import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
+import com.ucacue.UcaApp.model.entity.RefreshTokenEntity;
 
 public interface TokenService {
 
-    void revokeToken(String token, String email);
-    boolean isTokenRevoked(String token);
-    String extractTokenFromRequest(HttpServletRequest request);
-    
-    List<RevokedTokenEntity> findAllRevokedToken();
-    RevokedTokenEntity findRevokedTokenById(Long id);
-    Optional<RevokedTokenEntity> findRevokedTokenByEmail(String email);
-    List<RevokedTokenEntity> getTokensRevokedBetween(LocalDateTime startDate, LocalDateTime endDate);
-    public void checkAndCleanExpiredRevokedTokens();
+    AuthResponse refreshUserToken(String refreshToken);
+    void revokeToken(String email);
+    RefreshTokenEntity getValidRefreshTokenByJti(String jti);
+    void saveTokenRefresh(RefreshTokenEntity refreshToken);
+    void limitSession(String email);
+    ApiResponse cleanTokenRefreshForUser(String email);
+
 }

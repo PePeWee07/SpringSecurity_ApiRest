@@ -3,8 +3,6 @@ package com.ucacue.UcaApp.controller.V2.auth;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ucacue.UcaApp.model.dto.Api.ApiResponse;
 import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
 import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
 import com.ucacue.UcaApp.model.dto.auth.RefreshTokenRequest;
@@ -41,7 +40,7 @@ public class AuthenticationController {
 
     @PostMapping("/sign-up")
     @Operation(summary = "Registrarce", description = "Registro de nuevo Usuario.")
-    public ResponseEntity<?> register(@RequestBody @Valid UserRequestDto userRequest) {
+    public ResponseEntity<ApiResponse> register(@RequestBody @Valid UserRequestDto userRequest) {
         try {
             return new ResponseEntity<>(adminMangerService.RegisterUser(userRequest), HttpStatus.CREATED);
         } catch (Exception e) {
@@ -52,7 +51,7 @@ public class AuthenticationController {
 
     @PostMapping("/log-in")
     @Operation(summary = "Login", description = "Login de Usuario.")
-    public ResponseEntity<?> loginUser(@RequestBody @Valid AuthLoginRequest authLoginRequest) {
+    public ResponseEntity<AuthResponse> loginUser(@RequestBody @Valid AuthLoginRequest authLoginRequest) {
         try {
             AuthResponse response = adminMangerService.loginUser(authLoginRequest);
             return ResponseEntity.ok(response);
@@ -64,26 +63,27 @@ public class AuthenticationController {
 
     @PostMapping("/token-refresh")
     @Operation(summary = "Refrecar Token", description = "Resfresca el Token.")
-    public ResponseEntity<?> refreshUserToken(@RequestBody @Valid RefreshTokenRequest refreshTokenRequest) {
+    public ResponseEntity<AuthResponse> refreshUserToken(@RequestBody @Valid RefreshTokenRequest refreshTokenRequest) {
         try {
-            AuthResponse response = adminMangerService.refreshUserToken(refreshTokenRequest.refreshToken());
+            AuthResponse response = tokenService.refreshUserToken(refreshTokenRequest.refreshToken());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired refresh token");
+            logger.info("Error: {@POST /token-refresh}", e.getMessage());
+            throw e;
         }
     }
 
     @PostMapping("/log-out")
     @Operation(summary = "Cierre de sesion", description = "Anula el Token.")
-    public ResponseEntity<?> logoutUser(HttpServletRequest request) {
+    public ResponseEntity<ApiResponse> logoutUser(HttpServletRequest request) {
         try {
-            String token = tokenService.extractTokenFromRequest(request);
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            tokenService.revokeToken(token, username);
+            tokenService.revokeToken(username);
 
-            return ResponseEntity.ok(Map.of("message", "Successfully logged out"));
+            return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), null, "Successfully logged out"));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Logout failed");
+            logger.info("Error: {@POST /log-out}", e.getMessage());
+            throw e;
         }
     }
 }

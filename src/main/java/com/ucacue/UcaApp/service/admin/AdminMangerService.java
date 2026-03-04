@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 
+import com.ucacue.UcaApp.model.dto.Api.ApiResponse;
 import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
 import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
 import com.ucacue.UcaApp.model.dto.user.AdminUserManagerRequestDto;
@@ -18,11 +19,9 @@ public interface AdminMangerService {
 
     AuthResponse loginUser(AuthLoginRequest authLoginRequest);
 
-    AuthResponse RegisterUser(UserRequestDto userRequestDto);
+    ApiResponse RegisterUser(UserRequestDto userRequestDto);
 
     Authentication authenticate(String username, String password);
-
-    AuthResponse refreshUserToken(String refreshToken);
 
     List<UserResponseDto> findAll();
 

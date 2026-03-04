@@ -7,11 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import com.ucacue.UcaApp.web.response.ApiResponse;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import com.ucacue.UcaApp.model.dto.Api.ApiResponse;
 import com.ucacue.UcaApp.model.dto.user.AdminUserManagerRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 import com.ucacue.UcaApp.service.admin.AdminMangerService;

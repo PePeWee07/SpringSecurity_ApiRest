@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ucacue.UcaApp.model.dto.Api.ApiResponse;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 import com.ucacue.UcaApp.service.user.UserService;
-import com.ucacue.UcaApp.web.response.ApiResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

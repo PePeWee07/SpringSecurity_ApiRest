@@ -27,10 +27,11 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.core.Ordered;
 
 import com.ucacue.UcaApp.config.filter.JwtTokenValidator;
+import com.ucacue.UcaApp.exception.token.CustomJwtAuthenticationEntryPoint;
 import com.ucacue.UcaApp.repository.UserRepository;
 import com.ucacue.UcaApp.service.admin.impl.AdminManagerServiceImpl;
 import com.ucacue.UcaApp.service.token.impl.TokenServiceImpl;
-import com.ucacue.UcaApp.util.token.CustomJwtAuthenticationEntryPoint;
+import com.ucacue.UcaApp.util.security.CustomAccessDeniedHandler;
 import com.ucacue.UcaApp.util.token.JwtUtils;
 
 @Configuration
@@ -46,6 +47,9 @@ public class SecurityConfig {
 
     @Autowired
     private CustomJwtAuthenticationEntryPoint customjwtAuthenticationEntryPoint;
+
+    @Autowired
+    private CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Autowired
     TokenServiceImpl tokenService;
@@ -78,7 +82,9 @@ public class SecurityConfig {
                 })
                 .addFilterBefore(new JwtTokenValidator(jwtUtils, tokenService, userRepository), BasicAuthenticationFilter.class)
                 .exceptionHandling(exceptionHandling -> exceptionHandling
-                        .authenticationEntryPoint(customjwtAuthenticationEntryPoint))
+                    .authenticationEntryPoint(customjwtAuthenticationEntryPoint)
+                    .accessDeniedHandler(customAccessDeniedHandler)
+                )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         return httpSecurity.build();

@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ucacue.UcaApp.model.dto.Api.ApiResponse;
 import com.ucacue.UcaApp.model.dto.role.RoleRequestDto;
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
 import com.ucacue.UcaApp.service.rol.RolService;
-import com.ucacue.UcaApp.web.response.ApiResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -93,7 +93,12 @@ public class RolController_v2 {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Eliminar Rol", description = "Elimina un Rol.")
     public ResponseEntity<?> deleteRole(@PathVariable Long id) {
-        rolService.deleteRoleById(id);
-        return ResponseEntity.noContent().build();
+        try {
+            rolService.deleteRoleById(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            logger.info("Error: {@DELETE /role/{id}}", e.getMessage());
+            throw e;
+        }
     }
 }

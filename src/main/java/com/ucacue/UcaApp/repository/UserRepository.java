@@ -15,4 +15,5 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>, JpaSpec
     boolean existsByEmail(String email);
 
     List<UserEntity> findByRolesId(Long roleId);
+    boolean existsByDni(String dni);
 }

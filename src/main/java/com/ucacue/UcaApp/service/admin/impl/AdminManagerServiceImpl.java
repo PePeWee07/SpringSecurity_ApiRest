@@ -17,16 +17,19 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.ucacue.UcaApp.exception.auth.UserNotFoundAuthException;
 import com.ucacue.UcaApp.exception.crud.UserAlreadyExistsException;
 import com.ucacue.UcaApp.exception.crud.UserNotFoundException;
+import com.ucacue.UcaApp.model.dto.Api.ApiResponse;
 import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
 import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
 import com.ucacue.UcaApp.model.dto.user.AdminUserManagerRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
+import com.ucacue.UcaApp.model.entity.RefreshTokenEntity;
 import com.ucacue.UcaApp.model.entity.RoleEntity;
 import com.ucacue.UcaApp.model.entity.UserEntity;
 import com.ucacue.UcaApp.model.mapper.UserMapper;
 import com.ucacue.UcaApp.repository.UserRepository;
 import com.ucacue.UcaApp.service.admin.AdminMangerService;
+import com.ucacue.UcaApp.service.token.TokenService;
 import com.ucacue.UcaApp.util.RoleEntityFetcher;
 import com.ucacue.UcaApp.util.UserSpecificationFilter;
 import com.ucacue.UcaApp.util.UserStatusValidator;
@@ -39,7 +42,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.User;
 
 @Service
@@ -49,6 +51,9 @@ public class AdminManagerServiceImpl implements AdminMangerService, UserDetailsS
     private UserRepository userRepository;
 
     @Autowired
+    private TokenService tokenService;
+
+    @Autowired
     private UserMapper userMapper;
 
     @Autowired
@@ -56,9 +61,6 @@ public class AdminManagerServiceImpl implements AdminMangerService, UserDetailsS
 
     @Autowired
     private JwtUtils jwtUtils;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private PasswordEncoderUtil passwordEncoderUtil;
@@ -71,7 +73,7 @@ public class AdminManagerServiceImpl implements AdminMangerService, UserDetailsS
     public UserResponseDto findByEmailWithAuth(String email) {
         return userRepository.findByEmail(email)
                 .map(userMapper::mapToUserResponseDto)
-                .orElseThrow(() -> new UserNotFoundAuthException("Invalid username or password"));
+                .orElseThrow(() -> new UserNotFoundAuthException("Invalid credentials"));
     }
 
     @Transactional(readOnly = true)
@@ -79,7 +81,7 @@ public class AdminManagerServiceImpl implements AdminMangerService, UserDetailsS
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         try {
             UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundAuthException("Invalid username or password"));
+                .orElseThrow(() -> new UserNotFoundAuthException("Invalid credentials"));
 
         return new User(
                 userEntity.getEmail(),
@@ -104,8 +106,26 @@ public class AdminManagerServiceImpl implements AdminMangerService, UserDetailsS
         Authentication authentication = authenticate(username, password);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        UserEntity user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UserNotFoundException(username, UserNotFoundException.SearchType.EMAIL));
+
+        // Límite de sesiones activas
+        tokenService.limitSession(username);
+
+        // Crear tokens
         String accessToken = jwtUtils.createToken(authentication);
         String refreshToken = jwtUtils.createRefreshToken(authentication);
+        
+        DecodedJWT decoded = jwtUtils.validateToken(refreshToken);
+        RefreshTokenEntity refreshTokenEntity = new RefreshTokenEntity();
+        refreshTokenEntity.setJti(decoded.getId());
+        refreshTokenEntity.setUser(user);
+        refreshTokenEntity.setTokenRefreshHash(passwordEncoderUtil.encodePassword(refreshToken));
+        refreshTokenEntity.setRevoked(false);
+        refreshTokenEntity.setExpiresAt(jwtUtils.getExpirationDate(refreshToken));
+
+        tokenService.saveTokenRefresh(refreshTokenEntity);
+
         return new AuthResponse(username, "User logged in successfully", accessToken, refreshToken, true);
     }
 
@@ -116,74 +136,49 @@ public class AdminManagerServiceImpl implements AdminMangerService, UserDetailsS
 
         UserStatusValidator.validate(userDetails); // Validar el estado del usuario
 
-        if (!passwordEncoder.matches(password, userDetails.getPassword())) {
-            throw new BadCredentialsException("Invalid username or password");
-        }
+        passwordEncoderUtil.verifyPassword(password, userDetails.getPassword());
 
         return new UsernamePasswordAuthenticationToken(username, password, userDetails.getAuthorities());
     }
 
     @Transactional
     @Override
-    public AuthResponse RegisterUser(UserRequestDto userRequestDto) {
-        try {
-            UserEntity userEntity = userMapper.mapToUserEntity(userRequestDto, passwordEncoderUtil);
+    public ApiResponse RegisterUser(UserRequestDto userRequestDto) {
+        UserEntity userEntity = userMapper.mapToUserEntity(userRequestDto, passwordEncoderUtil);
 
-            // Set the account states to true
-            userEntity.setEnabled(true);
-            userEntity.setAccountNonExpired(true);
-            userEntity.setAccountNonLocked(true);
-            userEntity.setCredentialsNonExpired(true);
+        // Set the account states to true
+        userEntity.setEnabled(true);
+        userEntity.setAccountNonExpired(true);
+        userEntity.setAccountNonLocked(true);
+        userEntity.setCredentialsNonExpired(true);
 
-            if (userRepository.existsByEmail(userEntity.getEmail())) {
-                throw new UserAlreadyExistsException(userEntity.getEmail());
-            }
-
-            // Asignar el rol por defecto "USER" (ID 2)
-            RoleEntity defaultRole = roleEntityFetcher.mapRoleIdToRolesEntity(2L);
-            Set<RoleEntity> roles = new HashSet<>(userEntity.getRoles());
-            roles.add(defaultRole);
-            userEntity.setRoles(roles);
-
-            // Establecer el auditor manualmente si no está autenticado
-            Optional<String> currentAuditor = auditorAware.getCurrentAuditor();
-            if (currentAuditor.isEmpty()) {
-                userEntity.setCreatedBy(userEntity.getEmail());
-            }
-
-            userEntity = userRepository.save(userEntity);
-
-            Authentication authentication = new UsernamePasswordAuthenticationToken(userEntity.getEmail(), userEntity.getPassword(), userEntity.getAuthorities());
-            
-            String accessToken = jwtUtils.createToken(authentication);
-            String refreshToken = jwtUtils.createRefreshToken(authentication);
-
-            return new AuthResponse(userEntity.getEmail(), "User created successfully", accessToken, refreshToken, true);
-        } catch (Exception e) {
-            throw e;
+        if (userRepository.existsByEmail(userEntity.getEmail())) {
+            throw new UserAlreadyExistsException( "Email: " + userEntity.getEmail() + " already exists");
         }
+
+        if (userRepository.existsByDni(userEntity.getDni())) {
+            throw new UserAlreadyExistsException("DNI: " + userEntity.getDni() + " already exists");
+        }
+
+        // Asignar el rol por defecto "USER" (ID 2)
+        RoleEntity defaultRole = roleEntityFetcher.mapRoleIdToRolesEntity(2L);
+        Set<RoleEntity> roles = new HashSet<>(userEntity.getRoles());
+        roles.add(defaultRole);
+        userEntity.setRoles(roles);
+
+        // Establecer el auditor manualmente si no está autenticado
+        Optional<String> currentAuditor = auditorAware.getCurrentAuditor();
+        if (currentAuditor.isEmpty()) {
+            userEntity.setCreatedBy(userEntity.getEmail());
+        }
+
+        userEntity = userRepository.save(userEntity);
+
+        ApiResponse response = new ApiResponse(201, userEntity.getEmail(), "User created successfully");
+        return response;
     }
+
     
-    @Transactional
-    @Override
-    public AuthResponse refreshUserToken(String refreshToken) {
-        DecodedJWT decodedJWT = jwtUtils.validateToken(refreshToken);
-        String username = jwtUtils.getUsernameFromToken(decodedJWT);
-
-        UserDetails userDetails = this.loadUserByUsername(username);
-
-        if (userDetails == null) {
-            throw new UsernameNotFoundException("User not found");
-        }
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        String newAccessToken = jwtUtils.createToken(authentication);
-        String newRefreshToken = jwtUtils.createRefreshToken(authentication);
-
-        return new AuthResponse(username, "Token refreshed successfully", newAccessToken, newRefreshToken, true);
-    }
 
     @Transactional(readOnly = true)
     @Override

@@ -84,6 +84,14 @@ public class UserEntity extends AuditingData implements UserDetails {
             @UniqueConstraint(columnNames = { "user_id", "role_id" }) })
     private Set<RoleEntity> roles = new HashSet<>();
 
+    @OneToMany(
+        mappedBy = "user",
+        fetch = FetchType.LAZY,
+        cascade = CascadeType.REMOVE,
+        orphanRemoval = true
+    )
+    private Set<RefreshTokenEntity> refreshTokens = new HashSet<>();
+
     @Column(name = "account_expiry_date")
     private Date accountExpiryDate;
 

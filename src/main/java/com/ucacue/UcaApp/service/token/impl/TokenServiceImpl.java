@@ -1,88 +1,156 @@
 package com.ucacue.UcaApp.service.token.impl;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.ucacue.UcaApp.model.entity.RevokedTokenEntity;
-import com.ucacue.UcaApp.repository.RevokedTokenRepository;
+import com.ucacue.UcaApp.exception.auth.MaxActiveSessionException;
+import com.ucacue.UcaApp.exception.crud.UserNotFoundException;
+import com.ucacue.UcaApp.exception.token.InvalidRefreshTokenException;
+import com.ucacue.UcaApp.model.dto.Api.ApiResponse;
+import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
+import com.ucacue.UcaApp.model.entity.RefreshTokenEntity;
+import com.ucacue.UcaApp.model.entity.UserEntity;
+import com.ucacue.UcaApp.repository.RefreshTokenRepository;
+import com.ucacue.UcaApp.repository.UserRepository;
 import com.ucacue.UcaApp.service.token.TokenService;
 import com.ucacue.UcaApp.util.token.JwtUtils;
-
-import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class TokenServiceImpl implements TokenService {
 
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TokenService.class);
 
+
     @Autowired
-    private RevokedTokenRepository revokedTokenRepository;
+    private RefreshTokenRepository refreshTokenRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private JwtUtils jwtUtils;
 
-    public void checkAndCleanExpiredRevokedTokens() {
-        LocalDateTime Datenow = LocalDateTime.now();
-        for (RevokedTokenEntity revokedToken : revokedTokenRepository.findAll()) {
-            // Decodifica el token
-            DecodedJWT decodedJWT = JWT.decode(revokedToken.getToken());
-            
-            // Obtén la fecha de expiración del token
-            LocalDateTime expiryDate = jwtUtils.getExpiryDateFromToken(decodedJWT);
+    @Value("${max.sessions}")
+    private int MAX_SESSIONS;
 
-             // Si la fecha actual es posterior a la fecha de expiración, elimina el token
-            if (Datenow.isAfter(expiryDate)) {
-                revokedTokenRepository.delete(revokedToken);
-                revokedTokenRepository.flush();
-                logger.info("Token succefully deleted: ");
-            }
+
+    @Transactional
+    @Override
+    public AuthResponse refreshUserToken(String refreshToken) {
+        DecodedJWT decodedJWT = jwtUtils.validateToken(refreshToken);
+
+        if (!jwtUtils.isRefreshToken(decodedJWT)) {
+            throw new RuntimeException("Invalid refresh token");
         }
-    }
 
-    public void revokeToken(String token, String email) {
-        RevokedTokenEntity revokedToken = new RevokedTokenEntity(token, email);
-        revokedTokenRepository.save(revokedToken);
-    }
+        String username = jwtUtils.getUsernameFromToken(decodedJWT);
+        UserEntity user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-    public boolean isTokenRevoked(String token) {
-        return revokedTokenRepository.existsByToken(token);
-    }
+        String jti = decodedJWT.getId();
 
-    public String extractTokenFromRequest(HttpServletRequest request) {
-        String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
+        RefreshTokenEntity storedToken = getValidRefreshTokenByJti(jti);
+
+        if (storedToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+            new InvalidRefreshTokenException("Refresh token expired");
         }
-        return null;
+
+        // ROTACIÓN
+        storedToken.setRevoked(true);
+        saveTokenRefresh(storedToken);
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                user.getEmail(),
+                null,
+                user.getAuthorities());
+
+        String newAccessToken = jwtUtils.createToken(authentication);
+        String newRefreshToken = jwtUtils.createRefreshToken(authentication);
+
+        DecodedJWT newDecoded = jwtUtils.validateToken(newRefreshToken);
+
+        RefreshTokenEntity newToken = new RefreshTokenEntity();
+        newToken.setJti(newDecoded.getId());
+        newToken.setUser(user);
+        newToken.setTokenRefreshHash(jwtUtils.hashToken(newRefreshToken));
+        newToken.setRevoked(false);
+        newToken.setExpiresAt(jwtUtils.getExpirationDate(newRefreshToken));
+
+        saveTokenRefresh(newToken);
+
+        return new AuthResponse(
+                user.getEmail(),
+                "Token refreshed successfully",
+                newAccessToken,
+                newRefreshToken,
+                true);
+    }
+
+    // ---- TOKEN REFRESH ----
+
+    @Override
+    public void revokeToken(String email) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException(email, UserNotFoundException.SearchType.EMAIL));
+        refreshTokenRepository.deleteAllByUser(user);
     }
 
     @Override
-    public List<RevokedTokenEntity> findAllRevokedToken() {
-        return revokedTokenRepository.findAll();
+    public RefreshTokenEntity getValidRefreshTokenByJti(String jti) {
+        RefreshTokenEntity refreshToken = refreshTokenRepository.findByJtiAndRevokedFalse(jti)
+                .orElseThrow(() -> new InvalidRefreshTokenException("Refresh token is invalid"));
+        return refreshToken;
     }
 
     @Override
-    public RevokedTokenEntity findRevokedTokenById(Long id) {
-        return revokedTokenRepository.findById(id).orElseThrow(() -> new RuntimeException("Id no encontrado"));
+    public void saveTokenRefresh(RefreshTokenEntity refreshToken) {
+        refreshTokenRepository.save(refreshToken);
     }
 
     @Override
-    public Optional<RevokedTokenEntity> findRevokedTokenByEmail(String email) {
-        RevokedTokenEntity revokedTokenEntity = revokedTokenRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Email no encontrado"));
-        return Optional.of(revokedTokenEntity);
-    }
+    public void limitSession(String email) {
 
-     public List<RevokedTokenEntity> getTokensRevokedBetween(LocalDateTime startDate, LocalDateTime endDate) {
-        if (startDate == null || endDate == null) {
-            return revokedTokenRepository.findAll();
+        int maxSessions = MAX_SESSIONS > 0 ? MAX_SESSIONS : 1;
+
+        long activeSessions = refreshTokenRepository
+                .countByUserEmailAndRevokedFalseAndExpiresAtAfter(
+                        email,
+                        LocalDateTime.now());
+
+        if (activeSessions >= maxSessions) {
+            throw new MaxActiveSessionException(
+                    "Multiple active sessions, limited to " + maxSessions);
         }
-        return revokedTokenRepository.findAllByRevokedAtBetween(startDate, endDate);
+    }
+
+    // ---- CRON TOKEN REFRESH CLEAN ----
+    @Scheduled(cron = "0 0 * * * ?") // cada hora
+    @Transactional
+    public void cleanUpExpiredRefreshTokens() {
+        refreshTokenRepository.deleteByExpiresAtBefore(LocalDateTime.now());
+        logger.info("Expired refresh tokens cleaned.");
+    }
+
+    @Override
+    @Transactional
+    public ApiResponse cleanTokenRefreshForUser(String email) {
+
+        revokeToken(email);
+
+        return new ApiResponse(
+                HttpStatus.OK.value(),
+                null,
+                "All refresh tokens successfully deleted for user: " + email
+        );
     }
 }

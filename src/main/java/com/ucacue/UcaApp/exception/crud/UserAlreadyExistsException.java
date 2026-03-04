@@ -4,7 +4,7 @@ public class UserAlreadyExistsException extends RuntimeException {
     private String email;
 
     public UserAlreadyExistsException(String email) {
-        super("User already exists with email: " + email);
+        super("User already exists with " + email);
         this.email = email;
     }
 

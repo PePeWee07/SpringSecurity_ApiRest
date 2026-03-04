@@ -6,6 +6,9 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,14 +24,18 @@ public class AdminUserManagerRequestDto implements Serializable{
 
     private String lastName;
 
+    @Email(message = "Must be a well-formed email address")
+    @NotBlank(message = "Email is required")
     private String email;
 
     private String phoneNumber;
 
     private String address;
 
+    @NotBlank(message = "DNI is required")
     private String dni;
 
+    @NotBlank(message = "Password is required")
     private String password;
 
     private  boolean enabled;

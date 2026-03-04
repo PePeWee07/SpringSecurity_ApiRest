@@ -59,24 +59,20 @@ public class JwtTokenValidator extends OncePerRequestFilter {
         }
 
         jwtToken = jwtToken.replace("Bearer ", "");
-
-        // Token revocation check (Logout)
-        if (tokenService.isTokenRevoked(jwtToken)) {
-            SecurityContextHolder.clearContext();
-            logger.error("Token has been revoked");
-            response.getWriter().write("{\"error\": \"Token has been revoked\"}");
-            response.getWriter().flush();
-            return;
-        }
-
+        DecodedJWT decodedJWT = jwtUtils.validateToken(jwtToken);
+        String username = jwtUtils.getUsernameFromToken(decodedJWT);
+        
         try {
-            DecodedJWT decodedJWT = jwtUtils.validateToken(jwtToken);
-            String username = jwtUtils.getUsernameFromToken(decodedJWT);
+            String tokenType = jwtUtils.getClaimFromToken(decodedJWT, "type").asString();
+            if (!"access".equals(tokenType)) {
+                SecurityContextHolder.clearContext();
+                throw new InvalidJwtTokenException("Invalid token type for resource access");
+            }
 
             // Verifica el estado del usuario
             UserEntity user = userRepository.findByEmail(username).orElseThrow(() -> new RuntimeException("User not found in Database"));
             if (!user.isEnabled() || !user.isAccountNonLocked() || !user.isAccountNonExpired() || !user.isCredentialsNonExpired()) {
-                tokenService.revokeToken(jwtToken, user.getEmail());
+                tokenService.revokeToken(user.getEmail());
                 SecurityContextHolder.clearContext();
                 throw new InvalidJwtTokenException("Token has been revoked due to user state");
             }
@@ -88,17 +84,11 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, authoritiesList);
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);
-        } catch (JWTVerificationException e) {
+        } catch (JWTVerificationException | InvalidJwtTokenException e) {
             SecurityContextHolder.clearContext();
-            logger.error("JWT verification failed: {}", e.getMessage());
+            logger.error("JWT error: {}", e.getMessage());
             request.setAttribute("exception", e);
-        } catch (InvalidJwtTokenException e) {
-            request.setAttribute("exception", e);
-            SecurityContextHolder.clearContext();
-            logger.error("Token has been revoked due to user state: {}", e.getMessage());
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
-            return;
-        } catch (Exception e) {
+        }  catch (Exception e) {
             SecurityContextHolder.clearContext();
             logger.error("Error on TokenValidator: {}", e.getMessage());
             request.setAttribute("exception", e);
