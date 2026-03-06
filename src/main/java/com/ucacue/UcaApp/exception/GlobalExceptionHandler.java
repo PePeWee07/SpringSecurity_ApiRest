@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.ucacue.UcaApp.exception.auth.MaxActiveSessionException;
 import com.ucacue.UcaApp.exception.auth.UserNotFoundAuthException;
 import com.ucacue.UcaApp.exception.crud.PermissionNotFoundException;
@@ -523,9 +524,9 @@ public class GlobalExceptionHandler {
         }
 
         // Excepción para manejar errores de token de actualización expirado
-        @ExceptionHandler(com.auth0.jwt.exceptions.TokenExpiredException.class)
+        @ExceptionHandler(TokenExpiredException.class)
         public ResponseEntity<ApiErrorResponse> handleTokenExpiredException(
-                        com.auth0.jwt.exceptions.TokenExpiredException ex) {
+                        TokenExpiredException ex) {
 
                 ApiError errorDetail = new ApiError(
                                 ex.getMessage(),

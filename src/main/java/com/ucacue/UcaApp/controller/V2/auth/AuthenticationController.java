@@ -1,6 +1,5 @@
 package com.ucacue.UcaApp.controller.V2.auth;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
@@ -8,10 +7,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ucacue.UcaApp.model.dto.Api.ApiResponse;
@@ -75,11 +74,9 @@ public class AuthenticationController {
 
     @PostMapping("/log-out")
     @Operation(summary = "Cierre de sesion", description = "Anula el Token.")
-    public ResponseEntity<ApiResponse> logoutUser(HttpServletRequest request) {
+    public ResponseEntity<ApiResponse> logoutUser(@RequestParam String email) {
         try {
-            String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            tokenService.revokeToken(username);
-
+            tokenService.revokeToken(email);
             return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), null, "Successfully logged out"));
         } catch (Exception e) {
             logger.info("Error: {@POST /log-out}", e.getMessage());

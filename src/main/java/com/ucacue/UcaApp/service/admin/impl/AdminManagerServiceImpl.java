@@ -106,7 +106,7 @@ public class AdminManagerServiceImpl implements AdminMangerService, UserDetailsS
         Authentication authentication = authenticate(username, password);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        UserEntity user = userRepository.findByEmail(username)
+        UserEntity user = userRepository.findByEmailWithLock(username)
                 .orElseThrow(() -> new UserNotFoundException(username, UserNotFoundException.SearchType.EMAIL));
 
         // Límite de sesiones activas
@@ -120,7 +120,6 @@ public class AdminManagerServiceImpl implements AdminMangerService, UserDetailsS
         RefreshTokenEntity refreshTokenEntity = new RefreshTokenEntity();
         refreshTokenEntity.setJti(decoded.getId());
         refreshTokenEntity.setUser(user);
-        refreshTokenEntity.setTokenRefreshHash(passwordEncoderUtil.encodePassword(refreshToken));
         refreshTokenEntity.setRevoked(false);
         refreshTokenEntity.setExpiresAt(jwtUtils.getExpirationDate(refreshToken));
 

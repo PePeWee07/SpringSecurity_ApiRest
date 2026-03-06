@@ -58,11 +58,12 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             return;
         }
 
-        jwtToken = jwtToken.replace("Bearer ", "");
-        DecodedJWT decodedJWT = jwtUtils.validateToken(jwtToken);
-        String username = jwtUtils.getUsernameFromToken(decodedJWT);
         
         try {
+            jwtToken = jwtToken.replace("Bearer ", "");
+            DecodedJWT decodedJWT = jwtUtils.validateToken(jwtToken);
+            String username = jwtUtils.getUsernameFromToken(decodedJWT);
+
             String tokenType = jwtUtils.getClaimFromToken(decodedJWT, "type").asString();
             if (!"access".equals(tokenType)) {
                 SecurityContextHolder.clearContext();
@@ -84,7 +85,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, authoritiesList);
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);
-        } catch (JWTVerificationException | InvalidJwtTokenException e) {
+        }  catch (JWTVerificationException | InvalidJwtTokenException e) {
             SecurityContextHolder.clearContext();
             logger.error("JWT error: {}", e.getMessage());
             request.setAttribute("exception", e);
@@ -103,7 +104,6 @@ public class JwtTokenValidator extends OncePerRequestFilter {
         String path = request.getServletPath();
         return path.startsWith("/auth/log-in") ||
             path.startsWith("/auth/token-refresh") ||
-            path.startsWith("/auth/sign-up") ||
-            path.startsWith("/auth/logout");
+            path.startsWith("/auth/sign-up");
     }
 }

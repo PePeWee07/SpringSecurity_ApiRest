@@ -82,7 +82,6 @@ public class TokenServiceImpl implements TokenService {
         RefreshTokenEntity newToken = new RefreshTokenEntity();
         newToken.setJti(newDecoded.getId());
         newToken.setUser(user);
-        newToken.setTokenRefreshHash(jwtUtils.hashToken(newRefreshToken));
         newToken.setRevoked(false);
         newToken.setExpiresAt(jwtUtils.getExpirationDate(newRefreshToken));
 

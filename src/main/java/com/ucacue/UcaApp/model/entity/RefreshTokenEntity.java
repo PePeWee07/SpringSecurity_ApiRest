@@ -8,8 +8,6 @@ import lombok.Setter;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-import com.ucacue.UcaApp.service.auditing.springboot.AuditingData;
-
 @Entity
 @Getter
 @Setter
@@ -17,7 +15,7 @@ import com.ucacue.UcaApp.service.auditing.springboot.AuditingData;
         @Index(name = "idx_refresh_user", columnList = "user_id"),
         @Index(name = "idx_refresh_expires", columnList = "expiresAt")
 })
-public class RefreshTokenEntity extends AuditingData implements Serializable {
+public class RefreshTokenEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -33,10 +31,6 @@ public class RefreshTokenEntity extends AuditingData implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
-
-    @NotNull
-    @Column(nullable = false)
-    private String tokenRefreshHash; // hash BCrypt
 
     @NotNull
     @Column(nullable = false)
