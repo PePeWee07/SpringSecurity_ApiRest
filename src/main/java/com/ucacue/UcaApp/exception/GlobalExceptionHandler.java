@@ -8,6 +8,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.security.authentication.*;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -325,6 +326,22 @@ public class GlobalExceptionHandler {
                 );
 
                 return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
+        }
+
+        @ExceptionHandler(JpaSystemException.class)
+        public ResponseEntity<ApiErrorResponse> handleJpaException(JpaSystemException ex) {
+
+                ApiError error = new ApiError(
+                        ex.getMessage(),
+                        ex.getMostSpecificCause().getMessage()
+                );
+
+                ApiErrorResponse response = new ApiErrorResponse(
+                                HttpStatus.BAD_REQUEST.value(),
+                                "Error coercing value",
+                                List.of(error));
+
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
         // ------------------- Manejo de excepciones de autenticación y autorización -------------------

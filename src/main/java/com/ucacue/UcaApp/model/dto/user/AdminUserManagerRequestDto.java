@@ -3,7 +3,7 @@ package com.ucacue.UcaApp.model.dto.user;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import jakarta.validation.constraints.Email;
@@ -48,5 +48,5 @@ public class AdminUserManagerRequestDto implements Serializable{
 
     private Set<Long> rolesIds;
 
-    private Date accountExpiryDate;
+    private LocalDateTime accountExpiryDate;
 }

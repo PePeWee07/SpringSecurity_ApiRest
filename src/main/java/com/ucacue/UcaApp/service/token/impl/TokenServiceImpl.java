@@ -97,9 +97,10 @@ public class TokenServiceImpl implements TokenService {
 
     // ---- TOKEN REFRESH ----
 
+    @Transactional
     @Override
     public void revokeToken(String email) {
-        UserEntity user = userRepository.findByEmail(email)
+        UserEntity user = userRepository.findByEmailWithLock(email)
                 .orElseThrow(() -> new UserNotFoundException(email, UserNotFoundException.SearchType.EMAIL));
         refreshTokenRepository.deleteAllByUser(user);
     }

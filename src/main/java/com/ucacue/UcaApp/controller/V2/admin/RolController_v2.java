@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ucacue.UcaApp.model.dto.Api.ApiResponse;
 import com.ucacue.UcaApp.model.dto.role.RoleRequestDto;
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
 import com.ucacue.UcaApp.service.rol.RolService;
@@ -47,7 +46,7 @@ public class RolController_v2 {
         }
     }
 
-    @GetMapping("/rol/{id}")
+    @GetMapping("/role/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Busqueda de Rol por ID", description = "Obtiene los datos del Rol.")
     public ResponseEntity<RoleResponseDto> findById(@PathVariable Long id) {
@@ -60,29 +59,27 @@ public class RolController_v2 {
         }
     }
 
-    @PostMapping("/rol")
+    @PostMapping("/role")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Crear Rol", description = "Crea un nuevo Rol.")
-    public ResponseEntity<ApiResponse> create(@Valid @RequestBody RoleRequestDto roleRequestDto) {
+    public ResponseEntity<RoleResponseDto> create(@Valid @RequestBody RoleRequestDto roleRequestDto) {
         try {
             RoleResponseDto savedRol = rolService.save(roleRequestDto);
-            ApiResponse response = new ApiResponse(HttpStatus.CREATED.value(), savedRol, "Rol created successfully");
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            return ResponseEntity.ok(savedRol);
         } catch (Exception e) {
             logger.info("Error: {@POST /rol}", e.getMessage());
             throw e;
         }
     }
 
-    @PutMapping("/rol/{id}")
+    @PutMapping("/role/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Actualizar Rol", description = "Actualiza los datos de un Rol.")
-    public ResponseEntity<ApiResponse> update(@PathVariable Long id,
+    public ResponseEntity<RoleResponseDto> update(@PathVariable Long id,
             @Valid @RequestBody RoleRequestDto roleRequestDto) {
         try {
             RoleResponseDto updatedRol = rolService.update(id, roleRequestDto);
-            ApiResponse response = new ApiResponse(HttpStatus.CREATED.value(), updatedRol, "Rol updated successfully");
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            return ResponseEntity.status(HttpStatus.CREATED).body(updatedRol);
         } catch (Exception e) {
             logger.info("Error: {@PUT /rol/{id}}", e.getMessage());
             throw e;

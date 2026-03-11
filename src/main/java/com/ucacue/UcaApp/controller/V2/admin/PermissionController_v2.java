@@ -5,12 +5,10 @@ import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import com.ucacue.UcaApp.model.dto.Api.ApiResponse;
 import com.ucacue.UcaApp.model.dto.permission.PermissionRequestDto;
 import com.ucacue.UcaApp.model.dto.permission.PermissionResponseDto;
 import com.ucacue.UcaApp.service.permission.PermissionService;
@@ -57,12 +55,10 @@ public class PermissionController_v2 {
     @PostMapping("/permission")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Crear Permiso", description = "Crea un nuevo Permiso.")
-    public ResponseEntity<ApiResponse> create(@Valid @RequestBody PermissionRequestDto permissionRequestDto) {
+    public ResponseEntity<PermissionResponseDto> create(@Valid @RequestBody PermissionRequestDto permissionRequestDto) {
         try {
             PermissionResponseDto savedRol = permissionService.save(permissionRequestDto);
-            ApiResponse response = new ApiResponse(HttpStatus.CREATED.value(), savedRol,
-                    "Permission created successfully");
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            return ResponseEntity.ok(savedRol);
         } catch (Exception e) {
             logger.info("Error: {@POST /permission}", e.getMessage());
             throw e;
@@ -72,13 +68,11 @@ public class PermissionController_v2 {
     @PutMapping("/permission/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Actualizar Permiso", description = "Actualiza los datos de un Permiso.")
-    public ResponseEntity<ApiResponse> update(@PathVariable Long id,
+    public ResponseEntity<PermissionResponseDto> update(@PathVariable Long id,
             @Valid @RequestBody PermissionRequestDto permissionRequestDto) {
         try {
             PermissionResponseDto updatedRol = permissionService.update(id, permissionRequestDto);
-            ApiResponse response = new ApiResponse(HttpStatus.CREATED.value(), updatedRol,
-                    "Permission updated successfully");
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            return ResponseEntity.ok(updatedRol);
         } catch (Exception e) {
             logger.info("Error: {@PUT /permission/{id}}", e.getMessage());
             throw e;

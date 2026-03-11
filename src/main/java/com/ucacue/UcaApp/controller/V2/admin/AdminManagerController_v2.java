@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import com.ucacue.UcaApp.model.dto.Api.ApiResponse;
 import com.ucacue.UcaApp.model.dto.user.AdminUserManagerRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 import com.ucacue.UcaApp.service.admin.AdminMangerService;
@@ -102,11 +101,10 @@ public class AdminManagerController_v2 {
     @PostMapping("/user")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Guardar Usuario", description = "Guardar datos de un Usuario.")
-    public ResponseEntity<ApiResponse> create(@Valid @RequestBody AdminUserManagerRequestDto userRequestDto) {
+    public ResponseEntity<UserResponseDto> create(@Valid @RequestBody AdminUserManagerRequestDto userRequestDto) {
         try {
             UserResponseDto savedUser = adminMangerService.save(userRequestDto);
-            ApiResponse response = new ApiResponse(HttpStatus.CREATED.value(), savedUser, "User created successfully");
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
         } catch (Exception e) {
             logger.info("Error: {@POST /user}", e.getMessage());
             throw e;
@@ -116,12 +114,11 @@ public class AdminManagerController_v2 {
     @PatchMapping("/user/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Actualziar Usuario", description = "Actualiza los datos del Usuario.")
-    public ResponseEntity<ApiResponse> update(@PathVariable Long id,
-            @Valid @RequestBody AdminUserManagerRequestDto userRequestDto) {
+    public ResponseEntity<UserResponseDto> update(@PathVariable Long id,
+            @RequestBody AdminUserManagerRequestDto userRequestDto) {
         try {
             UserResponseDto updatedUser = adminMangerService.update(id, userRequestDto);
-            ApiResponse response = new ApiResponse(HttpStatus.OK.value(), updatedUser, "User updated successfully");
-            return ResponseEntity.status(HttpStatus.OK).body(response);
+            return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
         } catch (Exception e) {
             logger.info("Error: {@PATCH /user/{id}}", e.getMessage());
             throw e;

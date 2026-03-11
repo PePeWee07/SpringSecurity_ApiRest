@@ -16,9 +16,7 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshTokenEntity
     Optional<RefreshTokenEntity> findByJtiAndRevokedFalse(String jti);
 
     // Buscar tokens activos por email del usuario y fecha de expiración
-    long countByUserEmailAndRevokedFalseAndExpiresAtAfter(
-            String email,
-            LocalDateTime now);
+    long countByUserEmailAndRevokedFalseAndExpiresAtAfter(String email, LocalDateTime now);
 
     // Limpiar tokens expirados
     void deleteByExpiresAtBefore(LocalDateTime now);

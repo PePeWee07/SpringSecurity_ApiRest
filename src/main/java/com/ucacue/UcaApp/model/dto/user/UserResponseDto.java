@@ -3,7 +3,7 @@ package com.ucacue.UcaApp.model.dto.user;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
@@ -43,7 +43,7 @@ public class UserResponseDto implements Serializable{
 
     private List<RoleResponseDto> roles;
 
-    private Date accountExpiryDate;
+    private LocalDateTime accountExpiryDate;
 
     private List<?> authorities;
 

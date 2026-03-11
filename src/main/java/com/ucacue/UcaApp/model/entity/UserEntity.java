@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,8 +45,8 @@ public class UserEntity extends AuditingData implements UserDetails {
     private String email;
 
     @NotNull
-    @Size(min = 1, max = 10, message = "The phone number must have a maximum of 10 characters")
-    @Column(name = "phoneNumber", length = 10)
+    @Size(min = 1, max = 15, message = "The phone number must have a maximum of 10 characters")
+    @Column(name = "phoneNumber", length = 15)
     private String phoneNumber;
 
     @NotNull
@@ -93,12 +94,12 @@ public class UserEntity extends AuditingData implements UserDetails {
     private Set<RefreshTokenEntity> refreshTokens = new HashSet<>();
 
     @Column(name = "account_expiry_date")
-    private Date accountExpiryDate;
+    private LocalDateTime accountExpiryDate;
 
     @Override
     public boolean isAccountNonExpired() {
         if (this.accountExpiryDate != null) {
-            return new Date().before(this.accountExpiryDate);
+            return LocalDateTime.now().isBefore(this.accountExpiryDate);
         }
         return this.accountNonExpired;
     }
