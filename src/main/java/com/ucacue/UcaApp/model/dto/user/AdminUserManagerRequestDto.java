@@ -14,6 +14,7 @@ import jakarta.validation.constraints.NotBlank;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class AdminUserManagerRequestDto implements Serializable{
 
     private static final long serialVersionUID = 1L;

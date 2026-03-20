@@ -67,7 +67,7 @@ public class AdminManagerController_v2 {
             Page<UserResponseDto> userPage = adminMangerService.findAllWithFilters(filterDto, pageable);
             return ResponseEntity.ok(userPage);
         } catch (Exception e) {
-            logger.error("Error al obtener la página de usuarios: {}", e.getMessage(), e);
+            logger.error("Error: {@GET /manager/users/page/{page}}", e.getMessage(), e);
             throw e;
         }
     }
@@ -80,7 +80,7 @@ public class AdminManagerController_v2 {
             UserResponseDto user = adminMangerService.getUserById(id);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
-            logger.info("Error: {@GET /user/{id}}", e.getMessage());
+            logger.info("Error: {@GET /manager/user/{id}}", e.getMessage());
             throw e;
         }
     }
@@ -93,7 +93,7 @@ public class AdminManagerController_v2 {
             UserResponseDto user = adminMangerService.findByEmail(email);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
-            logger.info("Error: {@GET /user/email/{email}}", e.getMessage());
+            logger.info("Error: {@GET /manager/user/email/{email}}", e.getMessage());
             throw e;
         }
     }
@@ -106,7 +106,7 @@ public class AdminManagerController_v2 {
             UserResponseDto savedUser = adminMangerService.save(userRequestDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
         } catch (Exception e) {
-            logger.info("Error: {@POST /user}", e.getMessage());
+            logger.info("Error: {@POST /manager/user}", e.getMessage());
             throw e;
         }
     }
@@ -120,7 +120,7 @@ public class AdminManagerController_v2 {
             UserResponseDto updatedUser = adminMangerService.update(id, userRequestDto);
             return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
         } catch (Exception e) {
-            logger.info("Error: {@PATCH /user/{id}}", e.getMessage());
+            logger.info("Error: {@PATCH /manager/user/{id}}", e.getMessage());
             throw e;
         }
     }

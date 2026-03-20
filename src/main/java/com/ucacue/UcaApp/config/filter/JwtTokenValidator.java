@@ -87,11 +87,10 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             SecurityContextHolder.setContext(context);
         }  catch (JWTVerificationException | InvalidJwtTokenException e) {
             SecurityContextHolder.clearContext();
-            logger.error("JWT error: {}", e.getMessage());
             request.setAttribute("exception", e);
         }  catch (Exception e) {
             SecurityContextHolder.clearContext();
-            logger.error("Error on TokenValidator: {}", e.getMessage());
+            logger.error("Error on JwtTokenValidator.java: {}", e.getMessage());
             request.setAttribute("exception", e);
         }
 

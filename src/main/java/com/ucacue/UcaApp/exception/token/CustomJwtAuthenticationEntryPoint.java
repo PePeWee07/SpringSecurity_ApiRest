@@ -38,7 +38,7 @@ public class CustomJwtAuthenticationEntryPoint implements AuthenticationEntryPoi
         List<ApiError> errors = new ArrayList<>();
         ApiErrorResponse errorResponse;
         if (exception instanceof TokenExpiredException) {
-            logger.error("Token expired: {}", exception.getMessage());
+            logger.info("Token expired: {}", exception.getMessage());
             errors.add(new ApiError("Token expired", exception.getMessage()));
             errorResponse = new ApiErrorResponse(
                     HttpServletResponse.SC_UNAUTHORIZED,

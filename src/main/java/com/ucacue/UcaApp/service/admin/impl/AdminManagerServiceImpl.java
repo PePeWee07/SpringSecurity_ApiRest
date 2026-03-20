@@ -146,7 +146,7 @@ public class AdminManagerServiceImpl implements AdminMangerService, UserDetailsS
         UserEntity userEntity = userMapper.mapToUserEntity(userRequestDto, passwordEncoderUtil);
 
         // Set the account states to true
-        userEntity.setEnabled(true);
+        userEntity.setEnabled(false);
         userEntity.setAccountNonExpired(true);
         userEntity.setAccountNonLocked(true);
         userEntity.setCredentialsNonExpired(true);

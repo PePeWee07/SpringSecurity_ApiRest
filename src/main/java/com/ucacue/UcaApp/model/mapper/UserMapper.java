@@ -111,7 +111,6 @@ public interface UserMapper {
         entity.setCredentialsNonExpired(dto.isCredentialsNonExpired());
         if (dto.getAccountExpiryDate() != null) entity.setAccountExpiryDate(dto.getAccountExpiryDate());
         
-
         Set<RoleEntity> roles = mapRoleIdsToRoleEntities(dto.getRolesIds(), RoleEntityFetcher);
         entity.setRoles(roles);
     }
