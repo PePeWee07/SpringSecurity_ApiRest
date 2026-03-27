@@ -22,7 +22,7 @@ public class UserSpecificationFilter {
                     String normalizedValue = removeDiacritics(value.toString().toLowerCase());
                     switch (field) {
                         case "id":
-                            predicates.add(criteriaBuilder.like(root.get(field), "%" + value.toString() + "%"));
+                            predicates.add(criteriaBuilder.equal(root.get(field), value));
                             break;
                         case "name":
                             predicates.add(criteriaBuilder.like(criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower(root.get(field))),"%" + normalizedValue + "%"));
@@ -42,27 +42,27 @@ public class UserSpecificationFilter {
                         case "dni":
                             predicates.add(criteriaBuilder.like(root.get(field), "%" + value.toString() + "%"));
                             break;
-                        // case "enabled":
-                        //     predicates.add(criteriaBuilder.equal(root.get(field), value));
+                        case "enabled":
+                            predicates.add(criteriaBuilder.equal(root.get(field), value));
+                            break;
+                        case "accountNonExpired":
+                            predicates.add(criteriaBuilder.equal(root.get(field), value));
+                            break;
+                        case "accountNonLocked":
+                            predicates.add(criteriaBuilder.equal(root.get(field), value));
+                            break;
+                        case "credentialsNonExpired":
+                            predicates.add(criteriaBuilder.equal(root.get(field), value));
+                            break;
+                        case "accountExpiryDate":
+                            predicates.add(criteriaBuilder.equal(root.get(field), value));
+                            break;
+                        // case "createdBy":
+                        //     predicates.add(criteriaBuilder.like(
+                        //             criteriaBuilder.lower(root.get("createdBy")),
+                        //             "%" + value.toString().toLowerCase() + "%"                     ));
                         //     break;
-                        // case "account_non_expired":
-                        //     predicates.add(criteriaBuilder.equal(root.get(field), value));
-                        //     break;
-                        // case "account_non_locked":
-                        //     predicates.add(criteriaBuilder.equal(root.get(field), value));
-                        //     break;
-                        // case "credentials_non_expired":
-                        //     predicates.add(criteriaBuilder.equal(root.get(field), value));
-                        //     break;
-                        // case "roles":
-                        //     predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get(field)), "%" + value.toString().toLowerCase() + "%"));
-                        //     break;
-                        // case "accountExpiryDate":
-                        //     predicates.add(createDateEqualPredicate(root, criteriaBuilder, field, value));
-                        //     break;
-                        // agregar más campos
                         default:
-                            // Ignorar otros campos o hacer algo por defecto é
                             break;
                     }
                 }

@@ -20,7 +20,8 @@ import com.ucacue.UcaApp.exception.crud.UserNotFoundException;
 import com.ucacue.UcaApp.model.dto.Api.ApiResponse;
 import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
 import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
-import com.ucacue.UcaApp.model.dto.user.AdminUserManagerRequestDto;
+import com.ucacue.UcaApp.model.dto.user.ManagerUserRequestDto;
+import com.ucacue.UcaApp.model.dto.user.ManagerUsersResponseDto;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 import com.ucacue.UcaApp.model.entity.RefreshTokenEntity;
@@ -197,7 +198,7 @@ public class AdminManagerServiceImpl implements AdminMangerService, UserDetailsS
 
     @Transactional
     @Override
-    public UserResponseDto save(AdminUserManagerRequestDto userRequestDto) {
+    public UserResponseDto save(ManagerUserRequestDto userRequestDto) {
         UserEntity userEntity = userMapper.mapToAdminUserEntity(userRequestDto, roleEntityFetcher, passwordEncoderUtil);
         userEntity = userRepository.save(userEntity);
         return userMapper.mapToUserResponseDto(userEntity);
@@ -205,7 +206,7 @@ public class AdminManagerServiceImpl implements AdminMangerService, UserDetailsS
 
     @Transactional
     @Override
-    public UserResponseDto update(Long id, AdminUserManagerRequestDto userRequestDto) {
+    public UserResponseDto update(Long id, ManagerUserRequestDto userRequestDto) {
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id, UserNotFoundException.SearchType.ID));
         userMapper.updateAdminUserEntityFromDto(userRequestDto, userEntity, roleEntityFetcher, passwordEncoderUtil);
@@ -229,16 +230,19 @@ public class AdminManagerServiceImpl implements AdminMangerService, UserDetailsS
 
     @Override
     @Transactional
-    public Page<UserResponseDto> findAllWithFilters(UserResponseDto userResponseDto, Pageable pageable) {
+    public Page<ManagerUsersResponseDto> findAllWithFilters(UserResponseDto users, Pageable pageable) {
        
         // Obtener los campos no nulos del objeto UserResponseDto
         Map<String, Object> filters = new HashMap<>();
         for (Field field : UserResponseDto.class.getDeclaredFields()) {
+            if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) //* Ignorar campos estaticos
+                continue;
             field.setAccessible(true); //* Hacer accesibles los campos privados
             try {
-                Object value = field.get(userResponseDto); 
+                Object value = field.get(users); 
 
-                if (value != null && !value.toString().isEmpty()) {
+                // Solo agregar si tiene valor y NO es una lista
+                if (value != null && !value.toString().isEmpty() && !(value instanceof List)) {
                     filters.put(field.getName(), value);
                 }
             } catch (IllegalAccessException e) {
@@ -249,7 +253,7 @@ public class AdminManagerServiceImpl implements AdminMangerService, UserDetailsS
         Specification<UserEntity> spec = UserSpecificationFilter.filterUsers(filters);
         Page<UserEntity> userPage = userRepository.findAll(spec, pageable);
 
-        return userPage.map(userMapper::mapToUserResponseDto);
+        return userPage.map(userMapper::mapToManagerResponseDto);
     }
 
 }

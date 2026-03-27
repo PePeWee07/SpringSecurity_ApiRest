@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import com.ucacue.UcaApp.model.dto.user.AdminUserManagerRequestDto;
+import com.ucacue.UcaApp.model.dto.user.ManagerUserRequestDto;
+import com.ucacue.UcaApp.model.dto.user.ManagerUsersResponseDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 import com.ucacue.UcaApp.service.admin.AdminMangerService;
 
@@ -49,22 +50,21 @@ public class AdminManagerController_v2 {
     @GetMapping("/users/page/{page}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Tabla de Usuarios", description = "Listado paginado de Usuarios.")
-    public ResponseEntity<Page<UserResponseDto>> findAllWithPage(
+    public ResponseEntity<Page<ManagerUsersResponseDto>> findAllWithPage(
         @PathVariable int page,
         @RequestParam(defaultValue = "10") int pageSize,
-        @RequestParam(defaultValue = "id") String sortBy,
-        @RequestParam(defaultValue = "asc") String direction,
+        @RequestParam(defaultValue = "lastModifiedDate") String sortBy,
+        @RequestParam(defaultValue = "desc") String direction,
         @ModelAttribute UserResponseDto filterDto) {
 
         Sort sort = Sort.by(sortBy);
         
-        // Ajuste de la dirección de orden (ascendente o descendente)
         sort = "desc".equalsIgnoreCase(direction) ? sort.descending() : sort.ascending();
         
         Pageable pageable = PageRequest.of(page, pageSize, sort);
 
         try {
-            Page<UserResponseDto> userPage = adminMangerService.findAllWithFilters(filterDto, pageable);
+            Page<ManagerUsersResponseDto> userPage = adminMangerService.findAllWithFilters(filterDto, pageable);
             return ResponseEntity.ok(userPage);
         } catch (Exception e) {
             logger.error("Error: {@GET /manager/users/page/{page}}", e.getMessage(), e);
@@ -101,7 +101,7 @@ public class AdminManagerController_v2 {
     @PostMapping("/user")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Guardar Usuario", description = "Guardar datos de un Usuario.")
-    public ResponseEntity<UserResponseDto> create(@Valid @RequestBody AdminUserManagerRequestDto userRequestDto) {
+    public ResponseEntity<UserResponseDto> create(@Valid @RequestBody ManagerUserRequestDto userRequestDto) {
         try {
             UserResponseDto savedUser = adminMangerService.save(userRequestDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
@@ -115,7 +115,7 @@ public class AdminManagerController_v2 {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Actualziar Usuario", description = "Actualiza los datos del Usuario.")
     public ResponseEntity<UserResponseDto> update(@PathVariable Long id,
-            @RequestBody AdminUserManagerRequestDto userRequestDto) {
+            @RequestBody ManagerUserRequestDto userRequestDto) {
         try {
             UserResponseDto updatedUser = adminMangerService.update(id, userRequestDto);
             return ResponseEntity.status(HttpStatus.OK).body(updatedUser);

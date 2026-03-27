@@ -32,7 +32,7 @@ public class JwtUtils {
     @Value("${security.user-generator}")
     private String userGenerator;
 
-    private long ACCESS_EXPIRATION = 300000; // 30000(30 seg) 300000(5 min) 28800000(8 hours)
+    private long ACCESS_EXPIRATION = 28800000; // 30000(30 seg) 300000(5 min) 28800000(8 hours)
     private long REFRESH_EXPIRATION = 604800000; // 604800000 7 days
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();

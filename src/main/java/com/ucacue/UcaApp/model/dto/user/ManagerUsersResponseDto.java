@@ -4,6 +4,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
@@ -13,7 +14,7 @@ import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserResponseDto implements Serializable{
+public class ManagerUsersResponseDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -31,15 +32,13 @@ public class UserResponseDto implements Serializable{
 
     private String dni;
 
-    // PASSWORD NO SE DEBE DEVOLVER
+    private  boolean enabled;
 
-    private  Boolean enabled;
+    private boolean accountNonExpired;
 
-    private Boolean accountNonExpired;
-
-    private Boolean accountNonLocked;
+    private boolean accountNonLocked;
     
-	private Boolean credentialsNonExpired;
+	private boolean credentialsNonExpired;
 
     private List<RoleResponseDto> roles;
 
@@ -48,5 +47,15 @@ public class UserResponseDto implements Serializable{
     private List<?> authorities;
 
     private String username;
+
+    // --- Spring AuditingData ---
+
+    private String createdBy;
+
+    private Date createdDate;
+
+    private String lastModifiedBy;
+
+    private Date lastModifiedDate;
 
 }

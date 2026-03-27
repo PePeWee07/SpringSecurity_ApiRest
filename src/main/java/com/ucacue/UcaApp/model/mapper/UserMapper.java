@@ -9,7 +9,8 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
-import com.ucacue.UcaApp.model.dto.user.AdminUserManagerRequestDto;
+import com.ucacue.UcaApp.model.dto.user.ManagerUserRequestDto;
+import com.ucacue.UcaApp.model.dto.user.ManagerUsersResponseDto;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 import com.ucacue.UcaApp.model.entity.RoleEntity;
@@ -60,11 +61,54 @@ public interface UserMapper {
         return dto;
     }
 
+    // -----------------MAPEO PARA MANAGER-----------------
+    default ManagerUsersResponseDto mapToManagerResponseDto(UserEntity userEntity) {
+        ManagerUsersResponseDto dto = new ManagerUsersResponseDto();
+        dto.setId(userEntity.getId());
+        dto.setName(userEntity.getName());
+        dto.setLastName(userEntity.getLastName());
+        dto.setEmail(userEntity.getEmail());
+        dto.setPhoneNumber(userEntity.getPhoneNumber());
+        dto.setAddress(userEntity.getAddress());
+        dto.setDni(userEntity.getDni());
+        dto.setEnabled(userEntity.isEnabled());
+        dto.setAccountNonExpired(userEntity.isAccountNonExpired());
+        dto.setAccountNonLocked(userEntity.isAccountNonLocked());
+        dto.setCredentialsNonExpired(userEntity.isCredentialsNonExpired());
+        dto.setAccountExpiryDate(userEntity.getAccountExpiryDate());
+        dto.setUsername(userEntity.getUsername());
+
+        // Mapear authorities
+        List<Map<String, String>> authorities = userEntity.getAuthorities().stream()
+                .map(authority -> {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("name", authority.getAuthority());
+                    return map;
+                })
+                .collect(Collectors.toList());
+        dto.setAuthorities(authorities);
+
+        List<RoleResponseDto> roleDTOList = userEntity.getRoles().stream()
+                .map(RoleMapper.INSTANCE::rolesEntityToRoleResponseDto)
+                .collect(Collectors.toList());
+
+        dto.setRoles(roleDTOList);
+
+        // --- Spring AuditingData ---
+        dto.setCreatedBy(userEntity.getCreatedBy());
+        dto.setCreatedDate(userEntity.getCreatedDate());
+        dto.setLastModifiedBy(userEntity.getLastModifiedBy());
+        dto.setLastModifiedDate(userEntity.getLastModifiedDate());
+        
+        return dto;
+    }
+
+
     // ? Se separan los mapeadores ya que unos tienen la posibilidad de cambair el 
     // ? estado de la cuentas la cual el propio usuario no debe poder hacerlo el mismo
 
     //-----------------MAPEO PARA USUARIO SOLO CON PRIVILEGIOS-----------------
-    default UserEntity mapToAdminUserEntity(AdminUserManagerRequestDto UserRequestDto, @Context RoleEntityFetcher RoleEntityFetcher, @Context PasswordEncoderUtil passwordEncoderUtil) {
+    default UserEntity mapToAdminUserEntity(ManagerUserRequestDto UserRequestDto, @Context RoleEntityFetcher RoleEntityFetcher, @Context PasswordEncoderUtil passwordEncoderUtil) {
         UserEntity entity = new UserEntity();
         entity.setId(UserRequestDto.getId());
         entity.setName(UserRequestDto.getName());
@@ -97,7 +141,7 @@ public interface UserMapper {
                       .collect(Collectors.toSet());
     }
 
-    default void updateAdminUserEntityFromDto(AdminUserManagerRequestDto dto, @MappingTarget UserEntity entity, @Context RoleEntityFetcher RoleEntityFetcher, @Context PasswordEncoderUtil passwordEncoderUtil) {
+    default void updateAdminUserEntityFromDto(ManagerUserRequestDto dto, @MappingTarget UserEntity entity, @Context RoleEntityFetcher RoleEntityFetcher, @Context PasswordEncoderUtil passwordEncoderUtil) {
         if (dto.getName() != null) entity.setName(dto.getName());
         if (dto.getLastName() != null) entity.setLastName(dto.getLastName());
         if (dto.getEmail() != null) entity.setEmail(dto.getEmail());

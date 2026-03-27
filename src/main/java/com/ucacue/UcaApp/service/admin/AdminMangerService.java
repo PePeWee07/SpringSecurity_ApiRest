@@ -7,7 +7,8 @@ import org.springframework.security.core.Authentication;
 import com.ucacue.UcaApp.model.dto.Api.ApiResponse;
 import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
 import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
-import com.ucacue.UcaApp.model.dto.user.AdminUserManagerRequestDto;
+import com.ucacue.UcaApp.model.dto.user.ManagerUserRequestDto;
+import com.ucacue.UcaApp.model.dto.user.ManagerUsersResponseDto;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 
@@ -31,11 +32,11 @@ public interface AdminMangerService {
 
     UserResponseDto findByEmailWithAuth(String email);
 
-    UserResponseDto save(AdminUserManagerRequestDto userRequestDto);
+    UserResponseDto save(ManagerUserRequestDto userRequestDto);
 
-    UserResponseDto update(Long id, AdminUserManagerRequestDto userRequestDto);
+    UserResponseDto update(Long id, ManagerUserRequestDto userRequestDto);
 
     boolean exists(Long id);
 
-    Page<UserResponseDto> findAllWithFilters(UserResponseDto userResponseDto, Pageable pageable);
+    Page<ManagerUsersResponseDto> findAllWithFilters(UserResponseDto userResponseDto, Pageable pageable);
 }
