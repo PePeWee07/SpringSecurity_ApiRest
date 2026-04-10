@@ -6,7 +6,7 @@ import org.springframework.security.core.Authentication;
 
 import com.ucacue.UcaApp.model.dto.Api.ApiResponse;
 import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
-import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
+import com.ucacue.UcaApp.model.dto.auth.AuthTokensResult;
 import com.ucacue.UcaApp.model.dto.user.ManagerUserRequestDto;
 import com.ucacue.UcaApp.model.dto.user.ManagerUsersResponseDto;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
@@ -18,7 +18,7 @@ public interface AdminMangerService {
 
     //-----------Funciones para administrador de usuarios-----------
 
-    AuthResponse loginUser(AuthLoginRequest authLoginRequest);
+    AuthTokensResult loginUser(AuthLoginRequest authLoginRequest);
 
     ApiResponse RegisterUser(UserRequestDto userRequestDto);
 

@@ -13,6 +13,16 @@ public class UcaAppApplication {
 	public static void main(String[] args) {
 		TimeZone.setDefault(TimeZone.getTimeZone("America/Guayaquil"));
 		SpringApplication.run(UcaAppApplication.class, args);
+
+
+		// ----- En caso de olvidar contraseña rempalzar por el hash -----
+		// BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        
+        // String clavePlana = "admin";
+        // String hashGenerado = encoder.encode(clavePlana);
+        
+        // System.out.println("Clave original: " + clavePlana);
+        // System.out.println("Hash para tu SQL: " + hashGenerado);
 	}
 
 }

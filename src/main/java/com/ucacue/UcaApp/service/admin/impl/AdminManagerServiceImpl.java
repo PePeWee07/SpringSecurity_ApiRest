@@ -19,7 +19,7 @@ import com.ucacue.UcaApp.exception.crud.UserAlreadyExistsException;
 import com.ucacue.UcaApp.exception.crud.UserNotFoundException;
 import com.ucacue.UcaApp.model.dto.Api.ApiResponse;
 import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
-import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
+import com.ucacue.UcaApp.model.dto.auth.AuthTokensResult;
 import com.ucacue.UcaApp.model.dto.user.ManagerUserRequestDto;
 import com.ucacue.UcaApp.model.dto.user.ManagerUsersResponseDto;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
@@ -31,11 +31,11 @@ import com.ucacue.UcaApp.model.mapper.UserMapper;
 import com.ucacue.UcaApp.repository.UserRepository;
 import com.ucacue.UcaApp.service.admin.AdminMangerService;
 import com.ucacue.UcaApp.service.token.TokenService;
-import com.ucacue.UcaApp.util.RoleEntityFetcher;
-import com.ucacue.UcaApp.util.UserSpecificationFilter;
-import com.ucacue.UcaApp.util.UserStatusValidator;
+import com.ucacue.UcaApp.util.authorities.RoleEntityFetcher;
 import com.ucacue.UcaApp.util.token.JwtUtils;
 import com.ucacue.UcaApp.util.token.PasswordEncoderUtil;
+import com.ucacue.UcaApp.util.user.UserSpecificationFilter;
+import com.ucacue.UcaApp.util.user.UserStatusValidator;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.*;
@@ -100,7 +100,7 @@ public class AdminManagerServiceImpl implements AdminMangerService, UserDetailsS
 
     @Transactional
     @Override
-    public AuthResponse loginUser(AuthLoginRequest authLoginRequest) {
+    public AuthTokensResult loginUser(AuthLoginRequest authLoginRequest) {
         String username = authLoginRequest.username();
         String password = authLoginRequest.password();
 
@@ -108,16 +108,15 @@ public class AdminManagerServiceImpl implements AdminMangerService, UserDetailsS
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         UserEntity user = userRepository.findByEmailWithLock(username)
-                .orElseThrow(() -> new UserNotFoundException(username, UserNotFoundException.SearchType.EMAIL));
+            .orElseThrow(() -> new UserNotFoundException(username, UserNotFoundException.SearchType.EMAIL));
 
-        // Límite de sesiones activas
         tokenService.limitSession(username);
 
-        // Crear tokens
         String accessToken = jwtUtils.createToken(authentication);
         String refreshToken = jwtUtils.createRefreshToken(authentication);
-        
+
         DecodedJWT decoded = jwtUtils.validateToken(refreshToken);
+
         RefreshTokenEntity refreshTokenEntity = new RefreshTokenEntity();
         refreshTokenEntity.setJti(decoded.getId());
         refreshTokenEntity.setUser(user);
@@ -126,7 +125,7 @@ public class AdminManagerServiceImpl implements AdminMangerService, UserDetailsS
 
         tokenService.saveTokenRefresh(refreshTokenEntity);
 
-        return new AuthResponse(username, "User logged in successfully", accessToken, refreshToken, true);
+        return new AuthTokensResult(user, accessToken, refreshToken);
     }
 
     @Transactional

@@ -1,4 +1,4 @@
-package com.ucacue.UcaApp.util;
+package com.ucacue.UcaApp.util.user;
 
 import org.springframework.data.jpa.domain.Specification;
 

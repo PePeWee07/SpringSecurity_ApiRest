@@ -3,23 +3,88 @@
     "name": "security.private-key",
     "type": "java.lang.String",
     "description": "The private key used for security purposes",
-    "sourceType": "com.ucacue.UcaApp.config.SecurityConfig"
+    "sourceType": "Llave privada"
   },
   {
     "name": "security.user-generator",
     "type": "java.lang.String",
     "description": "The user generator for authentication",
-    "sourceType": "com.ucacue.UcaApp.config.SecurityConfig"
+    "sourceType": "firma de credenciales"
   },
   {
     "name": "swagger.enabled",
     "type": "java.lang.Boolean",
     "description": "Enable or disable Swagger",
-    "sourceType": "com.ucacue.UcaApp.config.SwaggerConfig"
+    "sourceType": "Habilitar documentacion de api"
   },
   {
     "name": "max.sessions",
     "type": "java.lang.String",
-    "description": "A description for 'max.sessions'"
+    "description": "Maximo de sessions permitidas"
+  },
+  {
+    "name": "cookie.secure",
+    "type": "java.lang.String",
+    "description": "Cookie tutiliza https"
+  },
+  {
+    "name": "refresh.token.cookie",
+    "type": "java.lang.String",
+    "description": "Setear Cookie como secure para prod o dev sin secure"
+  },
+  {
+    "name": "app.security.cookie-secure",
+    "type": "java.lang.String",
+    "description": "A description for 'app.security.cookie-secure'"
+  },
+  {
+    "name": "app.security.context-path",
+    "type": "java.lang.String",
+    "description": "A description for 'app.security.context-path'"
+  },
+  {
+    "name": "app.security.refresh-token-duration",
+    "type": "java.lang.String",
+    "description": "A description for 'app.security.refresh-token-duration'"
+  },
+  {
+    "name": "app.security.refresh-token-same-site",
+    "type": "java.lang.String",
+    "description": "A description for 'app.security.refresh-token-same-site'"
+  },
+  {
+    "name": "app.security.access-token-duration",
+    "type": "java.lang.String",
+    "description": "A description for 'app.security.access-token-duration'"
+  },
+  {
+    "name": "app.security.refresh-token-cookie",
+    "type": "java.lang.String",
+    "description": "A description for 'app.security.refresh-token-cookie'"
+  },
+  {
+    "name": "app.security.csrf-cookie",
+    "type": "java.lang.String",
+    "description": "A description for 'app.security.csrf-cookie'"
+  },
+  {
+    "name": "app.security.csrf-header",
+    "type": "java.lang.String",
+    "description": "A description for 'app.security.csrf-header'"
+  },
+  {
+    "name": "app.security.private-key",
+    "type": "java.lang.String",
+    "description": "A description for 'app.security.private-key'"
+  },
+  {
+    "name": "app.security.user-generator",
+    "type": "java.lang.String",
+    "description": "A description for 'app.security.user-generator'"
+  },
+  {
+    "name": "app.security.max-sessions",
+    "type": "java.lang.String",
+    "description": "A description for 'app.security.max-sessions'"
   }
 ]}

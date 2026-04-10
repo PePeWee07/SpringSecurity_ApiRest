@@ -1,4 +1,4 @@
-package com.ucacue.UcaApp.util;
+package com.ucacue.UcaApp.util.authorities;
 
 import org.springframework.stereotype.Component;
 

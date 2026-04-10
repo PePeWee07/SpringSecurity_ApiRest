@@ -1,25 +1,30 @@
 package com.ucacue.UcaApp.controller.V2.auth;
 
+import java.util.List;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.ucacue.UcaApp.config.SecurityProperties;
 import com.ucacue.UcaApp.model.dto.Api.ApiResponse;
 import com.ucacue.UcaApp.model.dto.auth.AuthLoginRequest;
 import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
-import com.ucacue.UcaApp.model.dto.auth.RefreshTokenRequest;
+import com.ucacue.UcaApp.model.dto.auth.AuthTokensResult;
 import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
+import com.ucacue.UcaApp.model.entity.UserEntity;
 import com.ucacue.UcaApp.service.admin.AdminMangerService;
 import com.ucacue.UcaApp.service.token.TokenService;
+import com.ucacue.UcaApp.service.token.impl.AuthCookieService;
+import com.ucacue.UcaApp.util.cookie.CookieUtils;
+import com.ucacue.UcaApp.util.token.JwtUtils;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,11 +36,24 @@ public class AuthenticationController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
-    @Autowired
-    private AdminMangerService adminMangerService;
+    private final AdminMangerService adminMangerService;
+    private final TokenService tokenService;
+    private final AuthCookieService authCookieService;
+    private final JwtUtils jwtUtils;
+    private final SecurityProperties securityProperties;
 
-    @Autowired
-    private TokenService tokenService;
+    public AuthenticationController(
+            AdminMangerService adminMangerService,
+            TokenService tokenService,
+            AuthCookieService authCookieService,
+            JwtUtils jwtUtils,
+            SecurityProperties securityProperties) {
+        this.adminMangerService = adminMangerService;
+        this.tokenService = tokenService;
+        this.authCookieService = authCookieService;
+        this.jwtUtils = jwtUtils;
+        this.securityProperties = securityProperties; 
+    }
 
     @PostMapping("/sign-up")
     @Operation(summary = "Registrarce", description = "Registro de nuevo Usuario.")
@@ -43,44 +61,97 @@ public class AuthenticationController {
         try {
             return new ResponseEntity<>(adminMangerService.RegisterUser(userRequest), HttpStatus.CREATED);
         } catch (Exception e) {
-            logger.info("Error: {@POST /Sign-up}", e.getMessage());
+            logger.error("Error: {@POST /sign-up}", e);
             throw e;
         }
     }
 
     @PostMapping("/log-in")
     @Operation(summary = "Login", description = "Login de Usuario.")
-    public ResponseEntity<AuthResponse> loginUser(@RequestBody @Valid AuthLoginRequest authLoginRequest) {
+    public ResponseEntity<AuthResponse> loginUser(
+            @RequestBody @Valid AuthLoginRequest authLoginRequest,
+            HttpServletResponse response) {
         try {
-            AuthResponse response = adminMangerService.loginUser(authLoginRequest);
-            return ResponseEntity.ok(response);
+            AuthTokensResult result = adminMangerService.loginUser(authLoginRequest);
+
+            authCookieService.addRefreshTokenCookie(response, result.refreshToken());
+
+            AuthResponse authResponse = buildAuthResponse(
+                    result.user(),
+                    "User logged in successfully",
+                    result.accessToken());
+
+            return ResponseEntity.ok(authResponse);
         } catch (Exception e) {
-            logger.info("Error: {@POST /log-in}", e.getMessage());
+            logger.error("Error: {@POST /log-in}", e);
             throw e;
         }
     }
 
     @PostMapping("/token-refresh")
-    @Operation(summary = "Refrecar Token", description = "Resfresca el Token.")
-    public ResponseEntity<AuthResponse> refreshUserToken(@RequestBody @Valid RefreshTokenRequest refreshTokenRequest) {
+    @Operation(summary = "Refrescar Token", description = "Refresca el Token.")
+    public ResponseEntity<AuthResponse> refreshUserToken(
+            HttpServletRequest request,
+            HttpServletResponse response) {
         try {
-            AuthResponse response = tokenService.refreshUserToken(refreshTokenRequest.refreshToken());
-            return ResponseEntity.ok(response);
+            String refreshToken = CookieUtils.getCookieValue(request, securityProperties.getRefreshTokenCookie())
+                    .orElseThrow(() -> new RuntimeException("Refresh token cookie not found"));
+
+            AuthTokensResult result = tokenService.refreshUserToken(refreshToken);
+
+            authCookieService.addRefreshTokenCookie(response, result.refreshToken());
+
+            AuthResponse authResponse = buildAuthResponse(
+                    result.user(),
+                    "Token refreshed successfully",
+                    result.accessToken());
+
+            return ResponseEntity.ok(authResponse);
         } catch (Exception e) {
-            logger.info("Error: {@POST /token-refresh}", e.getMessage());
+            logger.error("Error: {@POST /token-refresh}", e);
             throw e;
         }
     }
 
     @PostMapping("/log-out")
-    @Operation(summary = "Cierre de sesion", description = "Anula el Token.")
-    public ResponseEntity<ApiResponse> logoutUser(@RequestParam String email) {
+    @Operation(summary = "Cierre de sesión", description = "Anula el Token.")
+    public ResponseEntity<ApiResponse> logoutUser(
+            HttpServletRequest request,
+            HttpServletResponse response) {
         try {
+            String refreshToken = CookieUtils.getCookieValue(request, securityProperties.getRefreshTokenCookie())
+                    .orElseThrow(() -> new RuntimeException("Refresh token cookie not found"));
+
+            DecodedJWT decodedJWT = jwtUtils.validateToken(refreshToken);
+
+            if (!jwtUtils.isRefreshToken(decodedJWT)) {
+                throw new RuntimeException("Invalid refresh token");
+            }
+
+            String email = jwtUtils.getUsernameFromToken(decodedJWT);
+
             tokenService.revokeToken(email);
-            return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), null, "Successfully logged out"));
+            authCookieService.clearRefreshTokenCookie(response);
+
+            return ResponseEntity.ok(
+                    new ApiResponse(HttpStatus.OK.value(), null, "Successfully logged out"));
         } catch (Exception e) {
-            logger.info("Error: {@POST /log-out}", e.getMessage());
+            logger.error("Error: {@POST /log-out}", e);
             throw e;
         }
+    }
+
+    private AuthResponse buildAuthResponse(UserEntity user, String message, String accessToken) {
+        List<String> roles = user.getAuthorities()
+                .stream()
+                .map(authority -> authority.getAuthority())
+                .toList();
+
+        return new AuthResponse(
+                user.getEmail(),
+                message,
+                roles,
+                accessToken,
+                true);
     }
 }

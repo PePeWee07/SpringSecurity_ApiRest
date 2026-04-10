@@ -17,8 +17,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-
-import org.springframework.beans.factory.annotation.Value;
+import com.ucacue.UcaApp.config.SecurityProperties;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,20 +25,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Component
 public class JwtUtils {
 
-    @Value("${security.private-key}")
-    private String privateKey;
+    private final SecurityProperties securityProperties;
 
-    @Value("${security.user-generator}")
-    private String userGenerator;
-
-    private long ACCESS_EXPIRATION = 28800000; // 30000(30 seg) 300000(5 min) 28800000(8 hours)
-    private long REFRESH_EXPIRATION = 604800000; // 604800000 7 days
+    public JwtUtils (SecurityProperties securityProperties) {
+        this.securityProperties = securityProperties;
+    }
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public String createToken(Authentication authentication) {
         try {
-            Algorithm algorithm = Algorithm.HMAC256(privateKey);
+            Algorithm algorithm = Algorithm.HMAC256(securityProperties.getPrivateKey());
 
             String username = authentication.getName();
             String authorities = authentication.getAuthorities()
@@ -49,11 +45,11 @@ public class JwtUtils {
 
             return JWT.create()
                 .withClaim("type", "access")
-                .withIssuer(userGenerator)
+                .withIssuer(securityProperties.getUserGenerator())
                 .withSubject(username)
                 .withClaim("authorities", authorities)
                 .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + ACCESS_EXPIRATION))
+                .withExpiresAt(new Date(System.currentTimeMillis() + securityProperties.getAccessTokenDuration().toMillis()))
                 .withJWTId(UUID.randomUUID().toString())
                 .withNotBefore(new Date(System.currentTimeMillis()))
                 .sign(algorithm);
@@ -64,16 +60,16 @@ public class JwtUtils {
 
     public String createRefreshToken(Authentication authentication) {
         try {
-            Algorithm algorithm = Algorithm.HMAC256(privateKey);
+            Algorithm algorithm = Algorithm.HMAC256(securityProperties.getPrivateKey());
 
             String username = authentication.getName();
 
             return JWT.create()
                     .withClaim("type", "refresh")
-                    .withIssuer(userGenerator)
+                    .withIssuer(securityProperties.getUserGenerator())
                     .withSubject(username)
                     .withIssuedAt(new Date())
-                    .withExpiresAt(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION))
+                    .withExpiresAt(new Date(System.currentTimeMillis() + securityProperties.getRefreshTokenDuration().toMillis()))
                     .withJWTId(UUID.randomUUID().toString())
                     .withNotBefore(new Date(System.currentTimeMillis()))
                     .sign(algorithm);
@@ -84,8 +80,8 @@ public class JwtUtils {
 
     public DecodedJWT validateToken(String token) {
         try {
-            Algorithm algorithm = Algorithm.HMAC256(privateKey);
-            JWTVerifier verifier = JWT.require(algorithm).withIssuer(userGenerator).build();
+            Algorithm algorithm = Algorithm.HMAC256(securityProperties.getPrivateKey());
+            JWTVerifier verifier = JWT.require(algorithm).withIssuer(securityProperties.getUserGenerator()).build();
             return verifier.verify(token);
         } catch (Exception e) {
             throw e;

@@ -2,8 +2,6 @@ package com.ucacue.UcaApp.service.token.impl;
 
 import java.time.LocalDateTime;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,11 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.ucacue.UcaApp.config.SecurityProperties;
 import com.ucacue.UcaApp.exception.auth.MaxActiveSessionException;
 import com.ucacue.UcaApp.exception.crud.UserNotFoundException;
 import com.ucacue.UcaApp.exception.token.InvalidRefreshTokenException;
 import com.ucacue.UcaApp.model.dto.Api.ApiResponse;
-import com.ucacue.UcaApp.model.dto.auth.AuthResponse;
+import com.ucacue.UcaApp.model.dto.auth.AuthTokensResult;
 import com.ucacue.UcaApp.model.entity.RefreshTokenEntity;
 import com.ucacue.UcaApp.model.entity.UserEntity;
 import com.ucacue.UcaApp.repository.RefreshTokenRepository;
@@ -31,26 +30,30 @@ public class TokenServiceImpl implements TokenService {
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TokenService.class);
 
 
-    @Autowired
-    private RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final UserRepository userRepository;
+    private final JwtUtils jwtUtils;
+    private final SecurityProperties securityProperties;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private JwtUtils jwtUtils;
-
-    @Value("${max.sessions}")
-    private int MAX_SESSIONS;
+    public TokenServiceImpl(
+            RefreshTokenRepository refreshTokenRepository,
+            UserRepository userRepository,
+            JwtUtils jwtUtils,
+            SecurityProperties securityProperties) {
+        this.refreshTokenRepository = refreshTokenRepository;
+        this.userRepository = userRepository;
+        this.jwtUtils = jwtUtils;
+        this.securityProperties = securityProperties;
+    }
 
 
     @Transactional
     @Override
-    public AuthResponse refreshUserToken(String refreshToken) {
+    public AuthTokensResult refreshUserToken(String refreshToken) {
         DecodedJWT decodedJWT = jwtUtils.validateToken(refreshToken);
 
         if (!jwtUtils.isRefreshToken(decodedJWT)) {
-            throw new RuntimeException("Invalid refresh token");
+            throw new InvalidRefreshTokenException("Invalid refresh token");
         }
 
         String username = jwtUtils.getUsernameFromToken(decodedJWT);
@@ -62,10 +65,9 @@ public class TokenServiceImpl implements TokenService {
         RefreshTokenEntity storedToken = getValidRefreshTokenByJti(jti);
 
         if (storedToken.getExpiresAt().isBefore(LocalDateTime.now())) {
-            new InvalidRefreshTokenException("Refresh token expired");
+            throw new InvalidRefreshTokenException("Refresh token expired");
         }
 
-        // ROTACIÓN
         storedToken.setRevoked(true);
         saveTokenRefresh(storedToken);
 
@@ -87,12 +89,10 @@ public class TokenServiceImpl implements TokenService {
 
         saveTokenRefresh(newToken);
 
-        return new AuthResponse(
-                user.getEmail(),
-                "Token refreshed successfully",
+        return new AuthTokensResult(
+                user,
                 newAccessToken,
-                newRefreshToken,
-                true);
+                newRefreshToken);
     }
 
     // ---- TOKEN REFRESH ----
@@ -120,21 +120,21 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public void limitSession(String email) {
 
-        int maxSessions = MAX_SESSIONS > 0 ? MAX_SESSIONS : 1;
+        int allowedSessions = securityProperties.getMaxSessions();
 
         long activeSessions = refreshTokenRepository
                 .countByUserEmailAndRevokedFalseAndExpiresAtAfter(
                         email,
                         LocalDateTime.now());
 
-        if (activeSessions >= maxSessions) {
+        if (activeSessions >= allowedSessions) {
             throw new MaxActiveSessionException(
-                    "Multiple active sessions, limited to " + maxSessions);
+                    "Multiple active sessions, limited to " + allowedSessions);
         }
     }
 
     // ---- CRON TOKEN REFRESH CLEAN ----
-    @Scheduled(cron = "0 0 * * * ?") // cada hora
+    @Scheduled(cron = "0 */10 * * * *")
     @Transactional
     public void cleanUpExpiredRefreshTokens() {
         refreshTokenRepository.deleteByExpiresAtBefore(LocalDateTime.now());

@@ -12,7 +12,7 @@ import com.ucacue.UcaApp.model.dto.role.RoleRequestDto;
 import com.ucacue.UcaApp.model.dto.role.RoleResponseDto;
 import com.ucacue.UcaApp.model.entity.PermissionEntity;
 import com.ucacue.UcaApp.model.entity.RoleEntity;
-import com.ucacue.UcaApp.util.PermissionEntityFetcher;
+import com.ucacue.UcaApp.util.authorities.PermissionEntityFetcher;
 
 @Mapper(componentModel = "spring")
 public interface RoleMapper {

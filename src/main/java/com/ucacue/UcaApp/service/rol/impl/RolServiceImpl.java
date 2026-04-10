@@ -16,7 +16,7 @@ import com.ucacue.UcaApp.model.mapper.RoleMapper;
 import com.ucacue.UcaApp.repository.RoleRepository;
 import com.ucacue.UcaApp.repository.UserRepository;
 import com.ucacue.UcaApp.service.rol.RolService;
-import com.ucacue.UcaApp.util.PermissionEntityFetcher;
+import com.ucacue.UcaApp.util.authorities.PermissionEntityFetcher;
 
 @Service
 public class RolServiceImpl implements RolService{

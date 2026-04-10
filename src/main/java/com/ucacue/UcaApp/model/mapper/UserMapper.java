@@ -15,7 +15,7 @@ import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 import com.ucacue.UcaApp.model.entity.RoleEntity;
 import com.ucacue.UcaApp.model.entity.UserEntity;
-import com.ucacue.UcaApp.util.RoleEntityFetcher;
+import com.ucacue.UcaApp.util.authorities.RoleEntityFetcher;
 import com.ucacue.UcaApp.util.token.PasswordEncoderUtil;
 
 @Mapper(componentModel = "spring")

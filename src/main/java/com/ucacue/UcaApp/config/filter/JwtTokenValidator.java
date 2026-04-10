@@ -1,7 +1,7 @@
 package com.ucacue.UcaApp.config.filter;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,14 +15,12 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.ucacue.UcaApp.exception.token.InvalidJwtTokenException;
-import com.ucacue.UcaApp.exception.token.MissingTokenException;
 import com.ucacue.UcaApp.model.entity.UserEntity;
 import com.ucacue.UcaApp.repository.UserRepository;
 import com.ucacue.UcaApp.service.token.TokenService;
-import com.ucacue.UcaApp.service.token.impl.TokenServiceImpl;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.ucacue.UcaApp.util.token.JwtUtils;
 
 import jakarta.servlet.FilterChain;
@@ -38,7 +36,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
     private final TokenService tokenService;
     private final UserRepository userRepository;
 
-    public JwtTokenValidator(JwtUtils jwtUtils, TokenServiceImpl tokenService, UserRepository userRepository) {
+    public JwtTokenValidator(JwtUtils jwtUtils, TokenService tokenService, UserRepository userRepository) {
         this.jwtUtils = jwtUtils;
         this.tokenService = tokenService;
         this.userRepository = userRepository;
@@ -50,17 +48,17 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        String jwtToken = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        if (jwtToken == null || jwtToken.isEmpty() || !jwtToken.startsWith("Bearer ")) {
-            request.setAttribute("exception", new MissingTokenException("-Missing or empty token"));
+        if (authorizationHeader == null || authorizationHeader.isBlank()
+                || !authorizationHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        
+        String jwtToken = authorizationHeader.substring(7);
+
         try {
-            jwtToken = jwtToken.replace("Bearer ", "");
             DecodedJWT decodedJWT = jwtUtils.validateToken(jwtToken);
             String username = jwtUtils.getUsernameFromToken(decodedJWT);
 
@@ -70,9 +68,11 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                 throw new InvalidJwtTokenException("Invalid token type for resource access");
             }
 
-            // Verifica el estado del usuario
-            UserEntity user = userRepository.findByEmail(username).orElseThrow(() -> new RuntimeException("User not found in Database"));
-            if (!user.isEnabled() || !user.isAccountNonLocked() || !user.isAccountNonExpired() || !user.isCredentialsNonExpired()) {
+            UserEntity user = userRepository.findByEmail(username)
+                    .orElseThrow(() -> new RuntimeException("User not found in Database"));
+
+            if (!user.isEnabled() || !user.isAccountNonLocked() || !user.isAccountNonExpired()
+                    || !user.isCredentialsNonExpired()) {
                 tokenService.revokeToken(user.getEmail());
                 SecurityContextHolder.clearContext();
                 throw new InvalidJwtTokenException("Token has been revoked due to user state");
@@ -81,28 +81,42 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             String authorities = jwtUtils.getClaimFromToken(decodedJWT, "authorities").asString();
             Collection<? extends GrantedAuthority> authoritiesList = AuthorityUtils
                     .commaSeparatedStringToAuthorityList(authorities);
-            SecurityContext context = SecurityContextHolder.getContext();
-            Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, authoritiesList);
-            context.setAuthentication(authentication);
-            SecurityContextHolder.setContext(context);
-        }  catch (JWTVerificationException | InvalidJwtTokenException e) {
+
+            Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+            boolean needsAuthenticationUpdate = currentAuth == null
+                    || !currentAuth.isAuthenticated()
+                    || !username.equals(currentAuth.getName());
+
+            if (needsAuthenticationUpdate) {
+                UsernamePasswordAuthenticationToken authentication = UsernamePasswordAuthenticationToken
+                        .authenticated(username, null, authoritiesList);
+                authentication.setDetails(user);
+
+                SecurityContext context = SecurityContextHolder.createEmptyContext();
+                context.setAuthentication(authentication);
+                SecurityContextHolder.setContext(context);
+            }
+
+        } catch (JWTVerificationException | InvalidJwtTokenException e) {
             SecurityContextHolder.clearContext();
             request.setAttribute("exception", e);
-        }  catch (Exception e) {
+        } catch (Exception e) {
             SecurityContextHolder.clearContext();
-            logger.error("Error on JwtTokenValidator.java: {}", e.getMessage());
+            logger.error("Error on JwtTokenValidator.java", e);
             request.setAttribute("exception", e);
         }
 
         filterChain.doFilter(request, response);
     }
 
-    // EXCLUIR endpoints públicos
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
-        return path.startsWith("/auth/log-in") ||
-            path.startsWith("/auth/token-refresh") ||
-            path.startsWith("/auth/sign-up");
+
+        return path.startsWith("/csrf")
+                || path.startsWith("/auth/log-in")
+                || path.startsWith("/auth/token-refresh")
+                || path.startsWith("/auth/sign-up")
+                || path.startsWith("/auth/log-out");
     }
 }
