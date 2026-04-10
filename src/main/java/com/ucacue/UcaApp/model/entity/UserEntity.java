@@ -12,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ucacue.UcaApp.service.auditing.springboot.AuditingData;
 
@@ -95,6 +96,10 @@ public class UserEntity extends AuditingData implements UserDetails {
 
     @Column(name = "account_expiry_date")
     private LocalDateTime accountExpiryDate;
+
+    @JsonIgnore
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private UserPreferenceEntity preference;
 
     @Override
     public boolean isAccountNonExpired() {
