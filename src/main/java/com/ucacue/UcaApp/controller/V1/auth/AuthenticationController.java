@@ -1,4 +1,4 @@
-package com.ucacue.UcaApp.controller.V2.auth;
+package com.ucacue.UcaApp.controller.V1.auth;
 
 import java.util.List;
 
@@ -31,7 +31,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/auth")
-@Tag(name = "AuthenticationController", description = "Controlador para gestionar Auth")
+@Tag(name = "Controlador de Oauth", description = "Controlador para gestionar Auth")
 public class AuthenticationController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);

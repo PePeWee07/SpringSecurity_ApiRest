@@ -1,4 +1,4 @@
-package com.ucacue.UcaApp.controller.V2.admin;
+package com.ucacue.UcaApp.controller.V1.admin;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +25,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v2/manager")
-@Tag(name = "AdminManagerController_v2", description = "Controlador para gestionar Usuarios")
-public class AdminManagerController_v2 {
+@RequestMapping("/api/v1/manager")
+@Tag(name = "Controlador Manager Admin", description = "Controlador para gestionar Usuarios")
+public class AdminManagerController {
 
-    private static final Logger logger = LoggerFactory.getLogger(AdminManagerController_v2.class);
+    private static final Logger logger = LoggerFactory.getLogger(AdminManagerController.class);
 
     @Autowired
     private AdminMangerService adminMangerService;

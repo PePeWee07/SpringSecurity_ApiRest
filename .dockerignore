@@ -28,3 +28,4 @@ Thumbs.db
 
 # Ignorar archivos de entorno
 .env
+.env.prod

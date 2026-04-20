@@ -86,5 +86,15 @@
     "name": "app.security.max-sessions",
     "type": "java.lang.String",
     "description": "A description for 'app.security.max-sessions'"
+  },
+  {
+    "name": "api.service.catia.base-url",
+    "type": "java.lang.String",
+    "description": "A description for 'api.service.catia.base-url'"
+  },
+  {
+    "name": "api.service.catia.uri",
+    "type": "java.lang.String",
+    "description": "A description for 'api.service.catia.uri'"
   }
 ]}

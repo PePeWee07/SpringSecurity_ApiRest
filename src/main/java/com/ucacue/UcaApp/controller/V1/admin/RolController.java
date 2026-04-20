@@ -1,4 +1,4 @@
-package com.ucacue.UcaApp.controller.V2.admin;
+package com.ucacue.UcaApp.controller.V1.admin;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +25,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v2")
-@Tag(name = "RolController_v2", description = "Controlador para gestionar Roles")
-public class RolController_v2 {
+@RequestMapping("/api/v1")
+@Tag(name = "Controlador de Roles", description = "Controlador para gestionar Roles")
+public class RolController {
 
-    private static final Logger logger = LoggerFactory.getLogger(RolController_v2.class);
+    private static final Logger logger = LoggerFactory.getLogger(RolController.class);
 
     @Autowired
     private RolService rolService;

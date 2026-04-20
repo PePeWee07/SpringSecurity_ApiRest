@@ -1,4 +1,4 @@
-package com.ucacue.UcaApp.controller.V2.user;
+package com.ucacue.UcaApp.controller.V1.user;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -24,11 +24,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 @RestController
-@RequestMapping("/api/v2/user")
-@Tag(name = "UserController2_v2", description = "Controlador de Usuario")
-public class UserController2_v2 {
+@RequestMapping("/api/v1/user")
+@Tag(name = "Controlador de Usaurios", description = "Controlador de Usuario")
+public class UserController {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserController2_v2.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     
     @Autowired
     private UserService userService;

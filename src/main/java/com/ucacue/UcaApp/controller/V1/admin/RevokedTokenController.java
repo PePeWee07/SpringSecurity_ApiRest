@@ -1,4 +1,4 @@
-package com.ucacue.UcaApp.controller.V2.admin;
+package com.ucacue.UcaApp.controller.V1.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,11 +14,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/api/v2")
-@Tag(name = "RevokedTokenController_v2", description = "Controlador para gestionar Tokens Revocados")
-public class RevokedTokenController_v2 {
+@RequestMapping("/api/v1")
+@Tag(name = "Controlador para revocar token Refresh", description = "Controlador para gestionar Tokens Revocados")
+public class RevokedTokenController {
 
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RevokedTokenController_v2.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RevokedTokenController.class);
 
     @Autowired
     private TokenService tokenService;

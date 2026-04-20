@@ -1,4 +1,4 @@
-package com.ucacue.UcaApp.controller.V2.auditing;
+package com.ucacue.UcaApp.controller.V1.auditing;
 
 import java.util.List;
 import java.util.Map;
@@ -21,8 +21,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.*;
 
 @RestController
-@RequestMapping("/api/v2/audit")
-@Tag(name = "LoggedActionController", description = "Controlador para gestionar Auditoria")
+@RequestMapping("/api/v1/audit")
+@Tag(name = "controlador de Auditorias", description = "Controlador para gestionar Auditoria")
 public class LoggedActionController {
 
     private static final Logger logger = LoggerFactory.getLogger(LoggedActionController.class);

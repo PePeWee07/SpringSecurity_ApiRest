@@ -1,4 +1,4 @@
-package com.ucacue.UcaApp.controller.V2.admin;
+package com.ucacue.UcaApp.controller.V1.admin;
 
 import java.util.*;
 
@@ -18,11 +18,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v2")
-@Tag(name = "PermissionController_v2", description = "Controlador para gestionar Permisos")
-public class PermissionController_v2 {
+@RequestMapping("/api/v1")
+@Tag(name = "Controlardor de Permisos de Roles", description = "Controlador para gestionar Permisos")
+public class PermissionController {
 
-    private static final Logger logger = LoggerFactory.getLogger(PermissionController_v2.class);
+    private static final Logger logger = LoggerFactory.getLogger(PermissionController.class);
 
     @Autowired
     private PermissionService permissionService;
