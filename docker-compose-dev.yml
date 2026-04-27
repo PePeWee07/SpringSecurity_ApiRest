@@ -1,7 +1,7 @@
 version: '3.9'
 services:
-  app:
-    container_name: ucacue_api_dev
+  ucacue_app:
+    container_name: ucacue-app
     build:
       context: .
       dockerfile: Dockerfile.dev
@@ -9,15 +9,19 @@ services:
       - "8080:8080"
     env_file:
       - .env
+    environment:
+      CATIA_API_HOST: ${CATIA_API_HOST_DOCKER:-http://catia_core:8082}
     volumes:
       - .:/app
       - oauth_logs:/tmp/logs
+    networks:
+      - virtual_assistant_network
     depends_on:
-      db:
+      ucacue_db:
         condition: service_healthy
 
-  db:
-    container_name: db
+  ucacue_db:
+    container_name: ucacue-db
     image: postgres:13.3
     ports:
       - "5435:5432"
@@ -26,14 +30,20 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_DATABASE}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ucacue_postgres_data:/var/lib/postgresql/data
     restart: always
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
       interval: 10s
       retries: 5
       start_period: 30s
+    networks:
+      - virtual_assistant_network
 
 volumes:
-  postgres_data:
+  ucacue_postgres_data:
   oauth_logs:
+
+networks:
+  virtual_assistant_network:
+    external: true

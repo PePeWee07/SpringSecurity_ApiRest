@@ -86,6 +86,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(http -> {
                 http.requestMatchers(HttpMethod.GET, "/auth/**").permitAll();
                 http.requestMatchers(HttpMethod.POST, "/auth/**").permitAll();
+                http.requestMatchers(HttpMethod.GET, "/api/v1/catia/core/health").permitAll();
 
                 if (swaggerEnabled) {
                     http.requestMatchers(HttpMethod.GET, "/apidoc/**").permitAll();

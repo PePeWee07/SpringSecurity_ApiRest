@@ -117,6 +117,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                 || path.startsWith("/auth/log-in")
                 || path.startsWith("/auth/token-refresh")
                 || path.startsWith("/auth/sign-up")
-                || path.startsWith("/auth/log-out");
+                || path.startsWith("/auth/log-out")
+                || path.startsWith("/api/v1/catia/core/health");
     }
 }

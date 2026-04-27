@@ -59,6 +59,23 @@ public class GlobalExceptionHandler {
                                 .body(response);
         }
 
+        @ExceptionHandler(IllegalArgumentException.class)
+        public ResponseEntity<ApiErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
+
+                ApiError apiError = new ApiError(
+                                ex.getMessage(),
+                                "INVALID_ARGUMENT");
+
+                ApiErrorResponse response = new ApiErrorResponse(
+                                HttpStatus.BAD_REQUEST.value(),
+                                "Bad Request",
+                                List.of(apiError));
+
+                return ResponseEntity
+                                .status(HttpStatus.BAD_REQUEST)
+                                .body(response);
+        }
+
         // ------------------- Manejo de excepciones de CRUD -------------------
 
         // Metodo para manejar mensajes de error de recursos no encontrados

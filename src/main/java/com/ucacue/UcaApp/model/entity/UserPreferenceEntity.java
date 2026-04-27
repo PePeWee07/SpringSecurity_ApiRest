@@ -13,7 +13,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 @Entity
-@Table(name = "user_preferences")
+@Table(name = "user_preferences", schema = "auth")
 @Getter
 @Setter
 @NoArgsConstructor

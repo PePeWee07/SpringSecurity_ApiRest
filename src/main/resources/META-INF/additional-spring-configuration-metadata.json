@@ -96,5 +96,15 @@
     "name": "api.service.catia.uri",
     "type": "java.lang.String",
     "description": "A description for 'api.service.catia.uri'"
+  },
+  {
+    "name": "api.service.catia.api-header",
+    "type": "java.lang.String",
+    "description": "A description for 'api.service.catia.api-header'"
+  },
+  {
+    "name": "api.service.catia.api-key",
+    "type": "java.lang.String",
+    "description": "A description for 'api.service.catia.api-key'"
   }
 ]}
