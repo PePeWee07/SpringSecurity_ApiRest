@@ -32,6 +32,7 @@ public class CatiaController {
 
     private static final Logger logger = LoggerFactory.getLogger(CatiaController.class);
     private static final int MAX_USER_CHAT_PAGE_SIZE = 100;
+    private static final int MAX_TEMPLATE_PAGE_SIZE = 100;
 
     private final CatiaService catiaService;
 
@@ -279,6 +280,85 @@ public class CatiaController {
         }
     }
 
+    @GetMapping("/core/whatsapp/template/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Respuestas templates CATIA", description = "Obtiene todas las respuestas de templates de WhatsApp")
+    public ResponseEntity<JsonNode> getAllTemplateResponses(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int pageSize,
+            @RequestParam(defaultValue = "message.sentAt") String sort,
+            @RequestParam(defaultValue = "desc") String dir,
+            @RequestParam(defaultValue = "false") Boolean onlyAnswered) {
+        validatePage(page);
+
+        try {
+            int size = Math.min(pageSize, MAX_TEMPLATE_PAGE_SIZE);
+            return ResponseEntity.ok(catiaService.getAllTemplateResponses(page, size, sort, dir, onlyAnswered));
+        } catch (Exception e) {
+            logger.error("Error: {@GET /api/v1/catia/core/whatsapp/template/all}", e);
+            throw e;
+        }
+    }
+
+    @GetMapping("/core/whatsapp/template/date-range")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Respuestas templates CATIA por fecha", description = "Obtiene respuestas de templates por rango de fecha de envio")
+    public ResponseEntity<JsonNode> getTemplateResponsesByDateRange(
+            @RequestParam("start") String start,
+            @RequestParam("end") String end) {
+        try {
+            JsonNode response = catiaService.getTemplateResponsesByDateRange(start, end);
+            return responseHasNoContent(response) ? ResponseEntity.noContent().build() : ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("Error: {@GET /api/v1/catia/core/whatsapp/template/date-range}", e);
+            throw e;
+        }
+    }
+
+    @GetMapping("/core/whatsapp/template/name/{templateName}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Respuestas templates CATIA por nombre", description = "Obtiene respuestas de templates por nombre de plantilla")
+    public ResponseEntity<JsonNode> getTemplateResponsesByName(@PathVariable("templateName") String templateName) {
+        validateRequiredText(templateName, "templateName");
+
+        try {
+            JsonNode response = catiaService.getTemplateResponsesByName(templateName);
+            return responseHasNoContent(response) ? ResponseEntity.noContent().build() : ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("Error: {@GET /api/v1/catia/core/whatsapp/template/name/{templateName}}", e);
+            throw e;
+        }
+    }
+
+    @GetMapping("/core/whatsapp/template/messages/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Template CATIA por mensaje", description = "Obtiene el resultado de plantilla por ID de mensaje")
+    public ResponseEntity<JsonNode> getTemplateByMessageId(@PathVariable("id") Long messageId) {
+        validateMessageId(messageId);
+
+        try {
+            return ResponseEntity.ok(catiaService.getTemplateByMessageId(messageId));
+        } catch (Exception e) {
+            logger.error("Error: {@GET /api/v1/catia/core/whatsapp/template/messages/{id}}", e);
+            throw e;
+        }
+    }
+
+    @GetMapping("/core/whatsapp/template/{toPhone}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Respuestas templates CATIA por telefono", description = "Obtiene respuestas de templates por numero de telefono")
+    public ResponseEntity<JsonNode> getTemplateResponsesByPhone(@PathVariable("toPhone") String toPhone) {
+        validateRequiredText(toPhone, "toPhone");
+
+        try {
+            JsonNode response = catiaService.getTemplateResponsesByPhone(toPhone);
+            return responseHasNoContent(response) ? ResponseEntity.noContent().build() : ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("Error: {@GET /api/v1/catia/core/whatsapp/template/{toPhone}}", e);
+            throw e;
+        }
+    }
+
     @PostMapping("/core/whatsapp/send-image-by-id")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Enviar imagen por ID CATIA", description = "Envia una imagen de WhatsApp usando un media ID")
@@ -387,6 +467,16 @@ public class CatiaController {
         if (mediaId == null || mediaId.isBlank()) {
             throw new IllegalArgumentException("Invalid media ID");
         }
+    }
+
+    private void validateRequiredText(String value, String fieldName) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("Invalid " + fieldName);
+        }
+    }
+
+    private boolean responseHasNoContent(JsonNode response) {
+        return response == null || (response.isArray() && response.isEmpty());
     }
 
     private void validateUserFindParams(String identificacion, String whatsAppPhone) {

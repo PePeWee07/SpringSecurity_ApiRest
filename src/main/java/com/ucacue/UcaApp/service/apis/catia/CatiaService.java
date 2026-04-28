@@ -313,6 +313,57 @@ public class CatiaService {
                 .toEntity(byte[].class);
     }
 
+    public JsonNode getTemplateResponsesByPhone(String toPhone) {
+        return authenticatedRestClient.get()
+                .uri("/api/v1/whatsapp/template/{toPhone}", toPhone)
+                .retrieve()
+                .body(JsonNode.class);
+    }
+
+    public JsonNode getAllTemplateResponses(
+            int page,
+            int pageSize,
+            String sort,
+            String dir,
+            Boolean onlyAnswered) {
+        return authenticatedRestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/v1/whatsapp/template/all")
+                        .queryParam("page", page)
+                        .queryParam("pageSize", pageSize)
+                        .queryParam("sort", sort)
+                        .queryParam("dir", dir)
+                        .queryParam("onlyAnswered", onlyAnswered)
+                        .build())
+                .retrieve()
+                .body(JsonNode.class);
+    }
+
+    public JsonNode getTemplateResponsesByDateRange(String start, String end) {
+        return authenticatedRestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/v1/whatsapp/template/date-range")
+                        .queryParam("start", start)
+                        .queryParam("end", end)
+                        .build())
+                .retrieve()
+                .body(JsonNode.class);
+    }
+
+    public JsonNode getTemplateResponsesByName(String templateName) {
+        return authenticatedRestClient.get()
+                .uri("/api/v1/whatsapp/template/name/{templateName}", templateName)
+                .retrieve()
+                .body(JsonNode.class);
+    }
+
+    public JsonNode getTemplateByMessageId(Long messageId) {
+        return authenticatedRestClient.get()
+                .uri("/api/v1/whatsapp/template/messages/{id}", messageId)
+                .retrieve()
+                .body(JsonNode.class);
+    }
+
     public SseEmitter streamMessages(String phone) {
         SseEmitter emitter = new SseEmitter(0L);
 
