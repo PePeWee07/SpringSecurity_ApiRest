@@ -18,10 +18,12 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ucacue.UcaApp.exception.auth.MaxActiveSessionException;
 import com.ucacue.UcaApp.exception.auth.UserNotFoundAuthException;
 import com.ucacue.UcaApp.exception.crud.PermissionNotFoundException;
@@ -33,12 +35,47 @@ import com.ucacue.UcaApp.exception.token.InvalidRefreshTokenException;
 import com.ucacue.UcaApp.model.dto.Api.ApiError;
 import com.ucacue.UcaApp.model.dto.Api.ApiErrorResponse;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import jakarta.validation.ConstraintViolationException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
         Map<String, Object> responseGlobalExcp = new HashMap<>();
+
+        private final ObjectMapper objectMapper = new ObjectMapper();
+
+        @ExceptionHandler(HttpStatusCodeException.class)
+        public ResponseEntity<?> handleHttpStatusCodeException(HttpStatusCodeException ex) {
+                String responseBody = ex.getResponseBodyAsString();
+
+                try {
+                        if (responseBody != null && !responseBody.isBlank()) {
+                                JsonNode jsonBody = objectMapper.readTree(responseBody);
+                                return ResponseEntity
+                                                .status(ex.getStatusCode())
+                                                .body(jsonBody);
+                        }
+                } catch (Exception parseError) {
+                        // Si no viene JSON valido, devolvemos el body como texto
+                }
+
+                ApiError apiError = new ApiError(
+                                ex.getMessage(),
+                                responseBody != null && !responseBody.isBlank()
+                                                ? responseBody
+                                                : "Error calling service");
+
+                ApiErrorResponse response = new ApiErrorResponse(
+                                ex.getStatusCode().value(),
+                                ex.getStatusText(),
+                                List.of(apiError));
+
+                return ResponseEntity
+                                .status(ex.getStatusCode())
+                                .body(response);
+        }
 
         // ------------------- Manejo de excepciones generales -------------------
 
