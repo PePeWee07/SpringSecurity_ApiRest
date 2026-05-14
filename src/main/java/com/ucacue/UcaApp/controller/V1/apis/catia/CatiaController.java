@@ -18,7 +18,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.ucacue.UcaApp.model.dto.catia.CatiaPageResponseDto;
 import com.ucacue.UcaApp.model.dto.catia.CatiaSendWhatsAppMessageRequest;
+import com.ucacue.UcaApp.model.dto.catia.CatiaUserChatFullDto;
 import com.ucacue.UcaApp.model.dto.catia.CatiaUserChatUpdateRequest;
 import com.ucacue.UcaApp.service.apis.catia.CatiaService;
 
@@ -165,13 +167,25 @@ public class CatiaController {
     @GetMapping("/core/whatsapp/user/find")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Buscar usuario chat CATIA", description = "Busca un usuario por identificacion o telefono de WhatsApp")
-    public ResponseEntity<JsonNode> findUserChat(
+    public ResponseEntity<CatiaPageResponseDto<CatiaUserChatFullDto>> findUserChat(
             @RequestParam(value = "identificacion", required = false) String identificacion,
-            @RequestParam(value = "whatsappPhone", required = false) String whatsAppPhone) {
+            @RequestParam(value = "whatsappPhone", required = false) String whatsAppPhone,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = "lastInteraction") String sortBy,
+            @RequestParam(value = "direction", defaultValue = "asc") String direction) {
         validateUserFindParams(identificacion, whatsAppPhone);
+        validatePage(page);
 
         try {
-            return ResponseEntity.ok(catiaService.findUserChat(identificacion, whatsAppPhone));
+            int size = Math.min(pageSize, MAX_USER_CHAT_PAGE_SIZE);
+            return ResponseEntity.ok(catiaService.findUserChat(
+                    identificacion,
+                    whatsAppPhone,
+                    page,
+                    size,
+                    sortBy,
+                    direction));
         } catch (Exception e) {
             logger.error("Error: {@GET /api/v1/catia/core/whatsapp/user/find}", e);
             throw e;
@@ -488,6 +502,14 @@ public class CatiaController {
         if (identificacion == null && whatsAppPhone == null) {
             throw new IllegalArgumentException(
                     "Debe indicar un parametro de busqueda: identificacion o whatsappPhone");
+        }
+
+        if (identificacion != null && identificacion.isBlank()) {
+            throw new IllegalArgumentException("La identificacion no puede estar vacia");
+        }
+
+        if (whatsAppPhone != null && whatsAppPhone.isBlank()) {
+            throw new IllegalArgumentException("El whatsappPhone no puede estar vacio");
         }
     }
 }

@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -30,7 +31,9 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.ucacue.UcaApp.model.dto.catia.CatiaPageResponseDto;
 import com.ucacue.UcaApp.model.dto.catia.CatiaSendWhatsAppMessageRequest;
+import com.ucacue.UcaApp.model.dto.catia.CatiaUserChatFullDto;
 import com.ucacue.UcaApp.model.dto.catia.CatiaUserChatUpdateRequest;
 
 import jakarta.annotation.PreDestroy;
@@ -141,7 +144,13 @@ public class CatiaService {
                 .body(JsonNode.class);
     }
 
-    public JsonNode findUserChat(String identificacion, String whatsAppPhone) {
+    public CatiaPageResponseDto<CatiaUserChatFullDto> findUserChat(
+            String identificacion,
+            String whatsAppPhone,
+            int page,
+            int pageSize,
+            String sortBy,
+            String direction) {
         return authenticatedRestClient.get()
                 .uri(uriBuilder -> {
                     var builder = uriBuilder.path("/api/v1/whatsapp/user/find");
@@ -154,10 +163,16 @@ public class CatiaService {
                         builder.queryParam("whatsappPhone", whatsAppPhone);
                     }
 
+                    builder.queryParam("page", page);
+                    builder.queryParam("pageSize", pageSize);
+                    builder.queryParam("sortBy", sortBy);
+                    builder.queryParam("direction", direction);
+
                     return builder.build();
                 })
                 .retrieve()
-                .body(JsonNode.class);
+                .body(new ParameterizedTypeReference<CatiaPageResponseDto<CatiaUserChatFullDto>>() {
+                });
     }
 
     public JsonNode listUserChats(int page, int pageSize, String sortBy, String direction) {
