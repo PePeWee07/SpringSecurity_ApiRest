@@ -19,6 +19,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.ucacue.UcaApp.model.dto.catia.CatiaPageResponseDto;
+import com.ucacue.UcaApp.model.dto.catia.CatiaResponseMediaMetadata;
 import com.ucacue.UcaApp.model.dto.catia.CatiaSendWhatsAppMessageRequest;
 import com.ucacue.UcaApp.model.dto.catia.CatiaUserChatFullDto;
 import com.ucacue.UcaApp.model.dto.catia.CatiaUserChatUpdateRequest;
@@ -290,6 +291,20 @@ public class CatiaController {
                     .body(result.getBody());
         } catch (Exception e) {
             logger.error("Error: {@GET /api/v1/catia/core/whatsapp/media/donwload/{mediaId}}", e);
+            throw e;
+        }
+    }
+
+    @GetMapping("/core/whatsapp/media/{mediaId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Metadata media WhatsApp CATIA", description = "Obtiene los metadatos de un archivo multimedia por ID")
+    public ResponseEntity<CatiaResponseMediaMetadata> getMediaMetadata(@PathVariable("mediaId") String mediaId) {
+        validateMediaId(mediaId);
+
+        try {
+            return ResponseEntity.ok(catiaService.getMediaMetadata(mediaId));
+        } catch (Exception e) {
+            logger.error("Error: {@GET /api/v1/catia/core/whatsapp/media/{mediaId}}", e);
             throw e;
         }
     }

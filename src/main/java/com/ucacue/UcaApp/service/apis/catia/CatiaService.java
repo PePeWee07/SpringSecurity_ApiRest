@@ -32,6 +32,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.ucacue.UcaApp.model.dto.catia.CatiaPageResponseDto;
+import com.ucacue.UcaApp.model.dto.catia.CatiaResponseMediaMetadata;
 import com.ucacue.UcaApp.model.dto.catia.CatiaSendWhatsAppMessageRequest;
 import com.ucacue.UcaApp.model.dto.catia.CatiaUserChatFullDto;
 import com.ucacue.UcaApp.model.dto.catia.CatiaUserChatUpdateRequest;
@@ -326,6 +327,13 @@ public class CatiaService {
                 .accept(MediaType.ALL)
                 .retrieve()
                 .toEntity(byte[].class);
+    }
+
+    public CatiaResponseMediaMetadata getMediaMetadata(String mediaId) {
+        return authenticatedRestClient.get()
+                .uri("/api/v1/whatsapp/media/{mediaId}", mediaId)
+                .retrieve()
+                .body(CatiaResponseMediaMetadata.class);
     }
 
     public JsonNode getTemplateResponsesByPhone(String toPhone) {
