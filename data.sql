@@ -252,13 +252,25 @@ COMMENT ON VIEW audit.tableslist IS $body$
 View showing all tables with auditing set up. Ordered by schema, then table.
 $body$;
 
---Seleccionamos las tablas a Auditar
-SELECT audit.audit_table('auth.permissions');
-SELECT audit.audit_table('auth.roles');
-SELECT audit.audit_table('auth.users');
-SELECT audit.audit_table('auth.roles_permissions');
-SELECT audit.audit_table('auth.user_roles');
-SELECT audit.audit_table('auth.revoked_tokens');
+-- Auditamos automaticamente todas las tablas del esquema 'auth'.
+-- audit.audit_table es idempotente (DROP TRIGGER IF EXISTS + CREATE),
+-- asi que volver a correr este bloque no rompe nada y agrega nuevas tablas
+-- que se hayan creado despues (ej: route_permissions, route_permission_roles).
+-- Si no queremos auditar alguna tabal agg AND table_name NOT IN ('mi_tabla') al WHERE.
+DO $$
+DECLARE
+    r record;
+BEGIN
+    FOR r IN
+        SELECT table_schema, table_name
+        FROM information_schema.tables
+        WHERE table_schema = 'auth' 
+          AND table_type = 'BASE TABLE'
+        ORDER BY table_name
+    LOOP
+        EXECUTE format('SELECT audit.audit_table(%L)', r.table_schema || '.' || r.table_name);
+    END LOOP;
+END$$;
 
 -------------------------------------------- Instalar la extensión --------------------------------------------
 CREATE EXTENSION IF NOT EXISTS unaccent;

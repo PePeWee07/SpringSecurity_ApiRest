@@ -1,10 +1,12 @@
 package com.ucacue.UcaApp.controller.V1.auditing;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ucacue.UcaApp.model.dto.auditing.AuditLogPageDto;
 import com.ucacue.UcaApp.service.auditing.postgresql.impl.LoggedActionServiceImpl;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,19 +32,6 @@ public class LoggedActionController {
 
     @Autowired
     private LoggedActionServiceImpl loggedActionService;
-
-    // Obtener todas las acciones
-    @GetMapping("/actions")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Lista de Acciones", description = "Listado de toda las Acciones.")
-    public ResponseEntity<List<Map<String, Object>>> getAllLoggedActions() {
-        try {
-            return ResponseEntity.ok(loggedActionService.findAll());
-        } catch (Exception e) {
-            logger.info("Error: {@GET /audit/actions}", e.getMessage());
-            return ResponseEntity.notFound().build();
-        }
-    }
 
     // Obtener una accion por id
     @GetMapping("/actions/{id}")
@@ -71,62 +61,25 @@ public class LoggedActionController {
         }
     }
 
-    // Obtener relid por tabla
-    @GetMapping("/actions/relid/{table}")
+    // Listado paginado con filtros opcionales
+    @GetMapping("/actions/page")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Busqueda de Relid por Tabla", description = "Obtiene el Relid de la Tabla.")
-    public ResponseEntity<String> getRelidOfTable(@PathVariable String table) {
-        String relid = loggedActionService.findRelidOfTable(table);
-        if (relid != null) {
-            return ResponseEntity.ok(relid);
-        } else {
-            logger.info("Error: {@GET /audit/actions/relid/{table}}", "No se encontró el Relid de la tabla: " + table);
-            return ResponseEntity.notFound().build();
+    @Operation(summary = "Auditorias paginadas",
+               description = "Listado paginado con filtros opcionales: rango de fechas, tabla, accion y busqueda global. Devuelve metadata de paginacion para consumir desde la UI.")
+    public ResponseEntity<AuditLogPageDto> getPagedActions(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(required = false) String table,
+            @RequestParam(required = false) String action,
+            @RequestParam(required = false) String search) {
+        try {
+            return ResponseEntity.ok(loggedActionService.findPaged(page, size, from, to, table, action, search));
+        } catch (Exception e) {
+            logger.info("Error: {@GET /audit/actions/page} {}", e.getMessage());
+            throw e;
         }
     }
 
-    // Obtener acciones por relid
-    @GetMapping("/actions/by-relid/{relid}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Listar Acciones por Relid", description = "Obtiene una lista de todas las acciones por Relid.")
-    public ResponseEntity<List<Map<String, Object>>> getActionsByRelid(@PathVariable Long relid) {
-        List<Map<String, Object>> actions = loggedActionService.findByRelid(relid);
-        if (actions != null && !actions.isEmpty()) {
-            return ResponseEntity.ok(actions);
-        } else {
-            logger.info("Error: {@GET /audit/actions/by-relid/{relid}}", "No se encontraron acciones con Relid: " + relid);
-            return ResponseEntity.noContent().build();
-        }
-    }
-
-    // Obtener acciones por tabla
-    @GetMapping("/actions/by-table/{table}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Listar Acciones por Tabla", description = "Obtiene una lista de todas las acciones por Tabla.")
-    public ResponseEntity<List<Map<String, Object>>> getActionsByTable(@PathVariable String table) {
-        List<Map<String, Object>> actions = loggedActionService.findByTable(table);
-        if (actions != null && !actions.isEmpty()) {
-            return ResponseEntity.ok(actions);
-        } else {
-            logger.info("Error: {@GET /audit/actions/by-table/{table}}", "No se encontraron acciones con Tabla: " + table);
-            return ResponseEntity.noContent().build();
-        }
-    }
-
-    // Busqueda global
-    @GetMapping("/actions/search")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Búsqueda global en acciones", description = "Obtiene una lista de todas las acciones que coinciden con el parámetro de búsqueda en cualquier columna.")
-    public ResponseEntity<List<Map<String, Object>>> searchActions(
-            @RequestParam String searchParam) {
-
-        List<Map<String, Object>> actions = loggedActionService.findByGlobalSearch(searchParam);
-        if (actions != null && !actions.isEmpty()) {
-            return ResponseEntity.ok(actions);
-        } else {
-            logger.info("Error: {@GET /audit/actions/search}", "No se encontraron acciones con el parámetro de búsqueda: " + searchParam);
-            return ResponseEntity.noContent().build();
-        }
-    }
-    
 }

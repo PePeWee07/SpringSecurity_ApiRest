@@ -1,18 +1,17 @@
 package com.ucacue.UcaApp.service.auditing.postgresql;
 
+import java.time.LocalDate;
 import java.util.*;
+
+import com.ucacue.UcaApp.model.dto.auditing.AuditLogPageDto;
 
 public interface LoggedActionService {
 
-    List<Map<String, Object>> findAll();
     Map<String, Object> findById(Long id);
 
     List<Map<String, Object>> listTables();
-    String findRelidOfTable(String table);
-    List<Map<String, Object>> findByRelid(Long relid);
 
-    List<Map<String, Object>> findByTable(String table);
-
-    List<Map<String, Object>> findByGlobalSearch(String searchParam);
+    AuditLogPageDto findPaged(int page, int size, LocalDate from, LocalDate to,
+                              String table, String action, String search);
 
 }

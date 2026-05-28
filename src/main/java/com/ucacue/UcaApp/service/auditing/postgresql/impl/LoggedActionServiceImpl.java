@@ -1,11 +1,14 @@
 package com.ucacue.UcaApp.service.auditing.postgresql.impl;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import com.ucacue.UcaApp.model.dto.auditing.AuditLogPageDto;
 import com.ucacue.UcaApp.service.auditing.postgresql.LoggedActionService;
 
 @Service
@@ -14,17 +17,16 @@ public class LoggedActionServiceImpl implements LoggedActionService {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    //Otener todas las acciones
-    @Override
-    public List<Map<String, Object>> findAll() {
-        String sql = "SELECT * FROM audit.logged_actions";
-        return jdbcTemplate.queryForList(sql);
-    }
+    private static final String LOGGED_ACTIONS_COLUMNS =
+            "event_id, schema_name, table_name, relid, session_user_name, " +
+            "action_tstamp_tx, action_tstamp_stm, action_tstamp_clk, transaction_id, " +
+            "application_name, client_addr::text AS client_addr, client_port, " +
+            "client_query, action, row_data, changed_fields, statement_only";
 
-    //Obtener una accion por id
+    // Obtener una accion por id
     @Override
     public Map<String, Object> findById(Long id) {
-        String sql = "SELECT * FROM audit.logged_actions WHERE event_id = ? ORDER BY action_tstamp_tx";
+        String sql = "SELECT " + LOGGED_ACTIONS_COLUMNS + " FROM audit.logged_actions WHERE event_id = ?";
         return jdbcTemplate.queryForMap(sql, id);
     }
 
@@ -40,49 +42,75 @@ public class LoggedActionServiceImpl implements LoggedActionService {
         return jdbcTemplate.queryForList(sql);
     }
 
-    // Obtener el relid de una tabla
+    // Listado paginado con filtros opcionales (rango de fechas, tabla, accion, busqueda global)
     @Override
-    public String findRelidOfTable(String table) {
-        String sql = String.format("SELECT '%s'::regclass::oid;", "auth." + table);
-        return jdbcTemplate.queryForObject(sql, String.class);
-    }
+    public AuditLogPageDto findPaged(int page, int size, LocalDate from, LocalDate to,
+                                     String table, String action, String search) {
+        int safePage = Math.max(page, 0);
+        int safeSize = size <= 0 ? 50 : Math.min(size, 500);
 
-    // Obtener toda las acciones por relid
-    @Override
-    public List<Map<String, Object>> findByRelid(Long relid) {
-        String sql = "SELECT * FROM audit.logged_actions WHERE relid = ? ORDER BY action_tstamp_tx";
-        return jdbcTemplate.queryForList(sql, relid);
-    }
+        StringBuilder where = new StringBuilder(" WHERE 1=1");
+        List<Object> params = new ArrayList<>();
 
-    //Obtener una accion por tabla
-    @Override
-    public List<Map<String, Object>> findByTable(String table) {
-        String sql = "SELECT * FROM audit.logged_actions WHERE table_name = ? ORDER BY action_tstamp_tx";
-        return jdbcTemplate.queryForList(sql, table);
-    }
+        if (from != null) {
+            where.append(" AND action_tstamp_tx >= ?");
+            params.add(Timestamp.valueOf(from.atStartOfDay()));
+        }
+        if (to != null) {
+            where.append(" AND action_tstamp_tx < ?");
+            params.add(Timestamp.valueOf(to.plusDays(1).atStartOfDay()));
+        }
+        if (table != null && !table.isBlank()) {
+            where.append(" AND table_name = ?");
+            params.add(table);
+        }
+        if (action != null && !action.isBlank()) {
+            where.append(" AND action = ?");
+            params.add(action.toUpperCase());
+        }
+        if (search != null && !search.isBlank()) {
+            String pattern = "%" + search + "%";
+            where.append(" AND (")
+                .append("CAST(event_id AS TEXT) ILIKE ? OR ")
+                .append("schema_name ILIKE ? OR ")
+                .append("table_name ILIKE ? OR ")
+                .append("session_user_name ILIKE ? OR ")
+                .append("application_name ILIKE ? OR ")
+                .append("CAST(client_addr AS TEXT) ILIKE ? OR ")
+                .append("client_query ILIKE ? OR ")
+                .append("action ILIKE ? OR ")
+                .append("row_data::text ILIKE ? OR ")
+                .append("changed_fields::text ILIKE ?")
+                .append(")");
+            for (int i = 0; i < 10; i++) {
+                params.add(pattern);
+            }
+        }
 
-    // Busqueda Global
-    @Override
-    public List<Map<String, Object>> findByGlobalSearch(String searchParam) {
-        String sql = "SELECT * FROM audit.logged_actions WHERE " +
-                "CAST(event_id AS TEXT) LIKE ? OR " +
-                "schema_name LIKE ? OR " +
-                "table_name LIKE ? OR " +
-                "CAST(relid AS TEXT) LIKE ? OR " +
-                "session_user_name LIKE ? OR " +
-                "CAST(transaction_id AS TEXT) LIKE ? OR " +
-                "application_name LIKE ? OR " +
-                "CAST(client_addr AS TEXT) LIKE ? OR " +
-                "CAST(client_port AS TEXT) LIKE ? OR " +
-                "client_query LIKE ? OR " +
-                "action LIKE ? OR " +
-                "row_data::text LIKE ? OR " +
-                "changed_fields::text LIKE ?";
-        
-        String searchPattern = "%" + searchParam + "%";
+        String countSql = "SELECT COUNT(*) FROM audit.logged_actions" + where;
+        Long totalElements = jdbcTemplate.queryForObject(countSql, Long.class, params.toArray());
+        long total = totalElements == null ? 0L : totalElements;
 
-        return jdbcTemplate.queryForList(sql, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, 
-            searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
+        String dataSql = "SELECT " + LOGGED_ACTIONS_COLUMNS + " FROM audit.logged_actions" + where
+                + " ORDER BY action_tstamp_tx DESC, event_id DESC LIMIT ? OFFSET ?";
+        List<Object> dataParams = new ArrayList<>(params);
+        dataParams.add(safeSize);
+        dataParams.add((long) safePage * safeSize);
+
+        List<Map<String, Object>> content = total == 0
+                ? Collections.emptyList()
+                : jdbcTemplate.queryForList(dataSql, dataParams.toArray());
+
+        int totalPages = (int) Math.ceil((double) total / safeSize);
+
+        return AuditLogPageDto.builder()
+                .content(content)
+                .totalElements(total)
+                .totalPages(totalPages)
+                .page(safePage)
+                .size(safeSize)
+                .numberOfElements(content.size())
+                .build();
     }
 
 }
