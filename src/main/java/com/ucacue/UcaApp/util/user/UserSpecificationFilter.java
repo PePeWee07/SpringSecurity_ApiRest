@@ -77,11 +77,6 @@ public class UserSpecificationFilter {
                         case "accountExpiryDate":
                             predicates.add(criteriaBuilder.equal(root.get(field), value));
                             break;
-                        // case "createdBy":
-                        //     predicates.add(criteriaBuilder.like(
-                        //             criteriaBuilder.lower(root.get("createdBy")),
-                        //             "%" + value.toString().toLowerCase() + "%"                     ));
-                        //     break;
                         default:
                             break;
                     }
