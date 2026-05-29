@@ -216,6 +216,22 @@ public class CatiaService {
                 .body(JsonNode.class);
     }
 
+    /**
+     * Pausa o reactiva la IA (CatIA) para un usuario de WhatsApp puntual.
+     * Se usa como "takeover humano" desde el back-office: cuando un agente toma el
+     * chat, primero pausa la IA y luego escribe; al finalizar la reactiva.
+     */
+    public String toggleIaPause(String whatsappPhone, boolean paused) {
+        return authenticatedRestClient.patch()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/v1/whatsapp/user/ia/pause")
+                        .queryParam("whatsappPhone", whatsappPhone)
+                        .queryParam("paused", paused)
+                        .build())
+                .retrieve()
+                .body(String.class);
+    }
+
     public JsonNode sendWhatsAppMessage(CatiaSendWhatsAppMessageRequest payload) {
         return authenticatedRestClient.post()
                 .uri("/api/v1/whatsapp/send")

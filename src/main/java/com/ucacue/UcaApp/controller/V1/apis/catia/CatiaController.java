@@ -262,6 +262,21 @@ public class CatiaController {
         }
     }
 
+    @PatchMapping("/core/whatsapp/user/ia/pause")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Toggle IA pause (takeover humano)",
+               description = "Pausa o reactiva la IA para el usuario de WhatsApp indicado. Cuando esta pausada, los mensajes que envia el back-office llegan directo sin que CatIA interfiera.")
+    public ResponseEntity<String> toggleIaPause(
+            @RequestParam("whatsappPhone") String whatsappPhone,
+            @RequestParam("paused") boolean paused) {
+        try {
+            return ResponseEntity.ok(catiaService.toggleIaPause(whatsappPhone, paused));
+        } catch (Exception e) {
+            logger.error("Error: {@PATCH /api/v1/catia/core/whatsapp/user/ia/pause}", e);
+            throw e;
+        }
+    }
+
     @PostMapping(value = "/core/whatsapp/upload-media-file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Subir media WhatsApp CATIA", description = "Carga un archivo multimedia al servidor de WhatsApp a traves del core CATIA")
