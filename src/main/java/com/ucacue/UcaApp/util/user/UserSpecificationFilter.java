@@ -2,10 +2,13 @@ package com.ucacue.UcaApp.util.user;
 
 import org.springframework.data.jpa.domain.Specification;
 
+import com.ucacue.UcaApp.model.entity.RoleEntity;
 import com.ucacue.UcaApp.model.entity.UserEntity;
 
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.text.Normalizer;
@@ -18,8 +21,25 @@ public class UserSpecificationFilter {
             List<Predicate> predicates = new ArrayList<>();
 
             filters.forEach((field, value) -> {
-                if (value != null && !value.toString().isEmpty()) {
-                    String normalizedValue = removeDiacritics(value.toString().toLowerCase());
+                if (value == null) return;
+
+                // Filtro por roles (devuelve usuarios que tengan AL MENOS uno de los roleIds).
+                // Requiere JOIN con la coleccion roles + DISTINCT para evitar duplicados.
+                if ("roleIds".equals(field)) {
+                    if (value instanceof Collection<?> ids && !ids.isEmpty()) {
+                        Join<UserEntity, RoleEntity> rolesJoin = root.join("roles");
+                        predicates.add(rolesJoin.get("id").in(ids));
+                        if (query != null) {
+                            query.distinct(true);
+                        }
+                    }
+                    return;
+                }
+
+                if (value.toString().isEmpty()) return;
+
+                String normalizedValue = removeDiacritics(value.toString().toLowerCase());
+                {
                     switch (field) {
                         case "id":
                             predicates.add(criteriaBuilder.equal(root.get(field), value));

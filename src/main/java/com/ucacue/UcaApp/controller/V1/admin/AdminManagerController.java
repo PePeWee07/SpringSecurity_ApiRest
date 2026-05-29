@@ -24,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import jakarta.validation.Valid;
 
+import java.util.Set;
+
 @RestController
 @RequestMapping("/api/v1/manager")
 @Tag(name = "Controlador Manager Admin", description = "Controlador para gestionar Usuarios")
@@ -49,22 +51,23 @@ public class AdminManagerController {
     
     @GetMapping("/users/page/{page}")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Tabla de Usuarios", description = "Listado paginado de Usuarios.")
+    @Operation(summary = "Tabla de Usuarios", description = "Listado paginado de Usuarios. Filtros opcionales por campos del usuario y por roleIds (?roleIds=1&roleIds=2).")
     public ResponseEntity<Page<ManagerUsersResponseDto>> findAllWithPage(
         @PathVariable int page,
         @RequestParam(defaultValue = "10") int pageSize,
         @RequestParam(defaultValue = "lastModifiedDate") String sortBy,
         @RequestParam(defaultValue = "desc") String direction,
+        @RequestParam(required = false) Set<Long> roleIds,
         @ModelAttribute UserResponseDto filterDto) {
 
         Sort sort = Sort.by(sortBy);
-        
+
         sort = "desc".equalsIgnoreCase(direction) ? sort.descending() : sort.ascending();
-        
+
         Pageable pageable = PageRequest.of(page, pageSize, sort);
 
         try {
-            Page<ManagerUsersResponseDto> userPage = adminMangerService.findAllWithFilters(filterDto, pageable);
+            Page<ManagerUsersResponseDto> userPage = adminMangerService.findAllWithFilters(filterDto, roleIds, pageable);
             return ResponseEntity.ok(userPage);
         } catch (Exception e) {
             logger.error("Error: {@GET /manager/users/page/{page}}", e.getMessage(), e);

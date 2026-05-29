@@ -13,6 +13,7 @@ import com.ucacue.UcaApp.model.dto.user.UserRequestDto;
 import com.ucacue.UcaApp.model.dto.user.UserResponseDto;
 
 import java.util.List;
+import java.util.Set;
 
 public interface AdminMangerService {
 
@@ -38,5 +39,5 @@ public interface AdminMangerService {
 
     boolean exists(Long id);
 
-    Page<ManagerUsersResponseDto> findAllWithFilters(UserResponseDto userResponseDto, Pageable pageable);
+    Page<ManagerUsersResponseDto> findAllWithFilters(UserResponseDto userResponseDto, Set<Long> roleIds, Pageable pageable);
 }

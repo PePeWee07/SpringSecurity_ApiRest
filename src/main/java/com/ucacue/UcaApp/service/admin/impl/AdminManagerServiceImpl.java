@@ -229,8 +229,8 @@ public class AdminManagerServiceImpl implements AdminMangerService, UserDetailsS
 
     @Override
     @Transactional
-    public Page<ManagerUsersResponseDto> findAllWithFilters(UserResponseDto users, Pageable pageable) {
-       
+    public Page<ManagerUsersResponseDto> findAllWithFilters(UserResponseDto users, Set<Long> roleIds, Pageable pageable) {
+
         // Obtener los campos no nulos del objeto UserResponseDto
         Map<String, Object> filters = new HashMap<>();
         for (Field field : UserResponseDto.class.getDeclaredFields()) {
@@ -238,7 +238,7 @@ public class AdminManagerServiceImpl implements AdminMangerService, UserDetailsS
                 continue;
             field.setAccessible(true); //* Hacer accesibles los campos privados
             try {
-                Object value = field.get(users); 
+                Object value = field.get(users);
 
                 // Solo agregar si tiene valor y NO es una lista
                 if (value != null && !value.toString().isEmpty() && !(value instanceof List)) {
@@ -247,6 +247,10 @@ public class AdminManagerServiceImpl implements AdminMangerService, UserDetailsS
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
+        }
+
+        if (roleIds != null && !roleIds.isEmpty()) {
+            filters.put("roleIds", roleIds);
         }
 
         Specification<UserEntity> spec = UserSpecificationFilter.filterUsers(filters);
