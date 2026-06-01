@@ -110,6 +110,37 @@ public class CatiaService {
                 .body(JsonNode.class);
     }
 
+    public JsonNode getSessions(String phone) {
+        return authenticatedRestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/v1/messages/sessions")
+                        .queryParam("phone", phone)
+                        .build())
+                .retrieve()
+                .body(JsonNode.class);
+    }
+
+    public JsonNode getHistoryByRange(
+            String phone,
+            String start,
+            String end,
+            int page,
+            int size,
+            String direction) {
+        return authenticatedRestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/v1/messages/history/range")
+                        .queryParam("phone", phone)
+                        .queryParam("start", start)
+                        .queryParam("end", end)
+                        .queryParam("page", page)
+                        .queryParam("size", size)
+                        .queryParam("direction", direction)
+                        .build())
+                .retrieve()
+                .body(JsonNode.class);
+    }
+
     public JsonNode getMessagePricing(Long messageId) {
         return authenticatedRestClient.get()
                 .uri("/api/v1/messages/{id}/pricing", messageId)

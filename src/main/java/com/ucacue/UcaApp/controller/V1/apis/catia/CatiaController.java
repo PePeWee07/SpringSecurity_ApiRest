@@ -1,7 +1,10 @@
 package com.ucacue.UcaApp.controller.V1.apis.catia;
 
+import java.time.LocalDateTime;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -79,6 +82,43 @@ public class CatiaController {
             return ResponseEntity.ok(catiaService.getMessageHistory(phone, page, size, direction));
         } catch (Exception e) {
             logger.error("Error: {@GET /api/v1/catia/core/messages/history}", e);
+            throw e;
+        }
+    }
+
+    @GetMapping("/core/messages/sessions")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Sesiones de chat CATIA", description = "Obtiene las sesiones de chat (id, conteo de mensajes y fecha de inicio) de un telefono")
+    public ResponseEntity<JsonNode> getSessions(@RequestParam String phone) {
+        validateRequiredText(phone, "phone");
+
+        try {
+            return ResponseEntity.ok(catiaService.getSessions(phone));
+        } catch (Exception e) {
+            logger.error("Error: {@GET /api/v1/catia/core/messages/sessions}", e);
+            throw e;
+        }
+    }
+
+    @GetMapping("/core/messages/history/range")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Historial mensajes CATIA por rango", description = "Obtiene el historial paginado de mensajes de un telefono dentro de un rango de fechas")
+    public ResponseEntity<JsonNode> getHistoryByRange(
+            @RequestParam String phone,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size,
+            @RequestParam(defaultValue = "asc") String direction) {
+        validateRequiredText(phone, "phone");
+        validatePage(page);
+        validateDateRange(start, end);
+
+        try {
+            return ResponseEntity.ok(catiaService.getHistoryByRange(
+                    phone, start.toString(), end.toString(), page, size, direction));
+        } catch (Exception e) {
+            logger.error("Error: {@GET /api/v1/catia/core/messages/history/range}", e);
             throw e;
         }
     }
@@ -504,6 +544,15 @@ public class CatiaController {
     private void validatePage(int page) {
         if (page < 0) {
             throw new IllegalArgumentException("Invalid page");
+        }
+    }
+
+    private void validateDateRange(LocalDateTime start, LocalDateTime end) {
+        if (start == null || end == null) {
+            throw new IllegalArgumentException("Debe indicar las fechas start y end");
+        }
+        if (start.isAfter(end)) {
+            throw new IllegalArgumentException("La fecha start no puede ser posterior a end");
         }
     }
 
