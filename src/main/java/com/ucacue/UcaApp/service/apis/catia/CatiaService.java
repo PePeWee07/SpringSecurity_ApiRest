@@ -33,6 +33,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.ucacue.UcaApp.model.dto.catia.CatiaPageResponseDto;
 import com.ucacue.UcaApp.model.dto.catia.CatiaResponseMediaMetadata;
+import com.ucacue.UcaApp.model.dto.catia.CatiaToolPermissionUpsertRequest;
 import com.ucacue.UcaApp.model.dto.catia.CatiaSendWhatsAppMessageRequest;
 import com.ucacue.UcaApp.model.dto.catia.CatiaUserChatFullDto;
 import com.ucacue.UcaApp.model.dto.catia.CatiaUserChatUpdateRequest;
@@ -430,6 +431,54 @@ public class CatiaService {
     public JsonNode getTemplateByMessageId(Long messageId) {
         return authenticatedRestClient.get()
                 .uri("/api/v1/whatsapp/template/messages/{id}", messageId)
+                .retrieve()
+                .body(JsonNode.class);
+    }
+
+    // ---- Tool Permissions (funcionalidades del asistente CatIA) ----
+
+    public JsonNode getToolPermissions() {
+        return authenticatedRestClient.get()
+                .uri("/api/v1/tool-permissions")
+                .retrieve()
+                .body(JsonNode.class);
+    }
+
+    public JsonNode getToolPermissionsMap() {
+        return authenticatedRestClient.get()
+                .uri("/api/v1/tool-permissions/map")
+                .retrieve()
+                .body(JsonNode.class);
+    }
+
+    public JsonNode upsertToolPermission(String toolName, CatiaToolPermissionUpsertRequest request) {
+        return authenticatedRestClient.put()
+                .uri("/api/v1/tool-permissions/{toolName}", toolName)
+                .body(request)
+                .retrieve()
+                .body(JsonNode.class);
+    }
+
+    public JsonNode setToolPermissionEnabled(String toolName, boolean enabled) {
+        return authenticatedRestClient.patch()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/v1/tool-permissions/{toolName}/enabled")
+                        .queryParam("enabled", enabled)
+                        .build(toolName))
+                .retrieve()
+                .body(JsonNode.class);
+    }
+
+    public void deleteToolPermission(String toolName) {
+        authenticatedRestClient.delete()
+                .uri("/api/v1/tool-permissions/{toolName}", toolName)
+                .retrieve()
+                .toBodilessEntity();
+    }
+
+    public JsonNode restoreToolPermissionDefaults() {
+        return authenticatedRestClient.post()
+                .uri("/api/v1/tool-permissions/restore-defaults")
                 .retrieve()
                 .body(JsonNode.class);
     }

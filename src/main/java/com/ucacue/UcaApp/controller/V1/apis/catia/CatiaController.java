@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,6 +25,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.ucacue.UcaApp.model.dto.catia.CatiaPageResponseDto;
 import com.ucacue.UcaApp.model.dto.catia.CatiaResponseMediaMetadata;
 import com.ucacue.UcaApp.model.dto.catia.CatiaSendWhatsAppMessageRequest;
+import com.ucacue.UcaApp.model.dto.catia.CatiaToolPermissionUpsertRequest;
 import com.ucacue.UcaApp.model.dto.catia.CatiaUserChatFullDto;
 import com.ucacue.UcaApp.model.dto.catia.CatiaUserChatUpdateRequest;
 import com.ucacue.UcaApp.service.apis.catia.CatiaService;
@@ -525,6 +527,89 @@ public class CatiaController {
             return ResponseEntity.ok(catiaService.sendDocumentByUrl(payload, documentUrl, filename));
         } catch (Exception e) {
             logger.error("Error: {@POST /api/v1/catia/core/whatsapp/send-document-by-url}", e);
+            throw e;
+        }
+    }
+
+    @GetMapping("/core/tool-permissions")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Tools CATIA", description = "Lista todas las tools del asistente con sus roles y estado")
+    public ResponseEntity<JsonNode> getToolPermissions() {
+        try {
+            return ResponseEntity.ok(catiaService.getToolPermissions());
+        } catch (Exception e) {
+            logger.error("Error: {@GET /api/v1/catia/core/tool-permissions}", e);
+            throw e;
+        }
+    }
+
+    @GetMapping("/core/tool-permissions/map")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Mapa tools CATIA", description = "Mapa de permisos tal cual se envia al modelo (depuracion)")
+    public ResponseEntity<JsonNode> getToolPermissionsMap() {
+        try {
+            return ResponseEntity.ok(catiaService.getToolPermissionsMap());
+        } catch (Exception e) {
+            logger.error("Error: {@GET /api/v1/catia/core/tool-permissions/map}", e);
+            throw e;
+        }
+    }
+
+    @PutMapping("/core/tool-permissions/{toolName}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Upsert tool CATIA", description = "Crea o actualiza los roles (y opcionalmente enabled) de una tool")
+    public ResponseEntity<JsonNode> upsertToolPermission(
+            @PathVariable("toolName") String toolName,
+            @RequestBody CatiaToolPermissionUpsertRequest request) {
+        validateRequiredText(toolName, "toolName");
+
+        try {
+            return ResponseEntity.ok(catiaService.upsertToolPermission(toolName, request));
+        } catch (Exception e) {
+            logger.error("Error: {@PUT /api/v1/catia/core/tool-permissions/{toolName}}", e);
+            throw e;
+        }
+    }
+
+    @PatchMapping("/core/tool-permissions/{toolName}/enabled")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Toggle tool CATIA", description = "Habilita o deshabilita una tool del asistente")
+    public ResponseEntity<JsonNode> setToolPermissionEnabled(
+            @PathVariable("toolName") String toolName,
+            @RequestParam("enabled") boolean enabled) {
+        validateRequiredText(toolName, "toolName");
+
+        try {
+            return ResponseEntity.ok(catiaService.setToolPermissionEnabled(toolName, enabled));
+        } catch (Exception e) {
+            logger.error("Error: {@PATCH /api/v1/catia/core/tool-permissions/{toolName}/enabled}", e);
+            throw e;
+        }
+    }
+
+    @DeleteMapping("/core/tool-permissions/{toolName}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Eliminar tool CATIA", description = "Elimina el permiso de una tool del asistente")
+    public ResponseEntity<Void> deleteToolPermission(@PathVariable("toolName") String toolName) {
+        validateRequiredText(toolName, "toolName");
+
+        try {
+            catiaService.deleteToolPermission(toolName);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            logger.error("Error: {@DELETE /api/v1/catia/core/tool-permissions/{toolName}}", e);
+            throw e;
+        }
+    }
+
+    @PostMapping("/core/tool-permissions/restore-defaults")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Restaurar tools CATIA", description = "Restaura las tools basicas a sus roles por defecto (enabled=true)")
+    public ResponseEntity<JsonNode> restoreToolPermissionDefaults() {
+        try {
+            return ResponseEntity.ok(catiaService.restoreToolPermissionDefaults());
+        } catch (Exception e) {
+            logger.error("Error: {@POST /api/v1/catia/core/tool-permissions/restore-defaults}", e);
             throw e;
         }
     }
