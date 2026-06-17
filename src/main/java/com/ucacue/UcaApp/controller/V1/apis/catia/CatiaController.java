@@ -531,6 +531,42 @@ public class CatiaController {
         }
     }
 
+    @GetMapping("/core/ai-prompt-config")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Config prompt CATIA", description = "Obtiene la configuracion activa del prompt del asistente")
+    public ResponseEntity<JsonNode> getAiPromptConfig() {
+        try {
+            return ResponseEntity.ok(catiaService.getAiPromptConfig());
+        } catch (Exception e) {
+            logger.error("Error: {@GET /api/v1/catia/core/ai-prompt-config}", e);
+            throw e;
+        }
+    }
+
+    @PutMapping("/core/ai-prompt-config")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Actualizar prompt CATIA", description = "Edicion parcial de la configuracion del prompt (en caliente)")
+    public ResponseEntity<JsonNode> updateAiPromptConfig(@RequestBody JsonNode body) {
+        try {
+            return ResponseEntity.ok(catiaService.updateAiPromptConfig(body));
+        } catch (Exception e) {
+            logger.error("Error: {@PUT /api/v1/catia/core/ai-prompt-config}", e);
+            throw e;
+        }
+    }
+
+    @PostMapping("/core/ai-prompt-config/seed-default")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Seed prompt CATIA", description = "Crea la configuracion por defecto si no existe (idempotente)")
+    public ResponseEntity<JsonNode> seedDefaultAiPromptConfig() {
+        try {
+            return ResponseEntity.ok(catiaService.seedDefaultAiPromptConfig());
+        } catch (Exception e) {
+            logger.error("Error: {@POST /api/v1/catia/core/ai-prompt-config/seed-default}", e);
+            throw e;
+        }
+    }
+
     @GetMapping("/core/tool-permissions")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Tools CATIA", description = "Lista todas las tools del asistente con sus roles y estado")
@@ -604,12 +640,24 @@ public class CatiaController {
 
     @PostMapping("/core/tool-permissions/restore-defaults")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Restaurar tools CATIA", description = "Restaura las tools basicas a sus roles por defecto (enabled=true)")
+    @Operation(summary = "Restaurar tools CATIA", description = "Lee las tools de la config activa y les aplica los roles de fabrica (enabled=true)")
     public ResponseEntity<JsonNode> restoreToolPermissionDefaults() {
         try {
             return ResponseEntity.ok(catiaService.restoreToolPermissionDefaults());
         } catch (Exception e) {
             logger.error("Error: {@POST /api/v1/catia/core/tool-permissions/restore-defaults}", e);
+            throw e;
+        }
+    }
+
+    @PostMapping("/core/tool-permissions/sync-from-config")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Sincronizar tools CATIA", description = "Sincroniza la tabla de permisos con las function tools de la config activa (crea las faltantes deshabilitadas, respeta las existentes, no borra)")
+    public ResponseEntity<JsonNode> syncToolPermissionsFromConfig() {
+        try {
+            return ResponseEntity.ok(catiaService.syncToolPermissionsFromConfig());
+        } catch (Exception e) {
+            logger.error("Error: {@POST /api/v1/catia/core/tool-permissions/sync-from-config}", e);
             throw e;
         }
     }

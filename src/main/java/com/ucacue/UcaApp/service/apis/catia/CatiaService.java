@@ -435,6 +435,30 @@ public class CatiaService {
                 .body(JsonNode.class);
     }
 
+    // ---- AI Prompt Config (configuracion del prompt del asistente CatIA) ----
+
+    public JsonNode getAiPromptConfig() {
+        return authenticatedRestClient.get()
+                .uri("/api/v1/ai-prompt-config")
+                .retrieve()
+                .body(JsonNode.class);
+    }
+
+    public JsonNode updateAiPromptConfig(JsonNode body) {
+        return authenticatedRestClient.put()
+                .uri("/api/v1/ai-prompt-config")
+                .body(body)
+                .retrieve()
+                .body(JsonNode.class);
+    }
+
+    public JsonNode seedDefaultAiPromptConfig() {
+        return authenticatedRestClient.post()
+                .uri("/api/v1/ai-prompt-config/seed-default")
+                .retrieve()
+                .body(JsonNode.class);
+    }
+
     // ---- Tool Permissions (funcionalidades del asistente CatIA) ----
 
     public JsonNode getToolPermissions() {
@@ -479,6 +503,13 @@ public class CatiaService {
     public JsonNode restoreToolPermissionDefaults() {
         return authenticatedRestClient.post()
                 .uri("/api/v1/tool-permissions/restore-defaults")
+                .retrieve()
+                .body(JsonNode.class);
+    }
+
+    public JsonNode syncToolPermissionsFromConfig() {
+        return authenticatedRestClient.post()
+                .uri("/api/v1/tool-permissions/sync-from-config")
                 .retrieve()
                 .body(JsonNode.class);
     }
